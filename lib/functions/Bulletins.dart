@@ -1,31 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:stust_app/home_work.dart';
-import 'package:stust_app/Absent.dart';
-import 'package:stust_app/Bulletins.dart';
-import 'package:stust_app/leave_request.dart';
-import 'package:stust_app/Send_homework.dart';
+import 'package:stust_app/functions/home_work.dart';
+import 'package:stust_app/functions/Absent.dart';
+import 'package:stust_app/functions/leave_request.dart';
+import 'package:stust_app/functions/Reflection.dart';
+import 'package:stust_app/functions/Send_homework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:stust_app/responsive.dart';
+import 'package:stust_app/rwd_module/responsive.dart';
 
-import 'main.dart';
+import '../main.dart';
 
-class ReflectionPage extends StatefulWidget {
-  static const routeName = '/reflection';
+class BulletinsPage extends StatefulWidget {
+  static const routeName = '/bulletins';
 
-  const ReflectionPage({super.key});
+  const BulletinsPage({super.key});
   @override
   // ignore: library_private_types_in_public_api
-  _ReflectionPageState createState() => _ReflectionPageState();
+  _BulletinsPageState createState() => _BulletinsPageState();
 }
 
-class _ReflectionPageState extends State<ReflectionPage> {
+class _BulletinsPageState extends State<BulletinsPage> {
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   late String _account = '0'; // Set account and password to 0 by default
   late String _password = '0';
+
   @override
   void initState() {
     super.initState();
@@ -63,7 +64,7 @@ class _ReflectionPageState extends State<ReflectionPage> {
       http
           .get(
         Uri.parse(
-            'http://api.xnor-development.com:70/reflection?account=$_account&password=$_password'),
+            'http://api.xnor-development.com:70/bulletins?account=$_account&password=$_password'),
       )
           .then((response) {
         final responseData = json.decode(response.body) as List;
@@ -76,115 +77,71 @@ class _ReflectionPageState extends State<ReflectionPage> {
     }
   }
 
-  // late List _responseData;
-  // late bool _loading = false; // Flag to indicate if API request is being made
-
-  // void _submitForm() {
-  //   if (_formKey.currentState!.validate()) {
-  //     _formKey.currentState!.save();
-
-  //     setState(() {
-  //       _loading = true; // Set loading flag to true
-  //     });
-
-  //     // Make POST request to the API
-  //     http.post(
-  //       Uri.parse('http://api.xnor-development.com:70/reflection'),
-  //       body: {
-  //         'account': _account,
-  //         'password': _password,
-  //       },
-  //     ).then((response) {
-  //       // Parse response body into a list of maps
-  //       final responseData = json.decode(response.body) as List;
-  //       setState(() {
-  //         _responseData = responseData;
-  //         _loading = false; // Set loading flag to false
-  //       });
-  //       // Handle response from the API here
-  //       // Display alert dialog to the user
-  //     });
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            const SizedBox(
-              height: 50,
-            ),
-            TextButton(
-              onPressed: _submitForm,
-              child: const Text(
-                '查詢',
-                style: TextStyle(fontSize: 30),
-              ),
-            ),
-            if (_isLoading)
-              // Display loading indicator
-              const CircularProgressIndicator(),
-            if (_responseData != null)
-              // Week input
-              Expanded(
-                child: ListView.builder(
-                  itemCount: _responseData.length,
-                  itemBuilder: (context, index) {
-                    final data = _responseData[index];
-                    return Column(
-                      children: [
-                        TextFormField(
-                          initialValue: data['date'],
-                          decoration: const InputDecoration(
-                            labelText: '日期',
-                          ),
-                        ),
-                        TextFormField(
-                          initialValue: data['event_title'],
-                          decoration: const InputDecoration(
-                            labelText: '活動標題',
-                          ),
-                        ),
-                        TextFormField(
-                          initialValue: data['event_type'],
-                          decoration: const InputDecoration(
-                            labelText: '類別',
-                          ),
-                        ),
-                        TextFormField(
-                          initialValue: data['host_td'],
-                          decoration: const InputDecoration(
-                            labelText: '主辦單位',
-                          ),
-                        ),
-                        TextFormField(
-                          initialValue: data['position'],
-                          decoration: const InputDecoration(
-                            labelText: '地點',
-                          ),
-                        ),
-                        TextFormField(
-                          initialValue: data['score'],
-                          decoration: const InputDecoration(
-                            labelText: '獲得分數',
-                          ),
-                        ),
-                        TextFormField(
-                          initialValue: data['semester'],
-                          decoration: const InputDecoration(
-                            labelText: '學期',
-                          ),
-                        ),
-                      ],
-                    );
-                  },
+      key: _scaffoldKey,
+      body: Stack(
+        children: [
+          Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                const SizedBox(
+                  height: 50,
                 ),
-              )
-          ],
-        ),
+                TextButton(
+                  onPressed: _submitForm,
+                  child: const Text(
+                    '查詢',
+                    style: TextStyle(fontSize: 30),
+                  ),
+                ),
+                if (_responseData != null)
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: _responseData.length,
+                      itemBuilder: (context, index) {
+                        final data = _responseData[index];
+                        return Column(
+                          children: [
+                            TextFormField(
+                              initialValue: data['date'],
+                              decoration: const InputDecoration(
+                                labelText: '日期',
+                              ),
+                            ),
+                            TextFormField(
+                              initialValue: data['href'],
+                              decoration: const InputDecoration(
+                                labelText: '課程連結',
+                              ),
+                            ),
+                            TextFormField(
+                              initialValue: data['src'],
+                              decoration: const InputDecoration(
+                                labelText: '課程名稱',
+                              ),
+                            ),
+                            TextFormField(
+                              initialValue: data['topic'],
+                              decoration: const InputDecoration(
+                                labelText: '標題',
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  )
+              ],
+            ),
+          ),
+          if (_isLoading)
+            const Center(
+              child: CircularProgressIndicator(),
+            ),
+        ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.shifting,
@@ -242,7 +199,7 @@ class _ReflectionPageState extends State<ReflectionPage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         centerTitle: true,
-        title: const Text('查詢未繳心得(e網通)'),
+        title: const Text('查詢最近公告(flipclass)'),
         actions: [
           IconButton(
               iconSize: 35,

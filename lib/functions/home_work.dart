@@ -1,32 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:stust_app/home_work.dart';
-import 'package:stust_app/Absent.dart';
-import 'package:stust_app/Bulletins.dart';
-import 'package:stust_app/Reflection.dart';
-import 'package:stust_app/Send_homework.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:stust_app/functions/Absent.dart';
+import 'package:stust_app/functions/Bulletins.dart';
+import 'package:stust_app/functions/leave_request.dart';
+import 'package:stust_app/functions/Reflection.dart';
+import 'package:stust_app/functions/Send_homework.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:stust_app/rwd_module/responsive.dart';
 
-import 'main.dart';
+import '../main.dart';
 
-class LeaveRequestPage extends StatefulWidget {
-  static const routeName = '/leave_request';
+class HomeworkPage extends StatefulWidget {
+  static const routeName = '/homework';
 
-  const LeaveRequestPage({super.key});
-
+  const HomeworkPage({super.key});
   @override
   // ignore: library_private_types_in_public_api
-  _LeaveRequestPageState createState() => _LeaveRequestPageState();
+  _HomeworkPageState createState() => _HomeworkPageState();
 }
 
-class _LeaveRequestPageState extends State<LeaveRequestPage> {
+class _HomeworkPageState extends State<HomeworkPage> {
   final _formKey = GlobalKey<FormState>();
-  late String _week;
-  late String _section;
-  late String _reason;
-  late String _day;
-  late String _type;
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
   late String _account = '0'; // Set account and password to 0 by default
   late String _password = '0';
 
@@ -46,12 +43,8 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
 
   _getlocal_UserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.getString('account') != null) {
-      _account = prefs.getString('account')!;
-    }
-    if (prefs.getString('password') != null) {
-      _password = prefs.getString('password')!;
-    }
+    _account = prefs.getString('account')!;
+    _password = prefs.getString('password')!;
 
     return [_account, _password];
   }
@@ -71,7 +64,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
       http
           .get(
         Uri.parse(
-            'http://api.xnor-development.com:70/leave_request?account=$_account&password=$_password&week=$_week&section=$_section&reason=$_reason&day=$_day&_type=$_type'),
+            'http://api.xnor-development.com:70/homework?account=$_account&password=$_password'),
       )
           .then((response) {
         final responseData = json.decode(response.body) as List;
@@ -80,113 +73,80 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
           _responseData = responseData;
           _isLoading = false;
         });
-        // Display alert dialog with response data
-        _showAlertDialog();
       });
     }
-  }
-
-  void _showAlertDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('成功送出'),
-          content: const Text('你的請求已送出'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(children: [
-        Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              // Content input
-              TextFormField(
-                onSaved: (value) => _day = value!,
-                decoration: const InputDecoration(labelText: '週數'),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return '請填入週數';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                onSaved: (value) => _section = value!,
-                decoration: const InputDecoration(labelText: '節數'),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return '請填入節數';
-                  }
-                  return null;
-                },
-              ),
-              // Reason input
-              TextFormField(
-                onSaved: (value) => _reason = value!,
-                decoration: const InputDecoration(labelText: '請假理由'),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return '請填入理由';
-                  }
-                  return null;
-                },
-              ),
-              // Day input
-              TextFormField(
-                onSaved: (value) => _day = value!,
-                decoration: const InputDecoration(labelText: '周幾(禮拜幾)'),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return '請填入周幾(禮拜幾)';
-                  }
-                  return null;
-                },
-              ),
-              // Type input
-
-              TextFormField(
-                onSaved: (value) => _type = value!,
-                decoration: const InputDecoration(labelText: '假別 (4為事假，3為病假)'),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return '請填入假別';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(
-                height: 50,
-              ),
-              TextButton(
-                onPressed: _submitForm,
-                child: const Text(
-                  '送出',
-                  style: TextStyle(fontSize: 30),
+      key: _scaffoldKey,
+      body: Stack(
+        children: [
+          Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                const SizedBox(
+                  height: 50,
                 ),
-              ),
-            ],
+                TextButton(
+                  onPressed: _submitForm,
+                  child: const Text(
+                    '查詢',
+                    style: TextStyle(fontSize: 30),
+                  ),
+                ),
+                if (_responseData != null) // Add this check here
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: _responseData.length,
+                      itemBuilder: (context, index) {
+                        final data = _responseData[index];
+                        return Column(
+                          children: [
+                            TextFormField(
+                              initialValue: data['date'],
+                              decoration: const InputDecoration(
+                                labelText: '日期',
+                              ),
+                            ),
+                            TextFormField(
+                              initialValue: data['href'],
+                              decoration: const InputDecoration(
+                                labelText: '作業連結',
+                              ),
+                            ),
+                            TextFormField(
+                              initialValue: data['src'],
+                              decoration: const InputDecoration(
+                                labelText: '課程名稱',
+                              ),
+                            ),
+                            TextFormField(
+                              initialValue: data['topic'],
+                              decoration: const InputDecoration(
+                                labelText: '作業名稱',
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  )
+              ],
+            ),
           ),
-        )
-      ]),
+          if (_isLoading)
+            const Center(
+              child: CircularProgressIndicator(),
+            ),
+        ],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.shifting,
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
+        showSelectedLabels: false,
+        showUnselectedLabels: isMobile(context)? false:true,
         items: const [
           BottomNavigationBarItem(
               icon: Icon(Icons.assignment),
@@ -239,7 +199,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         centerTitle: true,
-        title: const Text('請假(e網通)'),
+        title: const Text('查詢最近作業(flipclass)'),
         actions: [
           IconButton(
               iconSize: 35,

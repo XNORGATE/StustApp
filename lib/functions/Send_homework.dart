@@ -1,32 +1,31 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:stust_app/home_work.dart';
-import 'package:stust_app/Absent.dart';
-import 'package:stust_app/leave_request.dart';
-import 'package:stust_app/Reflection.dart';
-import 'package:stust_app/Send_homework.dart';
+import 'package:flutter_html/flutter_html.dart';
+import 'package:stust_app/functions/home_work.dart';
+import 'package:stust_app/functions/Absent.dart';
+import 'package:stust_app/functions/Bulletins.dart';
+import 'package:stust_app/functions/leave_request.dart';
+import 'package:stust_app/functions/Reflection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:stust_app/responsive.dart';
 
-import 'main.dart';
+import '../main.dart';
 
-class BulletinsPage extends StatefulWidget {
-  static const routeName = '/bulletins';
+class SendHomeworkPage extends StatefulWidget {
+  static const routeName = '/send_homework';
 
-  const BulletinsPage({super.key});
+  const SendHomeworkPage({super.key});
   @override
   // ignore: library_private_types_in_public_api
-  _BulletinsPageState createState() => _BulletinsPageState();
+  _SendHomeworkPageState createState() => _SendHomeworkPageState();
 }
 
-class _BulletinsPageState extends State<BulletinsPage> {
+class _SendHomeworkPageState extends State<SendHomeworkPage> {
   final _formKey = GlobalKey<FormState>();
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
-
+  late String _content;
+  late String _homeworkCode;
   late String _account = '0'; // Set account and password to 0 by default
   late String _password = '0';
-
   @override
   void initState() {
     super.initState();
@@ -43,8 +42,12 @@ class _BulletinsPageState extends State<BulletinsPage> {
 
   _getlocal_UserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    _account = prefs.getString('account')!;
-    _password = prefs.getString('password')!;
+    if (prefs.getString('account') != null) {
+      _account = prefs.getString('account')!;
+    }
+    if (prefs.getString('password') != null) {
+      _password = prefs.getString('password')!;
+    }
 
     return [_account, _password];
   }
@@ -53,100 +56,103 @@ class _BulletinsPageState extends State<BulletinsPage> {
   late bool _isLoading = false; // Flag to indicate if API request is being made
 
   void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
 
-      setState(() {
-        _isLoading = true;
-      });
+      if (_formKey.currentState!.validate()) {
+        _formKey.currentState!.save();
+        setState(() => _isLoading = true);
 
-      // Make POST request to the API
-      http
-          .get(
-        Uri.parse(
-            'http://api.xnor-development.com:70/bulletins?account=$_account&password=$_password'),
-      )
-          .then((response) {
-        final responseData = json.decode(response.body) as List;
-        //print(responseData);
-        setState(() {
-          _responseData = responseData;
-          _isLoading = false;
+        // Make POST request to the API
+        http
+            .get(
+          Uri.parse(
+              'http://api.xnor-development.com:70/send_homework?account=$_account&password=$_password&content=$_content&homework_code=$_homeworkCode'),
+        )
+            .then((response) {
+          final responseData = json.decode(response.body) as List;
+          //print(responseData);
+          setState(() {
+            _responseData = responseData;
+            _isLoading = false;
+          });
+          // Get the first item in the list (there should only be one item)
+          final data = responseData[0];
+          // Display alert dialog with response data
+          _showAlertDialog(data['text'], data['href']);
         });
-      });
+      
     }
+  }
+
+  void _showAlertDialog(String text, String href) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(text),
+          content: Html(
+            data: '<a href="$href">查看作業</a>',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
       body: Stack(
         children: [
           Form(
             key: _formKey,
             child: Column(
               children: [
+                // Content input
+                TextFormField(
+                  onSaved: (value) {
+                      _content = value!;
+                  },
+                  decoration: const InputDecoration(labelText: '作業內容'),
+                  validator: (value) => value!.isEmpty ? '作業內容' : null,
+                ),
+                // Homework code input
+                TextFormField(
+                  onSaved: (value) {
+                      _homeworkCode = value!;
+                  },
+                  decoration: const InputDecoration(labelText: '作業代碼，可於作業查詢中查到'),
+                  validator: (value) =>
+                      value!.isEmpty ? '作業代碼，可於作業查詢中查到' : null,
+                ),
                 const SizedBox(
                   height: 50,
                 ),
                 TextButton(
                   onPressed: _submitForm,
                   child: const Text(
-                    '查詢',
+                    '送出',
                     style: TextStyle(fontSize: 30),
                   ),
                 ),
-                if (_responseData != null)
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: _responseData.length,
-                      itemBuilder: (context, index) {
-                        final data = _responseData[index];
-                        return Column(
-                          children: [
-                            TextFormField(
-                              initialValue: data['date'],
-                              decoration: const InputDecoration(
-                                labelText: '日期',
-                              ),
-                            ),
-                            TextFormField(
-                              initialValue: data['href'],
-                              decoration: const InputDecoration(
-                                labelText: '課程連結',
-                              ),
-                            ),
-                            TextFormField(
-                              initialValue: data['src'],
-                              decoration: const InputDecoration(
-                                labelText: '課程名稱',
-                              ),
-                            ),
-                            TextFormField(
-                              initialValue: data['topic'],
-                              decoration: const InputDecoration(
-                                labelText: '標題',
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  )
               ],
             ),
           ),
-          if (_isLoading)
-            const Center(
-              child: CircularProgressIndicator(),
-            ),
+          Positioned(
+            child: _isLoading ? const CircularProgressIndicator() : Container(),
+          ),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.shifting,
-        showSelectedLabels: false,
-        showUnselectedLabels: isMobile(context)? false:true,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
         items: const [
           BottomNavigationBarItem(
               icon: Icon(Icons.assignment),
@@ -199,7 +205,7 @@ class _BulletinsPageState extends State<BulletinsPage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         centerTitle: true,
-        title: const Text('查詢最近公告(flipclass)'),
+        title: const Text('快速繳交作業(flipclass)'),
         actions: [
           IconButton(
               iconSize: 35,

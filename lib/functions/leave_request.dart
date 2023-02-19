@@ -1,31 +1,35 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_html/flutter_html.dart';
-import 'package:stust_app/home_work.dart';
-import 'package:stust_app/Absent.dart';
-import 'package:stust_app/Bulletins.dart';
-import 'package:stust_app/leave_request.dart';
-import 'package:stust_app/Reflection.dart';
+import 'package:stust_app/functions/home_work.dart';
+import 'package:stust_app/functions/Absent.dart';
+import 'package:stust_app/functions/Bulletins.dart';
+import 'package:stust_app/functions/Reflection.dart';
+import 'package:stust_app/functions/Send_homework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
-import 'main.dart';
+import '../main.dart';
 
-class SendHomeworkPage extends StatefulWidget {
-  static const routeName = '/send_homework';
+class LeaveRequestPage extends StatefulWidget {
+  static const routeName = '/leave_request';
 
-  const SendHomeworkPage({super.key});
+  const LeaveRequestPage({super.key});
+
   @override
   // ignore: library_private_types_in_public_api
-  _SendHomeworkPageState createState() => _SendHomeworkPageState();
+  _LeaveRequestPageState createState() => _LeaveRequestPageState();
 }
 
-class _SendHomeworkPageState extends State<SendHomeworkPage> {
+class _LeaveRequestPageState extends State<LeaveRequestPage> {
   final _formKey = GlobalKey<FormState>();
-  late String _content;
-  late String _homeworkCode;
+  late String _week;
+  late String _section;
+  late String _reason;
+  late String _day;
+  late String _type;
   late String _account = '0'; // Set account and password to 0 by default
   late String _password = '0';
+
   @override
   void initState() {
     super.initState();
@@ -56,42 +60,39 @@ class _SendHomeworkPageState extends State<SendHomeworkPage> {
   late bool _isLoading = false; // Flag to indicate if API request is being made
 
   void _submitForm() {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
 
-      if (_formKey.currentState!.validate()) {
-        _formKey.currentState!.save();
-        setState(() => _isLoading = true);
+      setState(() {
+        _isLoading = true;
+      });
 
-        // Make POST request to the API
-        http
-            .get(
-          Uri.parse(
-              'http://api.xnor-development.com:70/send_homework?account=$_account&password=$_password&content=$_content&homework_code=$_homeworkCode'),
-        )
-            .then((response) {
-          final responseData = json.decode(response.body) as List;
-          //print(responseData);
-          setState(() {
-            _responseData = responseData;
-            _isLoading = false;
-          });
-          // Get the first item in the list (there should only be one item)
-          final data = responseData[0];
-          // Display alert dialog with response data
-          _showAlertDialog(data['text'], data['href']);
+      // Make POST request to the API
+      http
+          .get(
+        Uri.parse(
+            'http://api.xnor-development.com:70/leave_request?account=$_account&password=$_password&week=$_week&section=$_section&reason=$_reason&day=$_day&_type=$_type'),
+      )
+          .then((response) {
+        final responseData = json.decode(response.body) as List;
+        //print(responseData);
+        setState(() {
+          _responseData = responseData;
+          _isLoading = false;
         });
-      
+        // Display alert dialog with response data
+        _showAlertDialog();
+      });
     }
   }
 
-  void _showAlertDialog(String text, String href) {
+  void _showAlertDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(text),
-          content: Html(
-            data: '<a href="$href">查看作業</a>',
-          ),
+          title: const Text('成功送出'),
+          content: const Text('你的請求已送出'),
           actions: [
             TextButton(
               onPressed: () {
@@ -108,47 +109,80 @@ class _SendHomeworkPageState extends State<SendHomeworkPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                // Content input
-                TextFormField(
-                  onSaved: (value) {
-                      _content = value!;
-                  },
-                  decoration: const InputDecoration(labelText: '作業內容'),
-                  validator: (value) => value!.isEmpty ? '作業內容' : null,
+      body: Stack(children: [
+        Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              // Content input
+              TextFormField(
+                onSaved: (value) => _day = value!,
+                decoration: const InputDecoration(labelText: '週數'),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return '請填入週數';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                onSaved: (value) => _section = value!,
+                decoration: const InputDecoration(labelText: '節數'),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return '請填入節數';
+                  }
+                  return null;
+                },
+              ),
+              // Reason input
+              TextFormField(
+                onSaved: (value) => _reason = value!,
+                decoration: const InputDecoration(labelText: '請假理由'),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return '請填入理由';
+                  }
+                  return null;
+                },
+              ),
+              // Day input
+              TextFormField(
+                onSaved: (value) => _day = value!,
+                decoration: const InputDecoration(labelText: '周幾(禮拜幾)'),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return '請填入周幾(禮拜幾)';
+                  }
+                  return null;
+                },
+              ),
+              // Type input
+
+              TextFormField(
+                onSaved: (value) => _type = value!,
+                decoration: const InputDecoration(labelText: '假別 (4為事假，3為病假)'),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return '請填入假別';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(
+                height: 50,
+              ),
+              TextButton(
+                onPressed: _submitForm,
+                child: const Text(
+                  '送出',
+                  style: TextStyle(fontSize: 30),
                 ),
-                // Homework code input
-                TextFormField(
-                  onSaved: (value) {
-                      _homeworkCode = value!;
-                  },
-                  decoration: const InputDecoration(labelText: '作業代碼，可於作業查詢中查到'),
-                  validator: (value) =>
-                      value!.isEmpty ? '作業代碼，可於作業查詢中查到' : null,
-                ),
-                const SizedBox(
-                  height: 50,
-                ),
-                TextButton(
-                  onPressed: _submitForm,
-                  child: const Text(
-                    '送出',
-                    style: TextStyle(fontSize: 30),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-          Positioned(
-            child: _isLoading ? const CircularProgressIndicator() : Container(),
-          ),
-        ],
-      ),
+        )
+      ]),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.shifting,
         showSelectedLabels: true,
@@ -205,7 +239,7 @@ class _SendHomeworkPageState extends State<SendHomeworkPage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         centerTitle: true,
-        title: const Text('快速繳交作業(flipclass)'),
+        title: const Text('請假(e網通)'),
         actions: [
           IconButton(
               iconSize: 35,

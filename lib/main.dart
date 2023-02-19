@@ -1,12 +1,12 @@
 import 'package:flutter_neumorphic_null_safety/flutter_neumorphic.dart';
-import 'package:stust_app/home_work.dart';
-import 'package:stust_app/Absent.dart';
-import 'package:stust_app/Bulletins.dart';
-import 'package:stust_app/leave_request.dart';
-import 'package:stust_app/Reflection.dart';
-import 'package:stust_app/Send_homework.dart';
-import 'package:stust_app/login_page.dart';
-import 'package:stust_app/responsive.dart';
+import 'package:stust_app/functions/home_work.dart';
+import 'package:stust_app/functions/Absent.dart';
+import 'package:stust_app/functions/Bulletins.dart';
+import 'package:stust_app/functions/leave_request.dart';
+import 'package:stust_app/functions/Reflection.dart';
+import 'package:stust_app/functions/Send_homework.dart';
+import './login/login_page.dart';
+import 'package:stust_app/rwd_module/responsive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
 

@@ -1,26 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:stust_app/Absent.dart';
-import 'package:stust_app/Bulletins.dart';
-import 'package:stust_app/leave_request.dart';
-import 'package:stust_app/Reflection.dart';
-import 'package:stust_app/Send_homework.dart';
+import 'package:stust_app/functions/home_work.dart';
+import 'package:stust_app/functions/Bulletins.dart';
+import 'package:stust_app/functions/leave_request.dart';
+import 'package:stust_app/functions/Reflection.dart';
+import 'package:stust_app/functions/Send_homework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:stust_app/responsive.dart';
+import 'package:stust_app/rwd_module/responsive.dart';
 
-import 'main.dart';
+import '../main.dart';
 
-class HomeworkPage extends StatefulWidget {
-  static const routeName = '/homework';
+class AbsentPage extends StatefulWidget {
+  static const routeName = '/absent';
 
-  const HomeworkPage({super.key});
+  const AbsentPage({super.key});
+
   @override
   // ignore: library_private_types_in_public_api
-  _HomeworkPageState createState() => _HomeworkPageState();
+  _AbsentPageState createState() => _AbsentPageState();
 }
 
-class _HomeworkPageState extends State<HomeworkPage> {
+class _AbsentPageState extends State<AbsentPage> {
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -64,7 +65,7 @@ class _HomeworkPageState extends State<HomeworkPage> {
       http
           .get(
         Uri.parse(
-            'http://api.xnor-development.com:70/homework?account=$_account&password=$_password'),
+            'http://api.xnor-development.com:70/absent?account=$_account&password=$_password'),
       )
           .then((response) {
         final responseData = json.decode(response.body) as List;
@@ -76,72 +77,100 @@ class _HomeworkPageState extends State<HomeworkPage> {
       });
     }
   }
+  // void _submitForm() {
+  //   if (_formKey.currentState!.validate()) {
+  //     _formKey.currentState!.save();
+  //     setState(() {
+  //       _isLoading = true;
+  //     });
+
+  //     // Make POST request to the API
+  //     http.post(
+  //       Uri.parse('http://api.xnor-development.com:70/absent'),
+  //       body: {
+  //         'account': _account,
+  //         'password': _password,
+  //       },
+  //     ).then((response) {
+  //       // Parse response body into a list of maps
+  //       final responseData = json.decode(response.body) as List;
+  //       setState(() {
+  //         _responseData = responseData;
+  //         _isLoading = false;
+  //       });
+  //       // Handle response from the API here
+  //       // Display alert dialog to the user
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      body: Stack(
-        children: [
-          Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                const SizedBox(
-                  height: 50,
-                ),
-                TextButton(
-                  onPressed: _submitForm,
-                  child: const Text(
-                    '查詢',
-                    style: TextStyle(fontSize: 30),
-                  ),
-                ),
-                if (_responseData != null) // Add this check here
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: _responseData.length,
-                      itemBuilder: (context, index) {
-                        final data = _responseData[index];
-                        return Column(
-                          children: [
-                            TextFormField(
-                              initialValue: data['date'],
-                              decoration: const InputDecoration(
-                                labelText: '日期',
-                              ),
-                            ),
-                            TextFormField(
-                              initialValue: data['href'],
-                              decoration: const InputDecoration(
-                                labelText: '作業連結',
-                              ),
-                            ),
-                            TextFormField(
-                              initialValue: data['src'],
-                              decoration: const InputDecoration(
-                                labelText: '課程名稱',
-                              ),
-                            ),
-                            TextFormField(
-                              initialValue: data['topic'],
-                              decoration: const InputDecoration(
-                                labelText: '作業名稱',
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  )
-              ],
+      body: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            const SizedBox(
+              height: 50,
             ),
-          ),
-          if (_isLoading)
-            const Center(
-              child: CircularProgressIndicator(),
+            TextButton(
+              onPressed: _submitForm,
+              child: const Text(
+                '查詢',
+                style: TextStyle(fontSize: 30),
+              ),
             ),
-        ],
+            if (_isLoading)
+              const Center(
+                child: CircularProgressIndicator(),
+              ),
+            if (_responseData != null)
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _responseData.length,
+                  itemBuilder: (context, index) {
+                    final data = _responseData[index];
+                    return Column(
+                      children: [
+                        TextFormField(
+                          initialValue: data['date'],
+                          decoration: const InputDecoration(
+                            labelText: '日期',
+                          ),
+                        ),
+                        TextFormField(
+                          initialValue: data['lesson'],
+                          decoration: const InputDecoration(
+                            labelText: '課程',
+                          ),
+                        ),
+                        TextFormField(
+                          initialValue: data['reason'],
+                          decoration: const InputDecoration(
+                            labelText: '缺席原因',
+                          ),
+                        ),
+                        TextFormField(
+                          initialValue: data['section'],
+                          decoration: const InputDecoration(
+                            labelText: '節數',
+                          ),
+                        ),
+                        TextFormField(
+                          initialValue: data['week'],
+                          decoration: const InputDecoration(
+                            labelText: '周數',
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+          ],
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.shifting,
@@ -199,7 +228,7 @@ class _HomeworkPageState extends State<HomeworkPage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         centerTitle: true,
-        title: const Text('查詢最近作業(flipclass)'),
+        title: const Text('查詢缺席(e網通)'),
         actions: [
           IconButton(
               iconSize: 35,

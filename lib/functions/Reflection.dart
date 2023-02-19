@@ -1,33 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:stust_app/home_work.dart';
-import 'package:stust_app/Bulletins.dart';
-import 'package:stust_app/leave_request.dart';
-import 'package:stust_app/Reflection.dart';
-import 'package:stust_app/Send_homework.dart';
+import 'package:stust_app/functions/home_work.dart';
+import 'package:stust_app/functions/Absent.dart';
+import 'package:stust_app/functions/Bulletins.dart';
+import 'package:stust_app/functions/leave_request.dart';
+import 'package:stust_app/functions/Send_homework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:stust_app/responsive.dart';
+import 'package:stust_app/rwd_module/responsive.dart';
 
-import 'main.dart';
+import '../main.dart';
 
-class AbsentPage extends StatefulWidget {
-  static const routeName = '/absent';
+class ReflectionPage extends StatefulWidget {
+  static const routeName = '/reflection';
 
-  const AbsentPage({super.key});
-
+  const ReflectionPage({super.key});
   @override
   // ignore: library_private_types_in_public_api
-  _AbsentPageState createState() => _AbsentPageState();
+  _ReflectionPageState createState() => _ReflectionPageState();
 }
 
-class _AbsentPageState extends State<AbsentPage> {
+class _ReflectionPageState extends State<ReflectionPage> {
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   late String _account = '0'; // Set account and password to 0 by default
   late String _password = '0';
-
   @override
   void initState() {
     super.initState();
@@ -65,7 +63,7 @@ class _AbsentPageState extends State<AbsentPage> {
       http
           .get(
         Uri.parse(
-            'http://api.xnor-development.com:70/absent?account=$_account&password=$_password'),
+            'http://api.xnor-development.com:70/reflection?account=$_account&password=$_password'),
       )
           .then((response) {
         final responseData = json.decode(response.body) as List;
@@ -77,16 +75,21 @@ class _AbsentPageState extends State<AbsentPage> {
       });
     }
   }
+
+  // late List _responseData;
+  // late bool _loading = false; // Flag to indicate if API request is being made
+
   // void _submitForm() {
   //   if (_formKey.currentState!.validate()) {
   //     _formKey.currentState!.save();
+
   //     setState(() {
-  //       _isLoading = true;
+  //       _loading = true; // Set loading flag to true
   //     });
 
   //     // Make POST request to the API
   //     http.post(
-  //       Uri.parse('http://api.xnor-development.com:70/absent'),
+  //       Uri.parse('http://api.xnor-development.com:70/reflection'),
   //       body: {
   //         'account': _account,
   //         'password': _password,
@@ -96,7 +99,7 @@ class _AbsentPageState extends State<AbsentPage> {
   //       final responseData = json.decode(response.body) as List;
   //       setState(() {
   //         _responseData = responseData;
-  //         _isLoading = false;
+  //         _loading = false; // Set loading flag to false
   //       });
   //       // Handle response from the API here
   //       // Display alert dialog to the user
@@ -107,7 +110,6 @@ class _AbsentPageState extends State<AbsentPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
       body: Form(
         key: _formKey,
         child: Column(
@@ -123,10 +125,10 @@ class _AbsentPageState extends State<AbsentPage> {
               ),
             ),
             if (_isLoading)
-              const Center(
-                child: CircularProgressIndicator(),
-              ),
+              // Display loading indicator
+              const CircularProgressIndicator(),
             if (_responseData != null)
+              // Week input
               Expanded(
                 child: ListView.builder(
                   itemCount: _responseData.length,
@@ -141,34 +143,46 @@ class _AbsentPageState extends State<AbsentPage> {
                           ),
                         ),
                         TextFormField(
-                          initialValue: data['lesson'],
+                          initialValue: data['event_title'],
                           decoration: const InputDecoration(
-                            labelText: '課程',
+                            labelText: '活動標題',
                           ),
                         ),
                         TextFormField(
-                          initialValue: data['reason'],
+                          initialValue: data['event_type'],
                           decoration: const InputDecoration(
-                            labelText: '缺席原因',
+                            labelText: '類別',
                           ),
                         ),
                         TextFormField(
-                          initialValue: data['section'],
+                          initialValue: data['host_td'],
                           decoration: const InputDecoration(
-                            labelText: '節數',
+                            labelText: '主辦單位',
                           ),
                         ),
                         TextFormField(
-                          initialValue: data['week'],
+                          initialValue: data['position'],
                           decoration: const InputDecoration(
-                            labelText: '周數',
+                            labelText: '地點',
+                          ),
+                        ),
+                        TextFormField(
+                          initialValue: data['score'],
+                          decoration: const InputDecoration(
+                            labelText: '獲得分數',
+                          ),
+                        ),
+                        TextFormField(
+                          initialValue: data['semester'],
+                          decoration: const InputDecoration(
+                            labelText: '學期',
                           ),
                         ),
                       ],
                     );
                   },
                 ),
-              ),
+              )
           ],
         ),
       ),
@@ -228,7 +242,7 @@ class _AbsentPageState extends State<AbsentPage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         centerTitle: true,
-        title: const Text('查詢缺席(e網通)'),
+        title: const Text('查詢未繳心得(e網通)'),
         actions: [
           IconButton(
               iconSize: 35,
