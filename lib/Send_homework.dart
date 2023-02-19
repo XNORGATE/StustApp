@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_html/flutter_html.dart';
@@ -14,7 +13,10 @@ import 'main.dart';
 
 class SendHomeworkPage extends StatefulWidget {
   static const routeName = '/send_homework';
+
+  const SendHomeworkPage({super.key});
   @override
+  // ignore: library_private_types_in_public_api
   _SendHomeworkPageState createState() => _SendHomeworkPageState();
 }
 
@@ -66,23 +68,16 @@ class _SendHomeworkPageState extends State<SendHomeworkPage> {
               'http://api.xnor-development.com:70/send_homework?account=$_account&password=$_password&content=$_content&homework_code=$_homeworkCode'),
         )
             .then((response) {
-          if (_responseData != null) {
-            // Access _responseData here
-
-            // Parse response body into a list of maps
-            final responseData = json.decode(response.body) as List;
-            //print(responseData);
-            setState(() {
-              _responseData = responseData;
-              _isLoading = false;
-            });
-            // Get the first item in the list (there should only be one item)
-            final data = responseData[0];
-            // Display alert dialog with response data
-            _showAlertDialog(data['text'], data['href']);
-            // Handle response from the API here
-            // Display alert dialog to the user
-          }
+          final responseData = json.decode(response.body) as List;
+          //print(responseData);
+          setState(() {
+            _responseData = responseData;
+            _isLoading = false;
+          });
+          // Get the first item in the list (there should only be one item)
+          final data = responseData[0];
+          // Display alert dialog with response data
+          _showAlertDialog(data['text'], data['href']);
         });
       
     }
@@ -102,7 +97,7 @@ class _SendHomeworkPageState extends State<SendHomeworkPage> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('OK'),
+              child: const Text('OK'),
             ),
           ],
         );
@@ -124,7 +119,7 @@ class _SendHomeworkPageState extends State<SendHomeworkPage> {
                   onSaved: (value) {
                       _content = value!;
                   },
-                  decoration: InputDecoration(labelText: '作業內容'),
+                  decoration: const InputDecoration(labelText: '作業內容'),
                   validator: (value) => value!.isEmpty ? '作業內容' : null,
                 ),
                 // Homework code input
@@ -132,11 +127,11 @@ class _SendHomeworkPageState extends State<SendHomeworkPage> {
                   onSaved: (value) {
                       _homeworkCode = value!;
                   },
-                  decoration: InputDecoration(labelText: '作業代碼，可於作業查詢中查到'),
+                  decoration: const InputDecoration(labelText: '作業代碼，可於作業查詢中查到'),
                   validator: (value) =>
                       value!.isEmpty ? '作業代碼，可於作業查詢中查到' : null,
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 50,
                 ),
                 TextButton(
@@ -150,7 +145,7 @@ class _SendHomeworkPageState extends State<SendHomeworkPage> {
             ),
           ),
           Positioned(
-            child: _isLoading ? CircularProgressIndicator() : Container(),
+            child: _isLoading ? const CircularProgressIndicator() : Container(),
           ),
         ],
       ),
@@ -214,7 +209,7 @@ class _SendHomeworkPageState extends State<SendHomeworkPage> {
         actions: [
           IconButton(
               iconSize: 35,
-              padding: EdgeInsets.only(right: 20),
+              padding: const EdgeInsets.only(right: 20),
               onPressed: () async {
                 Navigator.pushNamedAndRemoveUntil(
                     context, MyHomePage.routeName, (route) => false);

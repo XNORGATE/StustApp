@@ -13,7 +13,10 @@ import 'main.dart';
 
 class ReflectionPage extends StatefulWidget {
   static const routeName = '/reflection';
+
+  const ReflectionPage({super.key});
   @override
+  // ignore: library_private_types_in_public_api
   _ReflectionPageState createState() => _ReflectionPageState();
 }
 
@@ -63,19 +66,12 @@ class _ReflectionPageState extends State<ReflectionPage> {
             'http://api.xnor-development.com:70/reflection?account=$_account&password=$_password'),
       )
           .then((response) {
-        if (_responseData != null) {
-          // Access _responseData here
-
-          // Parse response body into a list of maps
-          final responseData = json.decode(response.body) as List;
-          //print(responseData);
-          setState(() {
-            _responseData = responseData;
-            _isLoading = false;
-          });
-          // Handle response from the API here
-          // Display alert dialog to the user
-        }
+        final responseData = json.decode(response.body) as List;
+        //print(responseData);
+        setState(() {
+          _responseData = responseData;
+          _isLoading = false;
+        });
       });
     }
   }
@@ -118,7 +114,7 @@ class _ReflectionPageState extends State<ReflectionPage> {
         key: _formKey,
         child: Column(
           children: [
-            SizedBox(
+            const SizedBox(
               height: 50,
             ),
             TextButton(
@@ -130,7 +126,7 @@ class _ReflectionPageState extends State<ReflectionPage> {
             ),
             if (_isLoading)
               // Display loading indicator
-              CircularProgressIndicator(),
+              const CircularProgressIndicator(),
             if (_responseData != null)
               // Week input
               Expanded(
@@ -250,7 +246,7 @@ class _ReflectionPageState extends State<ReflectionPage> {
         actions: [
           IconButton(
               iconSize: 35,
-              padding: EdgeInsets.only(right: 20),
+              padding: const EdgeInsets.only(right: 20),
               onPressed: () async {
                 Navigator.pushNamedAndRemoveUntil(
                     context, MyHomePage.routeName, (route) => false);

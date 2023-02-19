@@ -13,7 +13,10 @@ import 'main.dart';
 
 class HomeworkPage extends StatefulWidget {
   static const routeName = '/homework';
+
+  const HomeworkPage({super.key});
   @override
+  // ignore: library_private_types_in_public_api
   _HomeworkPageState createState() => _HomeworkPageState();
 }
 
@@ -64,19 +67,12 @@ class _HomeworkPageState extends State<HomeworkPage> {
             'http://api.xnor-development.com:70/homework?account=$_account&password=$_password'),
       )
           .then((response) {
-        if (_responseData != null) {
-          // Access _responseData here
-
-          // Parse response body into a list of maps
-          final responseData = json.decode(response.body) as List;
-          //print(responseData);
-          setState(() {
-            _responseData = responseData;
-            _isLoading = false;
-          });
-          // Handle response from the API here
-          // Display alert dialog to the user
-        }
+        final responseData = json.decode(response.body) as List;
+        //print(responseData);
+        setState(() {
+          _responseData = responseData;
+          _isLoading = false;
+        });
       });
     }
   }
@@ -91,7 +87,7 @@ class _HomeworkPageState extends State<HomeworkPage> {
             key: _formKey,
             child: Column(
               children: [
-                SizedBox(
+                const SizedBox(
                   height: 50,
                 ),
                 TextButton(
@@ -207,7 +203,7 @@ class _HomeworkPageState extends State<HomeworkPage> {
         actions: [
           IconButton(
               iconSize: 35,
-              padding: EdgeInsets.only(right: 20),
+              padding: const EdgeInsets.only(right: 20),
               onPressed: () async {
                 Navigator.pushNamedAndRemoveUntil(
                     context, MyHomePage.routeName, (route) => false);

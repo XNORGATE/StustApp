@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic_null_safety/flutter_neumorphic.dart';
 import 'package:stust_app/home_work.dart';
 import 'package:stust_app/Absent.dart';
@@ -29,9 +28,9 @@ void main() {
           final password = prefs?.getString('password');
 
           if (account != null && password != null) {
-            return MyApp();
+            return const MyApp();
           } else {
-            return LoginPage();
+            return const LoginPage();
           }
         } else {
           return Container();
@@ -42,32 +41,34 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return NeumorphicApp(
       debugShowCheckedModeBanner: false,
       title: '南台通Beta v1.0',
       themeMode: ThemeMode.light,
-      theme: NeumorphicThemeData(
+      theme: const NeumorphicThemeData(
         baseColor: Color(0xFFFFFFFF),
         lightSource: LightSource.topLeft,
         depth: 10,
       ),
-      darkTheme: NeumorphicThemeData(
+      darkTheme: const NeumorphicThemeData(
         baseColor: Color(0xFF3E3E3E),
         lightSource: LightSource.topLeft,
         depth: 6,
       ),
-      home: MyHomePage(),
+      home: const MyHomePage(),
       routes: {
-        LoginPage.routeName: (context) => LoginPage(),
-        MyHomePage.routeName: (context) => MyHomePage(),
-        HomeworkPage.routeName: (context) => HomeworkPage(),
-        BulletinsPage.routeName: (context) => BulletinsPage(),
-        AbsentPage.routeName: (context) => AbsentPage(),
-        ReflectionPage.routeName: (context) => ReflectionPage(),
-        LeaveRequestPage.routeName: (context) => LeaveRequestPage(),
-        SendHomeworkPage.routeName: (context) => SendHomeworkPage(),
+        LoginPage.routeName: (context) => const LoginPage(),
+        MyHomePage.routeName: (context) => const MyHomePage(),
+        HomeworkPage.routeName: (context) => const HomeworkPage(),
+        BulletinsPage.routeName: (context) => const BulletinsPage(),
+        AbsentPage.routeName: (context) => const AbsentPage(),
+        ReflectionPage.routeName: (context) => const ReflectionPage(),
+        LeaveRequestPage.routeName: (context) => const LeaveRequestPage(),
+        SendHomeworkPage.routeName: (context) => const SendHomeworkPage(),
       },
     );
   }
@@ -75,34 +76,36 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatelessWidget {
   static const routeName = '/home';
+
+  const MyHomePage({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
           automaticallyImplyLeading: false,
           centerTitle: true,
-          title: Text('南台通Beta v1.0 首頁'),
+          title: const Text('南台通Beta v1.0 首頁'),
           actions: [
             IconButton(
                 iconSize: 35,
-                padding: EdgeInsets.only(right: 20),
+                padding: const EdgeInsets.only(right: 20),
                 onPressed: () async {
                   final confirmed = await showDialog(
                     context: context,
                     builder: (context) => AlertDialog(
-                      title: Text(
+                      title: const Text(
                         '登出',
                         style: TextStyle(color: Colors.black),
                       ),
-                      content: Text('確定要登出 ?'),
+                      content: const Text('確定要登出 ?'),
                       actions: [
                         NeumorphicButton(
                           onPressed: () => Navigator.pop(context, false),
-                          child: Text('取消'),
+                          child: const Text('取消'),
                         ),
                         NeumorphicButton(
                           onPressed: () => Navigator.pop(context, true),
-                          child: Text('確認'),
+                          child: const Text('確認'),
                         ),
                       ],
                     ),
@@ -140,116 +143,104 @@ class MyHomePage extends StatelessWidget {
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        SizedBox(
+                        const SizedBox(
                           height: 15,
                         ),
-                        Container(
-                          child: NeumorphicButton(
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => HomeworkPage()));
-                            },
-                            child: Text(
-                              '最新事件',
-                              style: TextStyle(color: Colors.black, fontSize: 20),
-                            ),
+                        NeumorphicButton(
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const HomeworkPage()));
+                          },
+                          child: const Text(
+                            '最新事件',
+                            style: TextStyle(color: Colors.black, fontSize: 20),
                           ),
                         ),
 // Bulletins section
-                        SizedBox(
+                        const SizedBox(
                           height: 15,
                         ),
 
-                        Container(
-                          child: NeumorphicButton(
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => BulletinsPage()));
-                            },
-                            child: Text(
-                              '最新公告',
-                              style: TextStyle(color: Colors.black, fontSize: 20),
-                            ),
+                        NeumorphicButton(
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const BulletinsPage()));
+                          },
+                          child: const Text(
+                            '最新公告',
+                            style: TextStyle(color: Colors.black, fontSize: 20),
                           ),
                         ),
 // Absent section
-                        SizedBox(
+                        const SizedBox(
                           height: 15,
                         ),
 
-                        Container(
-                          child: NeumorphicButton(
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => AbsentPage()));
-                            },
-                            child: Text(
-                              '缺席',
-                              style: TextStyle(color: Colors.black, fontSize: 20),
-                            ),
+                        NeumorphicButton(
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const AbsentPage()));
+                          },
+                          child: const Text(
+                            '缺席',
+                            style: TextStyle(color: Colors.black, fontSize: 20),
                           ),
                         ),
 // Reflection section
-                        SizedBox(
+                        const SizedBox(
                           height: 15,
                         ),
 
-                        Container(
-                          child: NeumorphicButton(
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => ReflectionPage()));
-                            },
-                            child: Text(
-                              '未繳心得',
-                              style: TextStyle(color: Colors.black, fontSize: 20),
-                            ),
+                        NeumorphicButton(
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const ReflectionPage()));
+                          },
+                          child: const Text(
+                            '未繳心得',
+                            style: TextStyle(color: Colors.black, fontSize: 20),
                           ),
                         ),
                         // Leave request section
-                        SizedBox(
+                        const SizedBox(
                           height: 15,
                         ),
 
-                        Container(
-                          child: NeumorphicButton(
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => LeaveRequestPage()));
-                            },
-                            child: Text(
-                              '請假',
-                              style: TextStyle(color: Colors.black, fontSize: 20),
-                            ),
+                        NeumorphicButton(
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const LeaveRequestPage()));
+                          },
+                          child: const Text(
+                            '請假',
+                            style: TextStyle(color: Colors.black, fontSize: 20),
                           ),
                         ),
 // Send homework section
-                        SizedBox(
+                        const SizedBox(
                           height: 15,
                         ),
 
-                        Container(
-                          child: NeumorphicButton(
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => SendHomeworkPage()));
-                            },
-                            child: Text(
-                              '快速繳交作業',
-                              style: TextStyle(color: Colors.black, fontSize: 20),
-                            ),
+                        NeumorphicButton(
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const SendHomeworkPage()));
+                          },
+                          child: const Text(
+                            '快速繳交作業',
+                            style: TextStyle(color: Colors.black, fontSize: 20),
                           ),
                         ),
                       ],
@@ -265,116 +256,104 @@ class MyHomePage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   //crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       width: 15,
                     ),
-                    Container(
-                      child: NeumorphicButton(
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => HomeworkPage()));
-                        },
-                        child: Text(
-                          '最新事件',
-                          style: TextStyle(color: Colors.black, fontSize: 20),
-                        ),
+                    NeumorphicButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const HomeworkPage()));
+                      },
+                      child: const Text(
+                        '最新事件',
+                        style: TextStyle(color: Colors.black, fontSize: 20),
                       ),
                     ),
 // Bulletins section
-                    SizedBox(
+                    const SizedBox(
                       width: 15,
                     ),
 
-                    Container(
-                      child: NeumorphicButton(
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => BulletinsPage()));
-                        },
-                        child: Text(
-                          '最新公告',
-                          style: TextStyle(color: Colors.black, fontSize: 20),
-                        ),
+                    NeumorphicButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const BulletinsPage()));
+                      },
+                      child: const Text(
+                        '最新公告',
+                        style: TextStyle(color: Colors.black, fontSize: 20),
                       ),
                     ),
 // Absent section
-                    SizedBox(
+                    const SizedBox(
                       width: 15,
                     ),
 
-                    Container(
-                      child: NeumorphicButton(
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => AbsentPage()));
-                        },
-                        child: Text(
-                          '缺席',
-                          style: TextStyle(color: Colors.black, fontSize: 20),
-                        ),
+                    NeumorphicButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const AbsentPage()));
+                      },
+                      child: const Text(
+                        '缺席',
+                        style: TextStyle(color: Colors.black, fontSize: 20),
                       ),
                     ),
 // Reflection section
-                    SizedBox(
+                    const SizedBox(
                       width: 15,
                     ),
 
-                    Container(
-                      child: NeumorphicButton(
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => ReflectionPage()));
-                        },
-                        child: Text(
-                          '未繳心得',
-                          style: TextStyle(color: Colors.black, fontSize: 20),
-                        ),
+                    NeumorphicButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const ReflectionPage()));
+                      },
+                      child: const Text(
+                        '未繳心得',
+                        style: TextStyle(color: Colors.black, fontSize: 20),
                       ),
                     ),
                     // Leave request section
-                    SizedBox(
+                    const SizedBox(
                       width: 15,
                     ),
 
-                    Container(
-                      child: NeumorphicButton(
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => LeaveRequestPage()));
-                        },
-                        child: Text(
-                          '請假',
-                          style: TextStyle(color: Colors.black, fontSize: 20),
-                        ),
+                    NeumorphicButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const LeaveRequestPage()));
+                      },
+                      child: const Text(
+                        '請假',
+                        style: TextStyle(color: Colors.black, fontSize: 20),
                       ),
                     ),
 // Send homework section
-                    SizedBox(
+                    const SizedBox(
                       width: 15,
                     ),
 
-                    Container(
-                      child: NeumorphicButton(
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => SendHomeworkPage()));
-                        },
-                        child: Text(
-                          '快速繳交作業',
-                          style: TextStyle(color: Colors.black, fontSize: 20),
-                        ),
+                    NeumorphicButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const SendHomeworkPage()));
+                      },
+                      child: const Text(
+                        '快速繳交作業',
+                        style: TextStyle(color: Colors.black, fontSize: 20),
                       ),
                     ),
                   ],

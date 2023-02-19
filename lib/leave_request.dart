@@ -13,7 +13,10 @@ import 'main.dart';
 class LeaveRequestPage extends StatefulWidget {
   static const routeName = '/leave_request';
 
+  const LeaveRequestPage({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _LeaveRequestPageState createState() => _LeaveRequestPageState();
 }
 
@@ -71,21 +74,14 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
             'http://api.xnor-development.com:70/leave_request?account=$_account&password=$_password&week=$_week&section=$_section&reason=$_reason&day=$_day&_type=$_type'),
       )
           .then((response) {
-        if (_responseData != null) {
-          // Access _responseData here
-
-          // Parse response body into a list of maps
-          final responseData = json.decode(response.body) as List;
-          //print(responseData);
-          setState(() {
-            _responseData = responseData;
-            _isLoading = false;
-          });
-          // Display alert dialog with response data
-          _showAlertDialog();
-          // Handle response from the API here
-          // Display alert dialog to the user
-        }
+        final responseData = json.decode(response.body) as List;
+        //print(responseData);
+        setState(() {
+          _responseData = responseData;
+          _isLoading = false;
+        });
+        // Display alert dialog with response data
+        _showAlertDialog();
       });
     }
   }
@@ -95,14 +91,14 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('成功送出'),
-          content: Text('你的請求已送出'),
+          title: const Text('成功送出'),
+          content: const Text('你的請求已送出'),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('OK'),
+              child: const Text('OK'),
             ),
           ],
         );
@@ -121,7 +117,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
               // Content input
               TextFormField(
                 onSaved: (value) => _day = value!,
-                decoration: InputDecoration(labelText: '週數'),
+                decoration: const InputDecoration(labelText: '週數'),
                 validator: (value) {
                   if (value!.isEmpty) {
                     return '請填入週數';
@@ -131,7 +127,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
               ),
               TextFormField(
                 onSaved: (value) => _section = value!,
-                decoration: InputDecoration(labelText: '節數'),
+                decoration: const InputDecoration(labelText: '節數'),
                 validator: (value) {
                   if (value!.isEmpty) {
                     return '請填入節數';
@@ -142,7 +138,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
               // Reason input
               TextFormField(
                 onSaved: (value) => _reason = value!,
-                decoration: InputDecoration(labelText: '請假理由'),
+                decoration: const InputDecoration(labelText: '請假理由'),
                 validator: (value) {
                   if (value!.isEmpty) {
                     return '請填入理由';
@@ -153,7 +149,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
               // Day input
               TextFormField(
                 onSaved: (value) => _day = value!,
-                decoration: InputDecoration(labelText: '周幾(禮拜幾)'),
+                decoration: const InputDecoration(labelText: '周幾(禮拜幾)'),
                 validator: (value) {
                   if (value!.isEmpty) {
                     return '請填入周幾(禮拜幾)';
@@ -165,7 +161,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
 
               TextFormField(
                 onSaved: (value) => _type = value!,
-                decoration: InputDecoration(labelText: '假別 (4為事假，3為病假)'),
+                decoration: const InputDecoration(labelText: '假別 (4為事假，3為病假)'),
                 validator: (value) {
                   if (value!.isEmpty) {
                     return '請填入假別';
@@ -173,7 +169,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                   return null;
                 },
               ),
-              SizedBox(
+              const SizedBox(
                 height: 50,
               ),
               TextButton(
@@ -247,7 +243,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
         actions: [
           IconButton(
               iconSize: 35,
-              padding: EdgeInsets.only(right: 20),
+              padding: const EdgeInsets.only(right: 20),
               onPressed: () async {
                 Navigator.pushNamedAndRemoveUntil(
                     context, MyHomePage.routeName, (route) => false);

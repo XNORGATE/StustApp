@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:stust_app/main.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter_html/flutter_html.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:developer';
 
 class LoginPage extends StatefulWidget {
   static const routeName = '/login';
+
+  const LoginPage({super.key});
   @override
+  // ignore: library_private_types_in_public_api
   _LoginPageState createState() => _LoginPageState();
 }
 
@@ -44,7 +44,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   bool _isLoading = false;
 
   Future<bool> authenticate(String account, String password) async {
-    if (account == null || password == null) {
+    if (password == null) {
       return false;
     }
 
@@ -75,7 +75,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
       'account': acc,
       'password': pwd,
       'rememberMe': '',
-      'csrf-t': hiddenInput != null ? hiddenInput : "error"
+      'csrf-t': hiddenInput ?? "error"
     };
 
     // Send the login POST request
@@ -99,13 +99,13 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
             debugShowCheckedModeBanner: false,
             home: AlertDialog(
               title: Text(text),
-              content: Text('Authenticate error(帳號密碼錯誤)'),
+              content: const Text('Authenticate error(帳號密碼錯誤)'),
               actions: [
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: Text('了解'),
+                  child: const Text('了解'),
                 ),
               ],
             ));
@@ -129,17 +129,17 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 TextFormField(
-                  decoration: InputDecoration(labelText: '帳號'),
+                  decoration: const InputDecoration(labelText: '帳號'),
                   onSaved: (value) => _account = value!,
                   validator: (value) => value!.isEmpty ? '請填入帳號' : null,
                 ),
                 TextFormField(
-                  decoration: InputDecoration(labelText: '密碼'),
+                  decoration: const InputDecoration(labelText: '密碼'),
                   onSaved: (value) => _password = value!,
                   validator: (value) => value!.isEmpty ? '請填入密碼' : null,
                   obscureText: true,
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 45,
                 ),
                 TextButton(
@@ -166,12 +166,12 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                     }
                   },
                   child: _isLoading
-                      ? SizedBox(
+                      ? const SizedBox(
                           height: 24,
                           width: 24,
                           child: CircularProgressIndicator(),
                         )
-                      : Text(
+                      : const Text(
                           '登入',
                           style: TextStyle(fontSize: 30),
                         ),
