@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:stust_app/functions/Absent.dart';
 import 'package:stust_app/functions/Bulletins.dart';
 import 'package:stust_app/functions/leave_request.dart';
@@ -8,7 +8,10 @@ import 'package:stust_app/functions/Reflection.dart';
 import 'package:stust_app/functions/Send_homework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stust_app/rwd_module/responsive.dart';
-
+// ignore: depend_on_referenced_packages
+import 'package:html/parser.dart' show parse;
+import './home_work_detail.dart';
+// import 'package:html/dom.dart';
 import '../main.dart';
 
 class HomeworkPage extends StatefulWidget {
@@ -30,7 +33,7 @@ class _HomeworkPageState extends State<HomeworkPage> {
   @override
   void initState() {
     super.initState();
-    _responseData = [];
+    List<Map<String, String?>> responseData = [];
     _getlocal_UserData().then((data) {
       _account = data[0];
       _password = data[1];
@@ -39,6 +42,8 @@ class _HomeworkPageState extends State<HomeworkPage> {
 
       setState(() {});
     });
+
+    _submitForm();
   }
 
   _getlocal_UserData() async {
@@ -49,32 +54,165 @@ class _HomeworkPageState extends State<HomeworkPage> {
     return [_account, _password];
   }
 
-  late List _responseData;
+  late List<Map<String, String>> _responseData = [];
   late bool _isLoading = false; // Flag to indicate if API request is being made
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
+  // void _submitForm() {
+  //   if (_formKey.currentState!.validate()) {
+  //     _formKey.currentState!.save();
 
-      setState(() {
-        _isLoading = true;
-      });
+  //     setState(() {
+  //       _isLoading = true;
+  //     });
 
-      // Make POST request to the API
-      http
-          .get(
-        Uri.parse(
-            'http://api.xnor-development.com:70/homework?account=$_account&password=$_password'),
-      )
-          .then((response) {
-        final responseData = json.decode(response.body) as List;
-        //print(responseData);
+  //     // Make POST request to the API
+  //     http
+  //         .get(
+  //       Uri.parse(
+  //           'http://api.xnor-development.com:70/homework?account=$_account&password=$_password'),
+  //     )
+  //         .then((response) {
+  //       final responseData = json.decode(response.body) as List;
+  //       //print(responseData);
+  //       setState(() {
+  //         _responseData = responseData;
+  //         _isLoading = false;
+  //       });
+  //     });
+  //   }
+  // }
+  void _showAlertDialog(String text, String href) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(text),
+          content: Html(
+            data: '<a href="$href">查看作業</a>',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<List<Map<String, String>>> getHomework() async {
+    int homeworkPage = 1;
+    List<Map<String, String>> homework = [];
+
+    var session = http.Client();
+    var loginUrl = 'https://flipclass.stust.edu.tw/index/login';
+    var response = await session.get(Uri.parse(loginUrl));
+    var soup = parse(response.body);
+
+    var hiddenInput =
+        soup.querySelector('input[name="csrf-t"]')?.attributes['value'];
+
+    // var payload = {
+    //   '_fmSubmit': 'yes',
+    //   'formVer': '3.0',
+    //   'formId': 'login_form',
+    //   'next': '/',
+    //   'act': 'keep',
+    //   'account': acc,
+    //   'password': pwd,
+    //   'rememberMe': '',
+    //   'csrf-t': hiddenInput
+    // };
+
+    response = await session.get(Uri.parse(
+        '$loginUrl?_fmSubmit=yes&formVer=3.0&formId=login_form&next=/&act=keep&account=$_account&password=$_password&rememberMe=&csrf-t=$hiddenInput'));
+    if (response.headers['set-cookie'] == null) {
+      return [
+        {'error': 'Authenticate error(帳號密碼錯誤)'}
+      ];
+    }
+
+    String cookies = response.headers['set-cookie']!;
+
+    var headers = {
+      'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
+    };
+    var url = 'https://flipclass.stust.edu.tw/dashboard/latestEvent?&page=';
+
+    void genHomework(int homeworkPage) async {
+      response = await session.get(Uri.parse('$url${homeworkPage.toString()}'),
+          headers: {...headers, 'cookie': cookies});
+      soup = parse(response.body);
+
+      if (soup.querySelector('#noData > td') == null) {
+        var hrefArr = soup.querySelectorAll('div.sm-text-overflow > a');
+        var works = soup.querySelectorAll('tbody > tr');
+
+        var newData = List<Map<String, String>>.from(
+            _responseData); // Create new list object
+
+        for (int i = 0; i < works.length; i++) {
+          var topic =
+              works[i].querySelector('div.sm-text-overflow')?.text.trim();
+          var src = works[i]
+              .querySelector('div.text-overflow > a > span')
+              ?.text
+              .trim();
+          var href = hrefArr[i].attributes['href'];
+          var dateDiv = works[i]
+              .querySelector('td.text-center.col-date > div.text-overflow');
+          var date = dateDiv?.attributes['title'];
+
+          newData.add({
+            'topic': topic ?? '',
+            'src': src ?? '',
+            'href': 'https://flipclass.stust.edu.tw$href',
+            'date': date ?? '',
+          });
+        }
+
         setState(() {
-          _responseData = responseData;
-          _isLoading = false;
+          _responseData = newData;
         });
+
+        homeworkPage++;
+        genHomework(homeworkPage);
+      }
+    }
+
+    genHomework(homeworkPage);
+    return homework;
+  }
+
+  void _submitForm() async {
+    // if (!_formKey.currentState!.mounted) {
+    //   return;
+    // }
+
+    // if (_formKey.currentState!.validate()) {
+    //   _formKey.currentState!.save();
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final responseData = await getHomework();
+      setState(() {
+        _responseData = responseData;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _showAlertDialog(e.toString(), e.toString());
       });
     }
+    // }
   }
 
   @override
@@ -90,47 +228,104 @@ class _HomeworkPageState extends State<HomeworkPage> {
                 const SizedBox(
                   height: 50,
                 ),
-                TextButton(
-                  onPressed: _submitForm,
-                  child: const Text(
-                    '查詢',
-                    style: TextStyle(fontSize: 30),
-                  ),
-                ),
+                // TextButton(
+                //   onPressed: _submitForm,
+                //   child: const Text(
+                //     '查詢',
+                //     style: TextStyle(fontSize: 30),
+                //   ),
+                // ),
                 if (_responseData != null) // Add this check here
                   Expanded(
-                    child: ListView.builder(
+                    child: ListView.separated(
                       itemCount: _responseData.length,
+                      separatorBuilder: (context, index) => const Divider(),
                       itemBuilder: (context, index) {
                         final data = _responseData[index];
-                        return Column(
-                          children: [
-                            TextFormField(
-                              initialValue: data['date'],
-                              decoration: const InputDecoration(
-                                labelText: '日期',
+                        return GestureDetector(
+                          onTap: () {
+                            // Navigator.pushNamed(
+                            //   context,
+                            //   '/homework-detail',
+                            //   arguments: {
+                            //     'topic': data['topic'],
+                            //     'src':  data['src'],
+                            //     'href':  data['href'],
+                            //     'date':  data['date'],
+                            //   },
+                            // );
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const HomeWorkDetailPage(),
+                                settings: RouteSettings(arguments: {
+                                'topic': data['topic'],
+                                'src':  data['src'],
+                                'href':  data['href'],
+                                'account': _account,
+                                'password': _password,
+                                // 'date':  data['date'],
+                                }),
+                              ),
+                            );
+                          },
+                          child: Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      data['topic']!,
+                                      style: const TextStyle(
+                                        fontSize: 18.0,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  // IconButton(
+                                  //   icon: Icon(
+                                  //     _isFavorite(newsTitle)
+                                  //         ? Icons.favorite
+                                  //         : Icons.favorite_border,
+                                  //   ),
+                                  //   onPressed: () {
+                                  //     _toggleFavorite(newsTitle);
+                                  //   },
+                                  // ),
+                                ],
                               ),
                             ),
-                            TextFormField(
-                              initialValue: data['href'],
-                              decoration: const InputDecoration(
-                                labelText: '作業連結',
-                              ),
-                            ),
-                            TextFormField(
-                              initialValue: data['src'],
-                              decoration: const InputDecoration(
-                                labelText: '課程名稱',
-                              ),
-                            ),
-                            TextFormField(
-                              initialValue: data['topic'],
-                              decoration: const InputDecoration(
-                                labelText: '作業名稱',
-                              ),
-                            ),
-                          ],
+                          ),
                         );
+                        // Column(
+                        //   children: [
+                        //     TextFormField(
+                        //       initialValue: data['date'],
+                        //       decoration: const InputDecoration(
+                        //         labelText: '日期',
+                        //       ),
+                        //     ),
+                        //     TextFormField(
+                        //       initialValue: data['href'],
+                        //       decoration: const InputDecoration(
+                        //         labelText: '作業連結',
+                        //       ),
+                        //     ),
+                        //     TextFormField(
+                        //       initialValue: data['src'],
+                        //       decoration: const InputDecoration(
+                        //         labelText: '課程名稱',
+                        //       ),
+                        //     ),
+                        //     TextFormField(
+                        //       initialValue: data['topic'],
+                        //       decoration: const InputDecoration(
+                        //         labelText: '作業名稱',
+                        //       ),
+                        //     ),
+                        //   ],
+                        // );
                       },
                     ),
                   )
@@ -146,7 +341,7 @@ class _HomeworkPageState extends State<HomeworkPage> {
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.shifting,
         showSelectedLabels: false,
-        showUnselectedLabels: isMobile(context)? false:true,
+        showUnselectedLabels: isMobile(context) ? false : true,
         items: const [
           BottomNavigationBarItem(
               icon: Icon(Icons.assignment),

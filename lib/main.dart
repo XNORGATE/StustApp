@@ -9,6 +9,8 @@ import './login/login_page.dart';
 import 'package:stust_app/rwd_module/responsive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
+import './functions/home_work_detail.dart';
+import 'functions/bulletins_detail.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -69,6 +71,9 @@ class MyApp extends StatelessWidget {
         ReflectionPage.routeName: (context) => const ReflectionPage(),
         LeaveRequestPage.routeName: (context) => const LeaveRequestPage(),
         SendHomeworkPage.routeName: (context) => const SendHomeworkPage(),
+        ////////
+        HomeWorkDetailPage.routeName: (context) => const HomeWorkDetailPage(),
+        BulletinsDetailPage.routeName: (context) => const BulletinsDetailPage(),
       },
     );
   }
@@ -116,6 +121,7 @@ class MyHomePage extends StatelessWidget {
                     prefs.remove('account');
                     prefs.remove('password');
 // Navigate to login page
+                    // ignore: use_build_context_synchronously
                     Navigator.pushNamedAndRemoveUntil(
                         context, LoginPage.routeName, (route) => false);
                   }
