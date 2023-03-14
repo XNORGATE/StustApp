@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
 import 'package:stust_app/functions/home_work.dart';
@@ -9,9 +8,10 @@ import 'package:stust_app/functions/Send_homework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stust_app/rwd_module/responsive.dart';
 import 'package:html/parser.dart' show parse;
+import 'package:url_launcher/url_launcher.dart';
 
 import '../main.dart';
-import 'bulletins_detail.dart';
+import 'package:flutter_neumorphic_null_safety/flutter_neumorphic.dart';
 
 class BulletinsPage extends StatefulWidget {
   static const routeName = '/bulletins';
@@ -265,32 +265,46 @@ class _BulletinsPageState extends State<BulletinsPage> {
                       itemBuilder: (context, index) {
                         final data = _responseData[index];
                         return GestureDetector(
-                          onTap: () {
-                            // Navigator.pushNamed(
-                            //   context,
-                            //   '/homework-detail',
-                            //   arguments: {
-                            //     'topic': data['topic'],
-                            //     'src':  data['src'],
-                            //     'href':  data['href'],
-                            //     'date':  data['date'],
-                            //   },
-                            // );
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    const BulletinsDetailPage(),
-                                settings: RouteSettings(arguments: {
-                                  'topic': data['topic'],
-                                  'src': data['src'],
-                                  'href': data['href'],
-                                  'account': _account,
-                                  'password': _password,
-                                  // 'date':  data['date'],
-                                }),
+                          onTap: () async {
+                            final confirmed = await showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text(
+                                  '詳細內容',
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(data['content']!),
+                                    if (data['filename'] != null && data['url'] != null)
+                                      InkWell(
+                       onTap: () => launchUrl(Uri.parse(data['url']!)),
+
+                                        child: Text(
+                                          data['filename']!,
+                                          style: const TextStyle(color: Colors.blue),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                                actions: [
+                                  NeumorphicButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, false),
+                                    child: const Text('退出'),
+                                  ),
+                                  NeumorphicButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, true),
+                                    child: const Text('前往課程'),
+                                  ),
+                                ],
                               ),
                             );
+                            if (confirmed == true) {
+                              launchUrl(Uri.parse(data['href']!)); 
+                            }
                           },
                           child: Card(
                             child: Padding(
@@ -299,7 +313,7 @@ class _BulletinsPageState extends State<BulletinsPage> {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      data['topic']!,
+                                      '${data['date']!}-${data['topic']!}',
                                       style: const TextStyle(
                                         fontSize: 18.0,
                                         fontWeight: FontWeight.bold,
@@ -321,34 +335,6 @@ class _BulletinsPageState extends State<BulletinsPage> {
                             ),
                           ),
                         );
-                        // Column(
-                        //   children: [
-                        //     TextFormField(
-                        //       initialValue: data['date'],
-                        //       decoration: const InputDecoration(
-                        //         labelText: '日期',
-                        //       ),
-                        //     ),
-                        //     TextFormField(
-                        //       initialValue: data['href'],
-                        //       decoration: const InputDecoration(
-                        //         labelText: '作業連結',
-                        //       ),
-                        //     ),
-                        //     TextFormField(
-                        //       initialValue: data['src'],
-                        //       decoration: const InputDecoration(
-                        //         labelText: '課程名稱',
-                        //       ),
-                        //     ),
-                        //     TextFormField(
-                        //       initialValue: data['topic'],
-                        //       decoration: const InputDecoration(
-                        //         labelText: '作業名稱',
-                        //       ),
-                        //     ),
-                        //   ],
-                        // );
                       },
                     ),
                   )
