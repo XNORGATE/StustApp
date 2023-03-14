@@ -149,7 +149,9 @@ class _BulletinsPageState extends State<BulletinsPage> {
       soup = parse(response.body);
 
       if (soup.querySelector('#noData > td') == null) {
-        var hrefArr = soup.querySelectorAll('div.sm-text-overflow > a');
+        var hrefArr = soup.querySelectorAll(
+            'td.text-center.col-char7 > div.text-overflow > a');
+        // print(hrefArr);
         var works = soup.querySelectorAll('tbody > tr');
 
         var newData = List<Map<String, String>>.from(
@@ -159,8 +161,13 @@ class _BulletinsPageState extends State<BulletinsPage> {
           var topic =
               works[i].querySelector('a.fs-bulletin-item > span')?.text.trim();
           var src =
-              'https://flipclass.stust.edu.tw${works[i].querySelector('div.text-overflow > a > span')?.text.trim()}&fs_no_foot_js=1';
+              'https://flipclass.stust.edu.tw${works[i].querySelector('div.text-overflow > a')?.attributes['data-url']}&fs_no_foot_js=1';
           var href = hrefArr[i].attributes['href'];
+          var classSrc = hrefArr[i].querySelector('span')?.text.trim();
+          // while (href!.contains('/course')) {
+          //   href = hrefArr[i+1].attributes['href'];
+          // }
+          // print(href);
           // var dateDiv = works[i]
           //     .querySelector('td.hidden-xs.text-center.col-date > div');
           var date = works[i]
@@ -177,23 +184,25 @@ class _BulletinsPageState extends State<BulletinsPage> {
           var bulletinContent =
               detailRes.querySelector('div.bulletin-content')?.text.trim();
           var filenameElement =
-              detailRes.querySelector('a[href*="filedownload"] span.text');
+              detailRes.querySelector('li.clearfix > div.text > a >span');
           if (filenameElement != null) {
-            fileName = filenameElement.text;
+            // print('fileName');
+            fileName = filenameElement.text.trim();
             fileUrl =
-                'https://flipclass.stust.edu.tw${detailRes.querySelector('a[href*="filedownload"]')!.attributes['href']!}';
+                'https://flipclass.stust.edu.tw${detailRes.querySelector('li.clearfix > div.text > a')!.attributes['href']!}';
           } else {
-            fileName = null;
-            fileUrl = null;
+            // print('null');
+            fileName = '0';
+            fileUrl = '0';
           }
           newData.add({
             'topic': topic ?? '',
-            'src': src,
+            'class': classSrc ?? '',
             'href': 'https://flipclass.stust.edu.tw$href',
             'date': date ?? '',
             'content': bulletinContent ?? '',
-            'filename': fileName ?? '',
-            'url': fileUrl ?? ''
+            'filename': fileName,
+            'url': fileUrl
           });
         }
 
@@ -269,21 +278,23 @@ class _BulletinsPageState extends State<BulletinsPage> {
                             final confirmed = await showDialog(
                               context: context,
                               builder: (context) => AlertDialog(
-                                title: const Text(
-                                  '詳細內容',
-                                  style: TextStyle(color: Colors.black),
+                                title: Text(
+                                  data['topic']!,
+                                  style: const TextStyle(color: Colors.black),
                                 ),
                                 content: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text(data['content']!),
-                                    if (data['filename'] != null && data['url'] != null)
+                                    if (data['filename'] != '0' &&
+                                        data['url'] != '0')
                                       InkWell(
-                       onTap: () => launchUrl(Uri.parse(data['url']!)),
-
+                                        onTap: () =>
+                                            launchUrl(Uri.parse(data['url']!)),
                                         child: Text(
-                                          data['filename']!,
-                                          style: const TextStyle(color: Colors.blue),
+                                          '附件: ${data['filename']!}',
+                                          style: const TextStyle(
+                                              color: Colors.blue),
                                         ),
                                       ),
                                   ],
@@ -303,7 +314,7 @@ class _BulletinsPageState extends State<BulletinsPage> {
                               ),
                             );
                             if (confirmed == true) {
-                              launchUrl(Uri.parse(data['href']!)); 
+                              launchUrl(Uri.parse(data['href']!));
                             }
                           },
                           child: Card(
@@ -313,7 +324,7 @@ class _BulletinsPageState extends State<BulletinsPage> {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      '${data['date']!}-${data['topic']!}',
+                                      '${data['date']!} ${data['class']} : ${data['topic']!}',
                                       style: const TextStyle(
                                         fontSize: 18.0,
                                         fontWeight: FontWeight.bold,

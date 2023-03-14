@@ -10,8 +10,6 @@ import 'package:stust_app/rwd_module/responsive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
 import './functions/home_work_detail.dart';
-import 'functions/bulletins_detail.dart';
-
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([
@@ -73,7 +71,6 @@ class MyApp extends StatelessWidget {
         SendHomeworkPage.routeName: (context) => const SendHomeworkPage(),
         ////////
         HomeWorkDetailPage.routeName: (context) => const HomeWorkDetailPage(),
-        BulletinsDetailPage.routeName: (context) => const BulletinsDetailPage(),
       },
     );
   }
