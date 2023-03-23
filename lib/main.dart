@@ -159,30 +159,28 @@ class MyHomePage extends StatelessWidget {
                                 'https://cdn.pixabay.com/photo/2021/01/16/09/05/meal-5921491_960_720.jpg')),
                         Padding(
                           padding: const EdgeInsets.all(6.0),
-                          child: Container(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
-                                children: const [
-                                  Text(
-                                    'Flipclass',
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: const [
+                                Text(
+                                  'Flipclass',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: Bold,
+                                      fontSize: 18),
+                                ),
+                                Text('最新公告及最近事件(作業)',
                                     style: TextStyle(
                                         color: Colors.white,
-                                        fontFamily: Bold,
-                                        fontSize: 18),
-                                  ),
-                                  Text('最新公告及最近事件(作業)',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w500,
-                                          height: 1,
-                                          fontFamily: Medium,
-                                          fontSize: 14)),
-                                ],
-                              ),
+                                        fontWeight: FontWeight.w500,
+                                        height: 1,
+                                        fontFamily: Medium,
+                                        fontSize: 14)),
+                              ],
                             ),
                           ),
                         )

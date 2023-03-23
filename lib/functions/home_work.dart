@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
-import 'package:stust_app/functions/Absent.dart';
 import 'package:stust_app/functions/Bulletins.dart';
-import 'package:stust_app/functions/leave_request.dart';
-import 'package:stust_app/functions/Reflection.dart';
-import 'package:stust_app/functions/Send_homework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:stust_app/rwd_module/responsive.dart';
 // ignore: depend_on_referenced_packages
 import 'package:html/parser.dart' show parse;
 import './home_work_detail.dart';
@@ -340,8 +335,8 @@ class _HomeworkPageState extends State<HomeworkPage> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.shifting,
-        showSelectedLabels: false,
-        showUnselectedLabels: isMobile(context) ? false : true,
+        showSelectedLabels: true,
+        showUnselectedLabels: false,
         items: const [
           BottomNavigationBarItem(
               icon: Icon(Icons.assignment),
@@ -351,22 +346,22 @@ class _HomeworkPageState extends State<HomeworkPage> {
               icon: Icon(Icons.format_list_bulleted),
               label: '最新公告',
               backgroundColor: Color.fromARGB(255, 40, 105, 218)),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.calendar_today),
-              label: '曠課與遲到',
-              backgroundColor: Color.fromARGB(255, 40, 105, 218)),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.question_answer),
-              label: '未繳心得',
-              backgroundColor: Color.fromARGB(255, 40, 105, 218)),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.add_box),
-              label: '請假',
-              backgroundColor: Color.fromARGB(255, 40, 105, 218)),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.send),
-              label: '快速繳交作業',
-              backgroundColor: Color.fromARGB(255, 40, 105, 218)),
+          // BottomNavigationBarItem(
+          //     icon: Icon(Icons.calendar_today),
+          //     label: '曠課與遲到',
+          //     backgroundColor: Color.fromARGB(255, 40, 105, 218)),
+          // BottomNavigationBarItem(
+          //     icon: Icon(Icons.question_answer),
+          //     label: '未繳心得',
+          //     backgroundColor: Color.fromARGB(255, 40, 105, 218)),
+          // BottomNavigationBarItem(
+          //     icon: Icon(Icons.add_box),
+          //     label: '請假',
+          //     backgroundColor: Color.fromARGB(255, 40, 105, 218)),
+          // BottomNavigationBarItem(
+          //     icon: Icon(Icons.send),
+          //     label: '快速繳交作業',
+          //     backgroundColor: Color.fromARGB(255, 40, 105, 218)),
         ],
         onTap: (int index) {
           switch (index) {
@@ -376,18 +371,18 @@ class _HomeworkPageState extends State<HomeworkPage> {
             case 1:
               Navigator.of(context).pushNamed(BulletinsPage.routeName);
               break;
-            case 2:
-              Navigator.of(context).pushNamed(AbsentPage.routeName);
-              break;
-            case 3:
-              Navigator.of(context).pushNamed(ReflectionPage.routeName);
-              break;
-            case 4:
-              Navigator.of(context).pushNamed(LeaveRequestPage.routeName);
-              break;
-            case 5:
-              Navigator.of(context).pushNamed(SendHomeworkPage.routeName);
-              break;
+            // case 2:
+            //   Navigator.of(context).pushNamed(AbsentPage.routeName);
+            //   break;
+            // case 3:
+            //   Navigator.of(context).pushNamed(ReflectionPage.routeName);
+            //   break;
+            // case 4:
+            //   Navigator.of(context).pushNamed(LeaveRequestPage.routeName);
+            //   break;
+            // case 5:
+            //   Navigator.of(context).pushNamed(SendHomeworkPage.routeName);
+            //   break;
           }
         },
       ),
