@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
+import 'package:html/parser.dart' show parse;
+
 import 'package:stust_app/functions/Bulletins.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // ignore: depend_on_referenced_packages
-import 'package:html/parser.dart' show parse;
 import './home_work_detail.dart';
 // import 'package:html/dom.dart';
 import '../main.dart';

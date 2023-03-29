@@ -130,7 +130,6 @@ class MyHomePage extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
         child: SingleChildScrollView(
-          
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -197,7 +196,10 @@ class MyHomePage extends StatelessWidget {
                       flex: 1,
                       child: GestureDetector(
                         onTap: () {
-                          // Do something when this widget is tapped
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const AbsentPage()));
                         },
                         child: Container(
                           height: MediaQuery.of(context).size.height * .25,
@@ -333,9 +335,8 @@ class MyHomePage extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10),
-                child:  SizedBox(
+                child: SizedBox(
                   height: MediaQuery.of(context).size.height * .3,
-             
                   child: ListView.builder(
                       itemCount: PandaPickHelper.itemCount,
                       scrollDirection: Axis.horizontal,

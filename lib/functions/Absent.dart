@@ -1,13 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:stust_app/functions/home_work.dart';
-import 'package:stust_app/functions/Bulletins.dart';
-import 'package:stust_app/functions/leave_request.dart';
-import 'package:stust_app/functions/Reflection.dart';
-import 'package:stust_app/functions/Send_homework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:stust_app/rwd_module/responsive.dart';
 
 import '../main.dart';
 
@@ -174,53 +168,25 @@ class _AbsentPageState extends State<AbsentPage> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.shifting,
-        showSelectedLabels: false,
-        showUnselectedLabels: isMobile(context)? false:true,
+        showSelectedLabels: true,
+        showUnselectedLabels: false,
         items: const [
           BottomNavigationBarItem(
               icon: Icon(Icons.assignment),
-              label: '最新作業',
+              label: '缺曠紀錄',
               backgroundColor: Color.fromARGB(255, 40, 105, 218)),
           BottomNavigationBarItem(
               icon: Icon(Icons.format_list_bulleted),
-              label: '最新公告',
-              backgroundColor: Color.fromARGB(255, 40, 105, 218)),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.calendar_today),
-              label: '曠課與遲到',
-              backgroundColor: Color.fromARGB(255, 40, 105, 218)),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.question_answer),
-              label: '未繳心得',
-              backgroundColor: Color.fromARGB(255, 40, 105, 218)),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.add_box),
               label: '請假',
-              backgroundColor: Color.fromARGB(255, 40, 105, 218)),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.send),
-              label: '快速繳交作業',
               backgroundColor: Color.fromARGB(255, 40, 105, 218)),
         ],
         onTap: (int index) {
           switch (index) {
             case 0:
-              Navigator.of(context).pushNamed(HomeworkPage.routeName);
+              Navigator.of(context).pushNamed('/absent');
               break;
             case 1:
-              Navigator.of(context).pushNamed(BulletinsPage.routeName);
-              break;
-            case 2:
-              Navigator.of(context).pushNamed(AbsentPage.routeName);
-              break;
-            case 3:
-              Navigator.of(context).pushNamed(ReflectionPage.routeName);
-              break;
-            case 4:
-              Navigator.of(context).pushNamed(LeaveRequestPage.routeName);
-              break;
-            case 5:
-              Navigator.of(context).pushNamed(SendHomeworkPage.routeName);
+              Navigator.of(context).pushNamed('/leave_request');
               break;
           }
         },

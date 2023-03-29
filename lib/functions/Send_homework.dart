@@ -151,7 +151,7 @@ class _SendHomeworkPageState extends State<SendHomeworkPage> {
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.shifting,
         showSelectedLabels: true,
-        showUnselectedLabels: true,
+        showUnselectedLabels: false,
         items: const [
           BottomNavigationBarItem(
               icon: Icon(Icons.assignment),

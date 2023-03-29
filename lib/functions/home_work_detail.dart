@@ -53,7 +53,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
   }
 
   Future<void> sendHomework() async {
-    var homeworkCode = '64590';
+    var homeworkCode = '';
     var session = http.Client();
     var response = await session
         .get(Uri.parse('https://flipclass.stust.edu.tw/index/login'));
