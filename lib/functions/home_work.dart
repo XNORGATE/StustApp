@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
+import 'dart:io';
 
 import 'package:stust_app/functions/Bulletins.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -202,6 +203,8 @@ class _HomeworkPageState extends State<HomeworkPage> {
         _responseData = responseData;
         _isLoading = false;
       });
+          sleep(const Duration(seconds: 1));
+
     } catch (e) {
       setState(() {
         _isLoading = false;

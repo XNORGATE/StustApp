@@ -47,6 +47,7 @@ dependencies:
   url_launcher: ^6.1.10
   beautiful_soup_dart: ^0.3.0
   convert: ^3.1.1
+  intl: ^0.18.0
 
 dev_dependencies:
   flutter_test:

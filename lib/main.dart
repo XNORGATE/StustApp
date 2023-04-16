@@ -1,8 +1,8 @@
 import 'package:flutter_neumorphic_null_safety/flutter_neumorphic.dart';
 import 'package:stust_app/functions/home_work.dart';
-import 'package:stust_app/functions/Absent.dart';
-import 'package:stust_app/functions/Bulletins.dart';
 import 'package:stust_app/functions/leave_request.dart';
+import 'package:stust_app/functions/Bulletins.dart';
+import 'package:stust_app/functions/Absent.dart';
 import 'package:stust_app/functions/Reflection.dart';
 import 'package:stust_app/functions/Send_homework.dart';
 import './login/login_page.dart';
@@ -199,7 +199,7 @@ class MyHomePage extends StatelessWidget {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const AbsentPage()));
+                                  builder: (context) => const LeaveRequestPage()));
                         },
                         child: Container(
                           height: MediaQuery.of(context).size.height * .25,

@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:html/parser.dart' as html_parser;
 import 'dart:convert';
+import 'package:convert/convert.dart';
+import 'package:intl/intl.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';
 
-class AbsentPage extends StatefulWidget {
-  static const routeName = '/absent';
+class LeaveRequestPage extends StatefulWidget {
+  static const routeName = '/leave_request';
 
-  const AbsentPage({super.key});
+  const LeaveRequestPage({super.key});
 
   @override
   // ignore: library_private_types_in_public_api
-  _AbsentPageState createState() => _AbsentPageState();
+  _LeaveRequestPageState createState() => _LeaveRequestPageState();
 }
 
-class _AbsentPageState extends State<AbsentPage> {
+class _LeaveRequestPageState extends State<LeaveRequestPage> {
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -25,12 +29,10 @@ class _AbsentPageState extends State<AbsentPage> {
   @override
   void initState() {
     super.initState();
-    _responseData = [];
+    List<Map<String, String?>> responseData = [];
     _getlocal_UserData().then((data) {
       _account = data[0];
       _password = data[1];
-      //print(_account);
-      //print(_password);
 
       setState(() {});
     });
@@ -41,131 +43,818 @@ class _AbsentPageState extends State<AbsentPage> {
     _account = prefs.getString('account')!;
     _password = prefs.getString('password')!;
 
+    // Call _submitForm() method after retrieving and setting the values
+    _submitForm();
+
     return [_account, _password];
   }
 
-  late List _responseData;
+  late List<Map<String, String>> _responseData = [];
   late bool _isLoading = false; // Flag to indicate if API request is being made
+  late bool _isSending = false; // Flag to indicate if API request is being made
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
+  void _showAlertDialog(String text, String href) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(text),
+          content: Text(href),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
-      setState(() {
-        _isLoading = true;
-      });
+  void _showDialog(String text) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(text),
+          // content: Text(href),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
-      // Make POST request to the API
-      http
-          .get(
-        Uri.parse(
-            'http://api.xnor-development.com:70/absent?account=$_account&password=$_password'),
-      )
-          .then((response) {
-        final responseData = json.decode(response.body) as List;
-        //print(responseData);
-        setState(() {
-          _responseData = responseData;
-          _isLoading = false;
+  void _showSendingDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: const <Widget>[
+              CircularProgressIndicator(),
+              SizedBox(height: 16.0),
+              Text('正在執行請假動作 請勿關閉程式...'),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _hideSendingDialog() {
+    Navigator.of(context).pop();
+  }
+
+  Future<List<Map<String, String>>> getAbsent() async {
+    List<Map<String, String>> absentEvent = [];
+    List<Map<String, String>> ExistLeaveRequest = [];
+
+    var session = http.Client();
+    // print(_account);
+    // print(_password);
+    final queryParameters = {
+      'stud_no': _account,
+      'passwd': _password,
+      'b1': '登入Login'
+    };
+    // print(_account);
+    final uri = Uri.https(
+        'portal.stust.edu.tw', '/abs_stu/verify.asp', queryParameters);
+    //authenticate
+    var response = await session.post(uri);
+    String cookies = '${response.headers['set-cookie']!}; 3wave=1';
+
+    final headers = {
+      'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
+    };
+    response = await session.get(
+        Uri.parse('https://portal.stust.edu.tw/abs_stu/query/week.asp'),
+        headers: {...headers, 'cookie': cookies});
+    // print(utf8.decode(response.bodyBytes));
+    var responseBodyHex = hex.encode(response.bodyBytes);
+    var soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+    // print(utf8.decode(hex.decode(responseBodyHex)));
+    // final absent_event = <Map<String, dynamic>>[];
+
+    final res = soup.querySelectorAll("font.c10");
+//  print(res);
+    for (final font in res) {
+      if (font.text.trim() == '遲到Late' || font.text.trim() == '缺課Absence') {
+        final reason = font.text.trim();
+
+        final td = font.parent;
+        final lesson = td?.previousElementSibling;
+        final lessonText = lesson!.querySelector('font')!.text.trim();
+        final section = lesson.previousElementSibling;
+        final sectionText = section!.querySelector('font')!.text.trim();
+        final date = section.previousElementSibling;
+        final dateText = date!.querySelector('font')!.text.trim();
+        final week = date.previousElementSibling;
+        final weekText = week!.querySelector('font')!.text.trim();
+
+        absentEvent.add({
+          'week': weekText,
+          'date': dateText,
+          'section': sectionText,
+          'lesson': lessonText,
+          'reason': reason
         });
+      }
+    }
+
+    ///  responseData載入後 先去載入假單查詢 然後將處理中的href 全部抓出來 依次載入所有href裡的節數與周次 與responseData 裡的week跟 section比對 看哪個假單處理中 卻還存在於responseData 將他們del掉 避免重複請假
+
+    response = await session.get(
+        Uri.parse('https://portal.stust.edu.tw/abs_stu/query/query.asp'),
+        headers: {...headers, 'cookie': cookies});
+    responseBodyHex = hex.encode(response.bodyBytes);
+    soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+    final rows = soup.querySelectorAll('tr[align="center"][bgcolor="#FFFF99"]');
+
+    for (final row in rows) {
+      final status = row.querySelector('td[width="104"]');
+      // print(status?.innerHtml);
+
+      if (status != null && status.innerHtml.contains('處理中')) {
+        String link =
+            'https://portal.stust.edu.tw/abs_stu/query/${row.querySelector('a')!.attributes['href']!}';
+
+        response = await session
+            .get(Uri.parse(link), headers: {...headers, 'cookie': cookies});
+        responseBodyHex = hex.encode(response.bodyBytes);
+        soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+        // print(soup.outerHtml);
+
+        var week = soup.querySelector('td[width="134"]')!.text.trim();
+        var typeElement = soup.querySelector('td[valign="center"]');
+        var type = typeElement?.nextElementSibling?.text.trim(); // output 事假/病假
+
+// get the desired <td> element
+        var tdElement = soup.querySelector('td > font.c12 > b');
+        // print(tdElement);
+
+        // get the parent <tr> element
+        var trElement = tdElement!.parent!
+            .parent; //<td><font class="c12"><b>事假<br>Personal Leave</b>　</font></td>
+        var tableElement = trElement!.parent;
+
+        // find the index of the <td> element in the parent <tr> element
+        var tdIndex = tableElement?.children.indexOf(trElement); // 周幾
+        // print(tdIndex);
+        // print(tdIndex);
+
+        // find the index of the parent <tr> element in its parent <table> element
+        // var trIndex = tableElement!.children.indexOf(trElement);
+
+        // get the previous sibling <td> element to get the "5"
+        var prevTdElement = tableElement?.children[0];
+// print(prevTdElement);
+        var tdValue = prevTdElement!.text;
+        // print(tdValue);
+        ExistLeaveRequest.add({
+          'week': week,
+          'section': tdValue,
+        });
+      }
+    }
+    // print(ExistLeaveRequest);
+
+    absentEvent.removeWhere((absent) => ExistLeaveRequest.any((exist) =>
+        exist['week'] == absent['week'] &&
+        exist['section'] == absent['section']));
+
+    // print(ExistLeaveRequest);
+    var now = DateTime.now();
+
+// Filter out entries where the date is more than 30 days ago
+    var filteredAbsentEvent = absentEvent.where((event) {
+      var eventDate = DateFormat('yyyy/MM/dd').parse(event['date']!);
+      return now.difference(eventDate).inDays <= 30;
+    }).toList();
+
+// Update the original list with the filtered list
+    absentEvent = filteredAbsentEvent;
+
+    // Print the updated absentEvent list
+    // print(absentEvent);
+    return absentEvent;
+  }
+
+  dateToWeekDay(String dateText) {
+    String formattedDateText = dateText.replaceAll(RegExp(r'[^\d/]'), '');
+    DateFormat formatter = DateFormat('yyyy/MM/dd');
+    DateTime date = formatter.parse(formattedDateText);
+    int dayIndex = date.weekday;
+    // print(dayIndex);
+    return dayIndex;
+  }
+
+  void _submitForm() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final responseData = await getAbsent();
+      setState(() {
+        Map<String, String> newItem = {
+          'week': '周次',
+          'date': '日期',
+          'section': '節數',
+          'lesson': '課程',
+          'reason': '曠課/遲到'
+        };
+
+        responseData.insert(0, newItem);
+        _responseData = responseData;
+        // print(responseData);
+
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _showDialog(e.toString());
       });
     }
+    // }
   }
-  // void _submitForm() {
-  //   if (_formKey.currentState!.validate()) {
-  //     _formKey.currentState!.save();
-  //     setState(() {
-  //       _isLoading = true;
-  //     });
 
-  //     // Make POST request to the API
-  //     http.post(
-  //       Uri.parse('http://api.xnor-development.com:70/absent'),
-  //       body: {
-  //         'account': _account,
-  //         'password': _password,
-  //       },
-  //     ).then((response) {
-  //       // Parse response body into a list of maps
-  //       final responseData = json.decode(response.body) as List;
-  //       setState(() {
-  //         _responseData = responseData;
-  //         _isLoading = false;
-  //       });
-  //       // Handle response from the API here
-  //       // Display alert dialog to the user
-  //     });
-  //   }
-  // }
+  String absentType = '4';
+  String absentReason = '身體不適';
+
+  Future _sendleave_request(String week, String absentType, String absentReason,
+      String section, String day) async {
+    print(week);
+    print(absentType);
+    print(absentReason);
+    print(section);
+    print(day);
+
+    setState(() {
+      _isSending = true;
+    });
+    _showSendingDialog();
+
+    try {
+      // // Make POST request to the API
+      // http
+      //     .get(
+      //   Uri.parse(''),
+      // )
+      //     .then((response) {
+      //   final responseData = json.decode(response.body) as List;
+      //   //print(responseData);
+      //   setState(() {
+      //     _responseData = responseData;
+      //     _isLoading = false;
+      //   });
+      //   // Display alert dialog with response data
+      //   _showAlertDialog('Success', 'Your request has been sent');
+      // });
+
+      var session = http.Client();
+
+      final queryParameters = {
+        'stud_no': _account,
+        'passwd': _password,
+        'b1': '登入Login'
+      };
+      final leaveRequestFormData = {
+        'weekd': week, //(周)
+        'h1': '',
+        'ver': '-- Select Language --',
+        'weekee': week, //(周)
+        'CLASSsel': absentType, //4 (4:事假3:病假 2:婚喪產假 1:公假)
+        'reason': absentReason, //
+        'CHAPchk$section': day
+      };
+      final confirmData = {'Submit': '確定送出Submit'};
+
+      final uri = Uri.https(
+          'portal.stust.edu.tw', '/abs_stu/verify.asp', queryParameters);
+      //authenticate
+      var response = await session.post(uri);
+      String cookies = '${response.headers['set-cookie']!}; 3wave=1';
+
+      final headers = {
+        'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
+      };
+      // response = await session.get(
+      //     Uri.parse('https://portal.stust.edu.tw/abs_stu/asking/select-p.asp'),
+      //     headers: {...headers, 'cookie': cookies});
+      //         var responseBodyHex = hex.encode(response.bodyBytes);
+      //   var soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+      //   print(soup.outerHtml);
+
+      if (absentType == '4') {
+        //事假
+        // print('absentType: $absentType');
+        response = await session.get(
+            Uri.parse(
+                'https://portal.stust.edu.tw/abs_stu/asking/select-p.asp'),
+            headers: {...headers, 'cookie': cookies});
+      } else if (absentType == '3') {
+        //病假
+        response = await session.get(
+            Uri.parse('https://portal.stust.edu.tw/abs_stu/asking/select.asp'),
+            headers: {...headers, 'cookie': cookies});
+      }
+      response = await session.post(
+          Uri.parse('https://portal.stust.edu.tw/abs_stu/asking/confirm.asp'),
+          headers: {...headers, 'cookie': cookies},
+          body: leaveRequestFormData);
+      // var responseBodyHex = hex.encode(response.bodyBytes);
+      // var soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+      // print(soup.outerHtml);
+      response = await session.post(
+          Uri.parse('https://portal.stust.edu.tw/abs_stu/asking/list.asp'),
+          headers: {...headers, 'cookie': cookies},
+          body: confirmData);
+      response = await session.get(
+          Uri.parse('https://portal.stust.edu.tw/abs_stu/query/query.asp'),
+          headers: {...headers, 'cookie': cookies});
+      var responseBodyHex = hex.encode(response.bodyBytes);
+      var soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+      // print(soup.outerHtml);
+      ////請完假了 要去query.asp檢查是否成功
+
+      final rows =
+          soup.querySelectorAll('tr[align="center"][bgcolor="#FFFF99"]');
+
+      for (final row in rows) {
+        final status = row.querySelector('font[color="#FF0000"]');
+        if (status != null && status.innerHtml.contains('處理中')) {
+          String link = row.querySelector('a')!.attributes['href']!;
+          print(link);
+
+          response = await session
+              .get(Uri.parse(link), headers: {...headers, 'cookie': cookies});
+          responseBodyHex = hex.encode(response.bodyBytes);
+          soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+
+          var tdElement = soup.querySelector('td[width="70"]');
+          var weekElement = tdElement?.querySelector('.c12');
+          // print(weekElement?.text.trim());
+
+          // 2. Extract the '事假' element and its index inside the tr tag
+          var trElement = soup.querySelectorAll('tr[align="center"]')[1];
+          var tdElements = trElement.querySelectorAll('td');
+
+          for (int i = 0; i < tdElements.length; i++) {
+            var td = tdElements[i];
+            if (td.querySelector('b') != null) {
+              var shijiaElement = td.querySelector('.c12 b');
+              // print(shijiaElement?.text.split('\n')[0].trim());
+              // print("Index inside the tr tag: $i");
+              if (shijiaElement?.text.split('\n')[0].trim() == '事假' &&
+                  absentType == '4' &&
+                  weekElement!.text.trim() == week &&
+                  section == (i - 1).toString()) {
+                print('成功');
+                setState(() {
+                  _isSending = false;
+                });
+                _hideSendingDialog();
+                _showAlertDialog('請假成功', link);
+                MaterialPageRoute(
+                    builder: (context) => const LeaveRequestPage());
+
+                break;
+              } else if (shijiaElement?.text.split('\n')[0].trim() == '病假' &&
+                  absentType == '3' &&
+                  weekElement!.text.trim() == week &&
+                  section == (i - 1).toString()) {
+                print('成功 假單: $link');
+                setState(() {
+                  _isSending = false;
+                });
+                _hideSendingDialog();
+                _showAlertDialog('請假成功', link);
+
+                MaterialPageRoute(
+                    builder: (context) => const LeaveRequestPage());
+
+                break;
+              } else {
+                print('失敗');
+                setState(() {
+                  _isSending = false;
+                });
+                _hideSendingDialog();
+                _showDialog('此操作未達成，請重試');
+
+                MaterialPageRoute(
+                    builder: (context) => const LeaveRequestPage());
+
+                break;
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      setState(() {
+        _isSending = false;
+      });
+      _hideSendingDialog();
+
+      _showDialog('此操作未達成，請重試');
+      // Handle the error here
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      body: Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            const SizedBox(
-              height: 50,
-            ),
-            TextButton(
-              onPressed: _submitForm,
-              child: const Text(
-                '查詢',
-                style: TextStyle(fontSize: 30),
-              ),
-            ),
-            if (_isLoading)
-              const Center(
-                child: CircularProgressIndicator(),
-              ),
-            if (_responseData != null)
-              Expanded(
-                child: ListView.builder(
-                  itemCount: _responseData.length,
-                  itemBuilder: (context, index) {
-                    final data = _responseData[index];
-                    return Column(
-                      children: [
-                        TextFormField(
-                          initialValue: data['date'],
-                          decoration: const InputDecoration(
-                            labelText: '日期',
-                          ),
-                        ),
-                        TextFormField(
-                          initialValue: data['lesson'],
-                          decoration: const InputDecoration(
-                            labelText: '課程',
-                          ),
-                        ),
-                        TextFormField(
-                          initialValue: data['reason'],
-                          decoration: const InputDecoration(
-                            labelText: '缺席原因',
-                          ),
-                        ),
-                        TextFormField(
-                          initialValue: data['section'],
-                          decoration: const InputDecoration(
-                            labelText: '節數',
-                          ),
-                        ),
-                        TextFormField(
-                          initialValue: data['week'],
-                          decoration: const InputDecoration(
-                            labelText: '周數',
-                          ),
-                        ),
-                      ],
-                    );
-                  },
+      body: Stack(
+        children: [
+          Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                const SizedBox(
+                  height: 50,
                 ),
-              ),
-          ],
-        ),
+                // TextButton(
+                //   onPressed: _submitForm,
+                //   child: const Text(
+                //     '查詢',
+                //     style: TextStyle(fontSize: 30),
+                //   ),
+                // ),
+                if (_responseData != null)
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Table(
+                        columnWidths: const {
+                          0: FlexColumnWidth(),
+                          1: FlexColumnWidth(),
+                          2: FlexColumnWidth(),
+                          3: FlexColumnWidth(),
+                        },
+                        children: _responseData.map((data) {
+                          return TableRow(
+                            decoration: const BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(
+                                  width: 3,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ),
+                            children: [
+                              TableCell(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    data['date']!,
+                                    style: const TextStyle(fontSize: 16),
+                                  ),
+                                ),
+                              ),
+                              TableCell(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    data['week'].toString(),
+                                    style: const TextStyle(fontSize: 16),
+                                  ),
+                                ),
+                              ),
+                              TableCell(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    data['section'].toString(),
+                                    style: const TextStyle(fontSize: 16),
+                                  ),
+                                ),
+                              ),
+                              TableCell(
+                                child: GestureDetector(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      data['lesson']!,
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              TableCell(
+                                child: GestureDetector(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      data['reason']!,
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              // if (_responseData.indexOf(data) == 0)
+                              TableCell(
+                                child: IconButton(
+                                  icon: const Icon(Icons.assignment,
+                                      color: Colors.black, size: 30),
+                                  onPressed: () {
+                                    if (_responseData.indexOf(data) == 0) {
+                                      _showDialog(
+                                          '此系統僅提供事假/病假申請\n所有請假需在缺課1個月內完成申請');
+                                    } else {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return Dialog(
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(16.0),
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                children: [
+                                                  const Text(
+                                                    '送出假單:',
+                                                    style: TextStyle(
+                                                        fontSize: 18.0,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                  const SizedBox(height: 16.0),
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      SelectorWidget(
+                                                        labelText: '假別',
+                                                        options: const [
+                                                          '事假',
+                                                          '病假'
+                                                        ],
+                                                        onChanged: (value) {
+                                                          // Handle the value change
+                                                          if (value == '病假') {
+                                                            absentType = '3';
+                                                          } else {
+                                                            absentType = '4';
+                                                          }
+                                                        },
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  const SizedBox(height: 16.0),
+                                                  TextField(
+                                                    decoration:
+                                                        const InputDecoration(
+                                                      hintText: '請假事由',
+                                                      border:
+                                                          OutlineInputBorder(),
+                                                    ),
+                                                    onChanged: (value) {
+                                                      absentReason = value;
+                                                      // Handle the value change
+                                                    },
+                                                  ),
+                                                  const SizedBox(height: 16.0),
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.end,
+                                                    children: [
+                                                      TextButton(
+                                                        onPressed: () {
+                                                          Navigator.of(context)
+                                                              .pop();
+                                                        },
+                                                        child: const Text('取消'),
+                                                      ),
+                                                      ElevatedButton(
+                                                        onPressed: () async {
+                                                          Navigator.of(context)
+                                                              .pop();
+                                                          // Handle the form submission
+                                                          await _sendleave_request(
+                                                              data['week']
+                                                                  .toString(),
+                                                              absentType,
+                                                              absentReason,
+                                                              data['section']
+                                                                  .toString(),
+                                                              dateToWeekDay(data[
+                                                                      'date']!)
+                                                                  .toString());
+                                                          // Navigator.of(context)
+                                                          //     .pop();
+                                                        },
+                                                        child: const Text('送出'),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    }
+                                    // ...
+                                  },
+                                ),
+                              ),
+                            ],
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          if (_isLoading)
+            const Center(
+              child: CircularProgressIndicator(),
+            ),
+        ],
       ),
+
+      // final _formKey = GlobalKey<FormState>();
+      // late String _week;
+      // late String _section;
+      // late String _reason;
+      // late String _day;
+      // late String _type;
+      // late String _account = '0'; // Set account and password to 0 by default
+      // late String _password = '0';
+
+      // @override
+      // void initState() {
+      //   super.initState();
+      //   _responseData = [];
+      //   _getlocal_UserData().then((data) {
+      //     _account = data[0];
+      //     _password = data[1];
+      //     //print(_account);
+      //     //print(_password);
+
+      //     setState(() {});
+      //   });
+      // }
+
+      // _getlocal_UserData() async {
+      //   SharedPreferences prefs = await SharedPreferences.getInstance();
+      //   if (prefs.getString('account') != null) {
+      //     _account = prefs.getString('account')!;
+      //   }
+      //   if (prefs.getString('password') != null) {
+      //     _password = prefs.getString('password')!;
+      //   }
+
+      //   return [_account, _password];
+      // }
+
+      // late List _responseData;
+      // late bool _isLoading = false; // Flag to indicate if API request is being made
+
+      // void _submitForm() {
+      //   if (_formKey.currentState!.validate()) {
+      //     _formKey.currentState!.save();
+
+      //     setState(() {
+      //       _isLoading = true;
+      //     });
+
+      //     // Make POST request to the API
+      //     http
+      //         .get(
+      //       Uri.parse(
+      //           'http://api.xnor-development.com:70/leave_request?account=$_account&password=$_password&week=$_week&section=$_section&reason=$_reason&day=$_day&_type=$_type'),
+      //     )
+      //         .then((response) {
+      //       final responseData = json.decode(response.body) as List;
+      //       //print(responseData);
+      //       setState(() {
+      //         _responseData = responseData;
+      //         _isLoading = false;
+      //       });
+      //       // Display alert dialog with response data
+      //       _showAlertDialog();
+      //     });
+      //   }
+      // }
+
+      // void _showAlertDialog() {
+      //   showDialog(
+      //     context: context,
+      //     builder: (BuildContext context) {
+      //       return AlertDialog(
+      //         title: const Text('成功送出'),
+      //         content: const Text('你的請求已送出'),
+      //         actions: [
+      //           TextButton(
+      //             onPressed: () {
+      //               Navigator.of(context).pop();
+      //             },
+      //             child: const Text('OK'),
+      //           ),
+      //         ],
+      //       );
+      //     },
+      //   );
+      // }
+
+      // @override
+      // Widget build(BuildContext context) {
+      //   return Scaffold(
+      //     body: Stack(children: [
+      //       Form(
+      //         key: _formKey,
+      //         child: Column(
+      //           children: [
+      //             // Content input
+      //             TextFormField(
+      //               onSaved: (value) => _day = value!,
+      //               decoration: const InputDecoration(labelText: '週數'),
+      //               validator: (value) {
+      //                 if (value!.isEmpty) {
+      //                   return '請填入週數';
+      //                 }
+      //                 return null;
+      //               },
+      //             ),
+      //             TextFormField(
+      //               onSaved: (value) => _section = value!,
+      //               decoration: const InputDecoration(labelText: '節數'),
+      //               validator: (value) {
+      //                 if (value!.isEmpty) {
+      //                   return '請填入節數';
+      //                 }
+      //                 return null;
+      //               },
+      //             ),
+      //             // Reason input
+      //             TextFormField(
+      //               onSaved: (value) => _reason = value!,
+      //               decoration: const InputDecoration(labelText: '請假理由'),
+      //               validator: (value) {
+      //                 if (value!.isEmpty) {
+      //                   return '請填入理由';
+      //                 }
+      //                 return null;
+      //               },
+      //             ),
+      //             // Day input
+      //             TextFormField(
+      //               onSaved: (value) => _day = value!,
+      //               decoration: const InputDecoration(labelText: '周幾(禮拜幾)'),
+      //               validator: (value) {
+      //                 if (value!.isEmpty) {
+      //                   return '請填入周幾(禮拜幾)';
+      //                 }
+      //                 return null;
+      //               },
+      //             ),
+      //             // Type input
+
+      //             TextFormField(
+      //               onSaved: (value) => _type = value!,
+      //               decoration: const InputDecoration(labelText: '假別 (4為事假，3為病假)'),
+      //               validator: (value) {
+      //                 if (value!.isEmpty) {
+      //                   return '請填入假別';
+      //                 }
+      //                 return null;
+      //               },
+      //             ),
+      //             const SizedBox(
+      //               height: 50,
+      //             ),
+      //             TextButton(
+      //               onPressed: _submitForm,
+      //               child: const Text(
+      //                 '送出',
+      //                 style: TextStyle(fontSize: 30),
+      //               ),
+      //             ),
+      //           ],
+      //         ),
+      //       )
+      //     ]),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.shifting,
         showSelectedLabels: true,
@@ -194,7 +883,7 @@ class _AbsentPageState extends State<AbsentPage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         centerTitle: true,
-        title: const Text('查詢缺席(e網通)'),
+        title: const Text('請假(e網通)'),
         actions: [
           IconButton(
               iconSize: 35,
@@ -223,6 +912,98 @@ class _AbsentPageState extends State<AbsentPage> {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
+    );
+  }
+}
+
+/////////////////////////////////////////////////
+
+class SelectorWidget extends StatefulWidget {
+  final String labelText;
+  final List<String> options;
+  final Function(String)? onChanged;
+
+  const SelectorWidget({
+    super.key,
+    required this.labelText,
+    required this.options,
+    this.onChanged,
+  });
+
+  @override
+  _SelectorWidgetState createState() => _SelectorWidgetState();
+}
+
+class _SelectorWidgetState extends State<SelectorWidget> {
+  String _selectedOption = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedOption = widget.options.first;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          widget.labelText,
+          style: const TextStyle(fontSize: 16.0),
+        ),
+        const SizedBox(height: 8.0),
+        Row(
+          children: widget.options.map((option) {
+            return InkWell(
+              onTap: () {
+                setState(() {
+                  _selectedOption = option;
+                });
+                if (widget.onChanged != null) {
+                  widget.onChanged!(_selectedOption);
+                }
+              },
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8.0,
+                      horizontal: 16.0,
+                    ),
+                    decoration: BoxDecoration(
+                      color: option == _selectedOption
+                          ? Colors.blueAccent
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(16.0),
+                      border: Border.all(
+                        width: 1.0,
+                        color: Colors.grey.shade400,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Text(
+                          option,
+                          style: TextStyle(
+                            color: option == _selectedOption
+                                ? Colors.white
+                                : Colors.black,
+                            fontWeight: option == _selectedOption
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8.0),
+                ],
+              ),
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 }

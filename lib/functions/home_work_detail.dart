@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 // ignore: depend_on_referenced_packages
 import 'package:html/parser.dart' as html;
+import 'dart:io';
 
 class HomeWorkDetailPage extends StatefulWidget {
   const HomeWorkDetailPage({Key? key}) : super(key: key);
@@ -29,9 +30,9 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
   String? allowLateSubmission = '';
   String? gradeWeight = '';
   String? gradingMethod = '';
-  String? detail = '';
-  String? videoUrl = '';
-  String? attachmentName = '';
+  String? detail = '無';
+  String? videoUrl = '無';
+  String? attachmentName = '無';
   String? attachmentUrl = '';
 
   @override
@@ -53,7 +54,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
   }
 
   Future<void> sendHomework() async {
-    var homeworkCode = '';
+    // var homeworkCode = '';
     var session = http.Client();
     var response = await session
         .get(Uri.parse('https://flipclass.stust.edu.tw/index/login'));
@@ -91,12 +92,12 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
       'cookie': cookies,
     };
 
-    response = await session.get(
-        Uri.parse(
-            'https://flipclass.stust.edu.tw/course/homework/$homeworkCode'),
-        headers: headers);
+    response = await session.get(Uri.parse(href), headers: headers);
     soup = html.parse(response.body);
-    print(soup);
+    // print(soup.outerHtml);
+    // print(href);
+    // print(src);
+
 // extract the desired data
     typeOfHomework = soup
         .querySelectorAll('dt')
@@ -147,34 +148,52 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
         ?.text
         .trim();
 
-    detail = soup
-        .querySelectorAll('dt')
-        .firstWhere((element) => element.text == '說明')
-        .nextElementSibling
-        ?.text
-        .trim();
+    try {
+      detail = soup
+          .querySelectorAll('dt')
+          .firstWhere((element) => element.text == '說明')
+          .nextElementSibling
+          ?.text
+          .trim();
+    } catch (e) {
+      // Handle the error here
+    }
 
-    videoUrl = soup
-        .querySelectorAll('dt')
-        .firstWhere((element) => element.text == '說明')
-        .nextElementSibling
-        ?.querySelector('a')
-        ?.attributes['href'];
+    try {
+      videoUrl = soup
+          .querySelectorAll('dt')
+          .firstWhere((element) => element.text == '說明')
+          .nextElementSibling
+          ?.querySelector('a')
+          ?.attributes['href'];
+    } catch (e) {
+      // Handle the error here
+    }
 
-    attachmentName = soup
-        .querySelectorAll('dt')
-        .firstWhere((element) => element.text == '附件')
-        .nextElementSibling
-        ?.querySelector('a')
-        ?.text
-        .trim();
+    try {
+      attachmentName = soup
+          .querySelectorAll('dt')
+          .firstWhere((element) => element.text == '附件')
+          .nextElementSibling
+          ?.querySelector('a')
+          ?.text
+          .trim();
+    } catch (e) {
+      // Handle the error here
+    }
 
-    attachmentUrl = soup
-        .querySelectorAll('dt')
-        .firstWhere((element) => element.text == '附件')
-        .nextElementSibling
-        ?.querySelector('a')
-        ?.attributes['href'];
+    try {
+      attachmentUrl = soup
+          .querySelectorAll('dt')
+          .firstWhere((element) => element.text == '附件')
+          .nextElementSibling
+          ?.querySelector('a')
+          ?.attributes['href'];
+    } catch (e) {
+      // Handle the error here
+    }
+
+    sleep(const Duration(seconds: 1));
     setState(() {});
   }
 
@@ -191,58 +210,56 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
               padding: const EdgeInsets.all(16.0),
               child: ListView(
                 children: [
-                  if (topic.isNotEmpty)
-                    ListTile(
-                      title: Text('Topic: $topic'),
+                  // if (topic.isNotEmpty)
+                  ListTile(
+                    title: Text('Topic: $topic'),
+                  ),
+                  // if (src.isNotEmpty)
+                  ListTile(
+                    title: Text('Class: $src'),
+                  ),
+                  // if (typeOfHomework.isNotEmpty)
+                  ListTile(
+                    title: Text('Type of Homework: $typeOfHomework'),
+                  ),
+                  // if (openForSubmission.isNotEmpty)
+                  ListTile(
+                    title: Text('Open for Submission: $openForSubmission'),
+                  ),
+                  // if (numberOfSubmissions!.isNotEmpty)
+                  ListTile(
+                    title: Text('Number of Submissions: $numberOfSubmissions'),
+                  ),
+                  // if (allowLateSubmission!.isNotEmpty)
+                  ListTile(
+                    title: Text('Allow Late Submission: $allowLateSubmission'),
+                  ),
+                  // if (gradeWeight!.isNotEmpty)
+                  ListTile(
+                    title: Text('Grade Weight: $gradeWeight'),
+                  ),
+                  // if (gradingMethod!.isNotEmpty)
+                  ListTile(
+                    title: Text('Grading Method: $gradingMethod'),
+                  ),
+                  // if (detail != null)
+                  ListTile(
+                    title: Text('Detail: $detail'),
+                  ),
+                  // if (videoUrl != null)
+                  GestureDetector(
+                    onTap: () => launchUrl(Uri.parse(videoUrl!)),
+                    child: ListTile(
+                      title: Text('Video URL: $videoUrl'),
                     ),
-                  if (src.isNotEmpty)
-                    ListTile(
-                      title: Text('Class: $src'),
+                  ),
+                  // if (attachmentUrl!.isNotEmpty)
+                  GestureDetector(
+                    onTap: () => launchUrl(attachmentUrl as Uri),
+                    child: ListTile(
+                      title: Text('Attachment: $attachmentName'),
                     ),
-                  if (typeOfHomework.isNotEmpty)
-                    ListTile(
-                      title: Text('Type of Homework: $typeOfHomework'),
-                    ),
-                  if (openForSubmission.isNotEmpty)
-                    ListTile(
-                      title: Text('Open for Submission: $openForSubmission'),
-                    ),
-                  if (numberOfSubmissions!.isNotEmpty)
-                    ListTile(
-                      title:
-                          Text('Number of Submissions: $numberOfSubmissions'),
-                    ),
-                  if (allowLateSubmission!.isNotEmpty)
-                    ListTile(
-                      title:
-                          Text('Allow Late Submission: $allowLateSubmission'),
-                    ),
-                  if (gradeWeight!.isNotEmpty)
-                    ListTile(
-                      title: Text('Grade Weight: $gradeWeight'),
-                    ),
-                  if (gradingMethod!.isNotEmpty)
-                    ListTile(
-                      title: Text('Grading Method: $gradingMethod'),
-                    ),
-                  if (detail!.isNotEmpty)
-                    ListTile(
-                      title: Text('Detail: $detail'),
-                    ),
-                  if (videoUrl!.isNotEmpty)
-                    GestureDetector(
-                      onTap: () => launchUrl(Uri.parse(videoUrl!)),
-                      child: ListTile(
-                        title: Text('Video URL: $videoUrl'),
-                      ),
-                    ),
-                  if (attachmentUrl!.isNotEmpty)
-                    GestureDetector(
-                      onTap: () => launchUrl(attachmentUrl as Uri),
-                      child: ListTile(
-                        title: Text('Attachment: $attachmentName'),
-                      ),
-                    ),
+                  ),
                 ],
               ),
             ),
