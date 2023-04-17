@@ -19,7 +19,8 @@ class HomeworkPage extends StatefulWidget {
   _HomeworkPageState createState() => _HomeworkPageState();
 }
 
-class _HomeworkPageState extends State<HomeworkPage> {
+class _HomeworkPageState extends State<HomeworkPage>
+    with WidgetsBindingObserver {
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -29,16 +30,33 @@ class _HomeworkPageState extends State<HomeworkPage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     List<Map<String, String?>> responseData = [];
     _getlocal_UserData().then((data) {
       _account = data[0];
       _password = data[1];
 
-
       setState(() {});
     });
 
     _submitForm();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      // Enable controls when the page is resumed
+    } else if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused) {
+      // Disable controls when the page is inactive or paused
+    }
   }
 
   _getlocal_UserData() async {
@@ -51,7 +69,6 @@ class _HomeworkPageState extends State<HomeworkPage> {
 
   late List<Map<String, String>> _responseData = [];
   late bool _isLoading = false; // Flag to indicate if API request is being made
-
 
   void _showAlertDialog(String text, String href) {
     showDialog(
@@ -149,8 +166,6 @@ class _HomeworkPageState extends State<HomeworkPage> {
   }
 
   void _submitForm() async {
-
-
     setState(() {
       _isLoading = true;
     });
@@ -161,8 +176,7 @@ class _HomeworkPageState extends State<HomeworkPage> {
         _responseData = responseData;
         _isLoading = false;
       });
-          // sleep(const Duration(seconds: 1));
-
+      // sleep(const Duration(seconds: 1));
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -185,7 +199,6 @@ class _HomeworkPageState extends State<HomeworkPage> {
                 const SizedBox(
                   height: 50,
                 ),
-
                 if (_responseData != null) // Add this check here
                   Expanded(
                     child: ListView.separated(
@@ -198,13 +211,14 @@ class _HomeworkPageState extends State<HomeworkPage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const HomeWorkDetailPage(),
+                                builder: (context) =>
+                                    const HomeWorkDetailPage(),
                                 settings: RouteSettings(arguments: {
-                                'topic': data['topic'],
-                                'src':  data['src'],
-                                'href':  data['href'],
-                                'account': _account,
-                                'password': _password,
+                                  'topic': data['topic'],
+                                  'src': data['src'],
+                                  'href': data['href'],
+                                  'account': _account,
+                                  'password': _password,
                                 }),
                               ),
                             );
@@ -223,13 +237,11 @@ class _HomeworkPageState extends State<HomeworkPage> {
                                       ),
                                     ),
                                   ),
-
                                 ],
                               ),
                             ),
                           ),
                         );
-
                       },
                     ),
                   )
@@ -255,7 +267,6 @@ class _HomeworkPageState extends State<HomeworkPage> {
               icon: Icon(Icons.format_list_bulleted),
               label: '最新公告',
               backgroundColor: Color.fromARGB(255, 40, 105, 218)),
-
         ],
         onTap: (int index) {
           switch (index) {
@@ -281,7 +292,6 @@ class _HomeworkPageState extends State<HomeworkPage> {
                     context, MyHomePage.routeName, (route) => false);
               },
               icon: const Icon(IconData(0xe328, fontFamily: 'MaterialIcons')))
-
         ],
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
