@@ -13,6 +13,8 @@ import 'package:flutter/services.dart';
 import './functions/home_work_detail.dart';
 import 'package:stust_app/model/panda_pick_model/pandaPickHelper.dart';
 import 'package:stust_app/model/panda_pick_model/pandaPickItemModel.dart';
+import 'package:page_transition/page_transition.dart';
+
 import 'package:stust_app/model/restuarent.dart';
 
 void main() {
@@ -65,6 +67,70 @@ class MyApp extends StatelessWidget {
         depth: 6,
       ),
       home: const MyHomePage(),
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
+          case '/homework':
+            return PageTransition(
+              child: const HomeworkPage(),
+              type: PageTransitionType.leftToRightWithFade,
+              settings: settings,
+              reverseDuration: const Duration(seconds: 3),
+            );
+            break;
+          case '/bulletins':
+            return PageTransition(
+              child: const BulletinsPage(),
+              type: PageTransitionType.leftToRightWithFade,
+              settings: settings,
+              reverseDuration: const Duration(seconds: 3),
+            );
+            break;
+          case '/leave_request':
+            return PageTransition(
+              child: const AbsentPage(),
+              type: PageTransitionType.leftToRightWithFade,
+              settings: settings,
+              reverseDuration: const Duration(seconds: 3),
+            );
+            break;
+          case '/reflection':
+            return PageTransition(
+              child: const ReflectionPage(),
+              type: PageTransitionType.leftToRightWithFade,
+              settings: settings,
+              reverseDuration: const Duration(seconds: 3),
+            );
+            break;
+          //         case '/bulletins':
+          // return PageTransition(
+          //   child: BulletinsPage(),
+          //   type: PageTransitionType.leftToRightWithFade,
+          //   settings: settings,
+          //   reverseDuration: Duration(seconds: 3),
+          // );
+          // break;
+          case '/absent':
+            return PageTransition(
+              child: const LeaveRequestPage(),
+              type: PageTransitionType.leftToRightWithFade,
+              settings: settings,
+              reverseDuration: const Duration(seconds: 3),
+            );
+            break;
+
+          ////
+          case '/homework-detail':
+            return PageTransition(
+              child: const HomeWorkDetailPage(),
+              type: PageTransitionType.leftToRightWithFade,
+              settings: settings,
+              reverseDuration: const Duration(seconds: 3),
+            );
+            break;
+          default:
+            return null;
+        }
+      },
       routes: {
         LoginPage.routeName: (context) => const LoginPage(),
         MyHomePage.routeName: (context) => const MyHomePage(),
@@ -137,10 +203,12 @@ class MyHomePage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
                 child: InkWell(
                   onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const HomeworkPage()));
+                    Navigator.push(context, PageTransition(type: PageTransitionType.leftToRightWithFade, child: const HomeworkPage()));
+
+                    // Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(
+                    //         builder: (context) => const HomeworkPage()));
                   },
                   child: Container(
                     height: MediaQuery.of(context).size.height * .18,
@@ -199,7 +267,8 @@ class MyHomePage extends StatelessWidget {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => const LeaveRequestPage()));
+                                  builder: (context) =>
+                                      const LeaveRequestPage()));
                         },
                         child: Container(
                           height: MediaQuery.of(context).size.height * .25,
