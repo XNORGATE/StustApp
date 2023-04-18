@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
@@ -27,6 +29,7 @@ class _HomeworkPageState extends State<HomeworkPage>
   late String _account = '0'; // Set account and password to 0 by default
   late String _password = '0';
 
+
   @override
   void initState() {
     super.initState();
@@ -45,6 +48,8 @@ class _HomeworkPageState extends State<HomeworkPage>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+      _cancelToken = true;
+
     super.dispose();
   }
 
@@ -152,10 +157,11 @@ class _HomeworkPageState extends State<HomeworkPage>
           });
         }
 
-        setState(() {
-          _responseData = newData;
-        });
-
+if (mounted && !_cancelToken) {
+  setState(() {
+    _responseData = newData;
+  });
+}
         homeworkPage++;
         genHomework(homeworkPage);
       }
@@ -165,26 +171,30 @@ class _HomeworkPageState extends State<HomeworkPage>
     return homework;
   }
 
-  void _submitForm() async {
-    setState(() {
-      _isLoading = true;
-    });
+void _submitForm() async {
+  setState(() {
+    _isLoading = true;
+  });
 
-    try {
-      final responseData = await getHomework();
+  _cancelToken = false;
+  try {
+    final responseData = await getHomework();
+    if (mounted && !_cancelToken) {
       setState(() {
         _responseData = responseData;
         _isLoading = false;
       });
-      // sleep(const Duration(seconds: 1));
-    } catch (e) {
+      sleep(const Duration(seconds: 1));
+    }
+  } catch (e) {
+    if (mounted && !_cancelToken) {
       setState(() {
         _isLoading = false;
         _showAlertDialog(e.toString(), e.toString());
       });
     }
-    // }
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -206,7 +216,7 @@ class _HomeworkPageState extends State<HomeworkPage>
                       separatorBuilder: (context, index) => const Divider(),
                       itemBuilder: (context, index) {
                         final data = _responseData[index];
-                        return GestureDetector(
+                        return InkWell(
                           onTap: () {
                             Navigator.push(
                               context,
@@ -300,4 +310,6 @@ class _HomeworkPageState extends State<HomeworkPage>
       ),
     );
   }
+    bool _cancelToken = false;
+
 }

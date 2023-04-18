@@ -297,11 +297,11 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
 
   Future _sendleave_request(String week, String absentType, String absentReason,
       String section, String day) async {
-    print(week);
-    print(absentType);
-    print(absentReason);
-    print(section);
-    print(day);
+    // print(week);
+    // print(absentType);
+    // print(absentReason);
+    // print(section);
+    // print(day);
 
     setState(() {
       _isSending = true;
@@ -394,87 +394,109 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
 
       final rows =
           soup.querySelectorAll('tr[align="center"][bgcolor="#FFFF99"]');
-
       for (final row in rows) {
-        final status = row.querySelector('font[color="#FF0000"]');
+        final status = row.querySelector('td[width="104"]');
+        // print(status);
+
         if (status != null && status.innerHtml.contains('處理中')) {
-          String link = row.querySelector('a')!.attributes['href']!;
-          print(link);
+          String link =
+              'https://portal.stust.edu.tw/abs_stu/query/${row.querySelector('a')!.attributes['href']!}';
+
+          // print(link);
 
           response = await session
               .get(Uri.parse(link), headers: {...headers, 'cookie': cookies});
           responseBodyHex = hex.encode(response.bodyBytes);
           soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+          print(link);
 
-          var tdElement = soup.querySelector('td[width="70"]');
-          var weekElement = tdElement?.querySelector('.c12');
+          // var tdElement = soup.querySelector('td[width="70"]');
+
           // print(weekElement?.text.trim());
 
           // 2. Extract the '事假' element and its index inside the tr tag
-          var trElement = soup.querySelectorAll('tr[align="center"]')[1];
-          var tdElements = trElement.querySelectorAll('td');
+          var trElement = soup.querySelectorAll('tr[align="center"]');
+          // var tdElements = trElement.querySelector('td');
+          // print(tdElements);
+          for (int i = 0; i < trElement.length; i++) {
+            // print(trElement[i]);
+            var td = trElement[i].querySelectorAll('td');
+            var weekElement = trElement[i].querySelector('[color="#000000"]');
+            // print(td);
+            for (var t in td) {
+              // print(t.text);
+              var shijiaElement = t.text.split('\n')[0].trim();
+              // print(shijiaElement);
+              if (shijiaElement.contains('假')) {
+                // print('shijiaElement: $shijiaElement');
+                // print('absentType: $absentType');
+                // print('weekElement?.text.trim(): ${weekElement?.text.trim()}');
+                // print('week: $week');
+                // print('(i - 1).toString(): ${(i - 1).toString()}');
 
-          for (int i = 0; i < tdElements.length; i++) {
-            var td = tdElements[i];
-            if (td.querySelector('b') != null) {
-              var shijiaElement = td.querySelector('.c12 b');
-              // print(shijiaElement?.text.split('\n')[0].trim());
-              // print("Index inside the tr tag: $i");
-              if (shijiaElement?.text.split('\n')[0].trim() == '事假' &&
-                  absentType == '4' &&
-                  weekElement!.text.trim() == week &&
-                  section == (i - 1).toString()) {
-                print('成功');
-                setState(() {
-                  _isSending = false;
-                });
-                _hideSendingDialog();
-                _showAlertDialog('請假成功', link);
-                MaterialPageRoute(
-                    builder: (context) => const LeaveRequestPage());
+                // print('section:$section');
 
-                break;
-              } else if (shijiaElement?.text.split('\n')[0].trim() == '病假' &&
-                  absentType == '3' &&
-                  weekElement!.text.trim() == week &&
-                  section == (i - 1).toString()) {
-                print('成功 假單: $link');
-                setState(() {
-                  _isSending = false;
-                });
-                _hideSendingDialog();
-                _showAlertDialog('請假成功', link);
+                if (shijiaElement == '事假' &&
+                    absentType == '4' &&
+                    weekElement?.text.trim() == week &&
+                    section == (i - 1).toString()) {
+                  print('成功');
+                  setState(() {
+                    _isSending = false;
+                  });
+                  _hideSendingDialog();
+                  _showAlertDialog('請假成功', link);
+                  MaterialPageRoute(
+                      builder: (context) => const LeaveRequestPage());
 
-                MaterialPageRoute(
-                    builder: (context) => const LeaveRequestPage());
+                  break;
+                } else if (shijiaElement == '病假' &&
+                    absentType == '3' &&
+                    weekElement?.text.trim() == week &&
+                    section == (i - 1).toString()) {
+                  print('成功 假單: $link');
+                  setState(() {
+                    _isSending = false;
+                  });
+                  _hideSendingDialog();
+                  _showAlertDialog('請假成功', link);
 
-                break;
-              } else {
-                print('失敗');
-                setState(() {
-                  _isSending = false;
-                });
-                _hideSendingDialog();
-                _showDialog('此操作未達成，請重試');
+                  MaterialPageRoute(
+                      builder: (context) => const LeaveRequestPage());
 
-                MaterialPageRoute(
-                    builder: (context) => const LeaveRequestPage());
+                  break;
+                } else {
+                  print('失敗');
+                  setState(() {
+                    _isSending = false;
+                  });
+                  _hideSendingDialog();
+                  // Navigator.of(context).pop();
+                  _showDialog('此操作未達成，請重試');
 
-                break;
+                  MaterialPageRoute(
+                      builder: (context) => const LeaveRequestPage());
+
+                  break;
+                }
               }
             }
           }
         }
       }
     } catch (e) {
-      setState(() {
-        _isSending = false;
-      });
-      _hideSendingDialog();
+      // _hideSendingDialog();
+      // MaterialPageRoute(builder: (context) => const LeaveRequestPage());
 
-      _showDialog('此操作未達成，請重試');
+      // Navigator.of(context).pop();
+      // _showDialog('此操作未達成，請重試');
       // Handle the error here
     }
+    // setState(() {
+    //   _isSending = false;
+    // });
+    // _showDialog('此操作未達成，請重試');
+    // MaterialPageRoute(builder: (context) => const LeaveRequestPage());
   }
 
   @override
@@ -546,7 +568,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                                 ),
                               ),
                               TableCell(
-                                child: GestureDetector(
+                                child: InkWell(
                                   child: Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Text(
@@ -557,7 +579,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                                 ),
                               ),
                               TableCell(
-                                child: GestureDetector(
+                                child: InkWell(
                                   child: Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Text(

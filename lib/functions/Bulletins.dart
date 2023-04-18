@@ -268,7 +268,7 @@ class _BulletinsPageState extends State<BulletinsPage> {
                       separatorBuilder: (context, index) => const Divider(),
                       itemBuilder: (context, index) {
                         final data = _responseData[index];
-                        return GestureDetector(
+                        return InkWell(
                           onTap: () async {
                             final confirmed = await showDialog(
                               context: context,

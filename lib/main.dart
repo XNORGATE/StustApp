@@ -262,7 +262,7 @@ class MyHomePage extends StatelessWidget {
                   children: [
                     Expanded(
                       flex: 1,
-                      child: GestureDetector(
+                      child: InkWell(
                         onTap: () {
                           Navigator.push(
                               context,
@@ -318,7 +318,7 @@ class MyHomePage extends StatelessWidget {
                       flex: 1,
                       child: Column(
                         children: [
-                          GestureDetector(
+                          InkWell(
                             onTap: () {
                               // Do something when this widget is tapped
                             },
@@ -356,7 +356,7 @@ class MyHomePage extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 5),
-                          GestureDetector(
+                          InkWell(
                             onTap: () {
                               // Do something when this widget is tapped
                             },

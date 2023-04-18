@@ -248,14 +248,14 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                     title: Text('Detail: $detail'),
                   ),
                   // if (videoUrl != null)
-                  GestureDetector(
+                  InkWell(
                     onTap: () => launchUrl(Uri.parse(videoUrl!)),
                     child: ListTile(
                       title: Text('Video URL: $videoUrl'),
                     ),
                   ),
                   // if (attachmentUrl!.isNotEmpty)
-                  GestureDetector(
+                  InkWell(
                     onTap: () => launchUrl(attachmentUrl as Uri),
                     child: ListTile(
                       title: Text('Attachment: $attachmentName'),
