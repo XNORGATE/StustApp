@@ -4,6 +4,7 @@ import 'package:html/parser.dart' as html_parser;
 import 'dart:convert';
 import 'package:convert/convert.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -53,13 +54,40 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
   late bool _isLoading = false; // Flag to indicate if API request is being made
   late bool _isSending = false; // Flag to indicate if API request is being made
 
-  void _showAlertDialog(String text, String href) {
+  void _showAlertDialog(String text, String href, dynamic soup) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(text),
-          content: Text(href),
+          content: InkWell(
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    content: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      height: MediaQuery.of(context).size.height * 0.8,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: HtmlWidget(soup.outerHtml),
+                      ),
+                    ),
+                    actions: [
+                      TextButton(
+                        child: const Text('關閉'),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            child: const ListTile(
+              title: Text('假單連結點我', style: TextStyle(color: Colors.blue)),
+            ),
+          ),
           actions: [
             TextButton(
               onPressed: () {
@@ -96,7 +124,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
   void _showSendingDialog() {
     showDialog(
       context: context,
-      barrierDismissible: false,
+      // barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
           content: Column(
@@ -104,7 +132,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
             children: const <Widget>[
               CircularProgressIndicator(),
               SizedBox(height: 16.0),
-              Text('正在執行請假動作 請勿關閉程式...'),
+              Text('正在執行請假動作 待結果顯示即可關閉...'),
             ],
           ),
         );
@@ -113,7 +141,16 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
   }
 
   void _hideSendingDialog() {
-    Navigator.of(context).pop();
+    Navigator.popUntil(context, ModalRoute.withName('leave_request'));
+  }
+
+  int dateToWeekDay(String dateText) {
+    String formattedDateText = dateText.replaceAll(RegExp(r'[^\d/]'), '');
+    DateFormat formatter = DateFormat('yyyy/MM/dd');
+    DateTime date = formatter.parse(formattedDateText);
+    int dayIndex = date.weekday;
+    // print('$dateText ,$dayIndex');
+    return dayIndex;
   }
 
   Future<List<Map<String, String>>> getAbsent() async {
@@ -149,7 +186,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
     // final absent_event = <Map<String, dynamic>>[];
 
     final res = soup.querySelectorAll("font.c10");
-//  print(res);
+    //  print(res);
     for (final font in res) {
       if (font.text.trim() == '遲到Late' || font.text.trim() == '缺課Absence') {
         final reason = font.text.trim();
@@ -201,7 +238,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
         var typeElement = soup.querySelector('td[valign="center"]');
         var type = typeElement?.nextElementSibling?.text.trim(); // output 事假/病假
 
-// get the desired <td> element
+        // get the desired <td> element
         var tdElement = soup.querySelector('td > font.c12 > b');
         // print(tdElement);
 
@@ -211,34 +248,38 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
         var tableElement = trElement!.parent;
 
         // find the index of the <td> element in the parent <tr> element
-        var tdIndex = tableElement?.children.indexOf(trElement); // 周幾
-        // print(tdIndex);
+        var tdIndex = tableElement!.children.indexOf(trElement);
+        var day = (tdIndex.toInt() - 1).toString(); // 周幾
         // print(tdIndex);
 
         // find the index of the parent <tr> element in its parent <table> element
         // var trIndex = tableElement!.children.indexOf(trElement);
 
         // get the previous sibling <td> element to get the "5"
-        var prevTdElement = tableElement?.children[0];
-// print(prevTdElement);
-        var tdValue = prevTdElement!.text;
+        var prevTdElement = tableElement.children[0];
+        // print(prevTdElement);
+        var tdValue = prevTdElement.text;
+        // print('week $week ,周幾: $day  section: $tdValue');
+
         // print(tdValue);
         ExistLeaveRequest.add({
           'week': week,
+          'day': day,
           'section': tdValue,
         });
       }
     }
     // print(ExistLeaveRequest);
+    // print(absentEvent);
 
     absentEvent.removeWhere((absent) => ExistLeaveRequest.any((exist) =>
         exist['week'] == absent['week'] &&
-        exist['section'] == absent['section']));
-
+        exist['section'] == absent['section'] &&
+        exist['day'] == dateToWeekDay(absent['date']!).toString()));
     // print(ExistLeaveRequest);
     var now = DateTime.now();
 
-// Filter out entries where the date is more than 30 days ago
+    // Filter out entries where the date is more than 30 days ago
     var filteredAbsentEvent = absentEvent.where((event) {
       var eventDate = DateFormat('yyyy/MM/dd').parse(event['date']!);
       return now.difference(eventDate).inDays <= 30;
@@ -246,19 +287,9 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
 
 // Update the original list with the filtered list
     absentEvent = filteredAbsentEvent;
-
     // Print the updated absentEvent list
     // print(absentEvent);
     return absentEvent;
-  }
-
-  dateToWeekDay(String dateText) {
-    String formattedDateText = dateText.replaceAll(RegExp(r'[^\d/]'), '');
-    DateFormat formatter = DateFormat('yyyy/MM/dd');
-    DateTime date = formatter.parse(formattedDateText);
-    int dayIndex = date.weekday;
-    // print(dayIndex);
-    return dayIndex;
   }
 
   void _submitForm() async {
@@ -353,12 +384,12 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
         'User-Agent':
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
       };
-      // response = await session.get(
-      //     Uri.parse('https://portal.stust.edu.tw/abs_stu/asking/select-p.asp'),
-      //     headers: {...headers, 'cookie': cookies});
-      //         var responseBodyHex = hex.encode(response.bodyBytes);
-      //   var soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
-      //   print(soup.outerHtml);
+      response = await session.get(
+          Uri.parse('https://portal.stust.edu.tw/abs_stu/asking/select-p.asp'),
+          headers: {...headers, 'cookie': cookies});
+      var responseBodyHex = hex.encode(response.bodyBytes);
+      var soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+      // print(soup.outerHtml);
 
       if (absentType == '4') {
         //事假
@@ -387,8 +418,8 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
       response = await session.get(
           Uri.parse('https://portal.stust.edu.tw/abs_stu/query/query.asp'),
           headers: {...headers, 'cookie': cookies});
-      var responseBodyHex = hex.encode(response.bodyBytes);
-      var soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+      responseBodyHex = hex.encode(response.bodyBytes);
+      soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
       // print(soup.outerHtml);
       ////請完假了 要去query.asp檢查是否成功
 
@@ -408,7 +439,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
               .get(Uri.parse(link), headers: {...headers, 'cookie': cookies});
           responseBodyHex = hex.encode(response.bodyBytes);
           soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
-          print(link);
+          // print(link);
 
           // var tdElement = soup.querySelector('td[width="70"]');
 
@@ -416,17 +447,18 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
 
           // 2. Extract the '事假' element and its index inside the tr tag
           var trElement = soup.querySelectorAll('tr[align="center"]');
+          var weekElement = soup.querySelector('td[width="134"]');
+
           // var tdElements = trElement.querySelector('td');
           // print(tdElements);
           for (int i = 0; i < trElement.length; i++) {
             // print(trElement[i]);
             var td = trElement[i].querySelectorAll('td');
-            var weekElement = trElement[i].querySelector('[color="#000000"]');
             // print(td);
             for (var t in td) {
               // print(t.text);
               var shijiaElement = t.text.split('\n')[0].trim();
-              // print(shijiaElement);
+              // print('shijiaElement: $shijiaElement');
               if (shijiaElement.contains('假')) {
                 // print('shijiaElement: $shijiaElement');
                 // print('absentType: $absentType');
@@ -436,49 +468,40 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
 
                 // print('section:$section');
 
-                if (shijiaElement == '事假' &&
+                if (shijiaElement.contains('事假') &&
                     absentType == '4' &&
                     weekElement?.text.trim() == week &&
-                    section == (i - 1).toString()) {
-                  print('成功');
+                    (i - 1).toString() == section) {
+                  // print('成功');
                   setState(() {
                     _isSending = false;
                   });
-                  _hideSendingDialog();
-                  _showAlertDialog('請假成功', link);
-                  MaterialPageRoute(
-                      builder: (context) => const LeaveRequestPage());
+                  // _hideSendingDialog();
 
-                  break;
-                } else if (shijiaElement == '病假' &&
+                  _showAlertDialog('請假成功', link, soup);
+                } else if (shijiaElement.contains('病假') &&
                     absentType == '3' &&
                     weekElement?.text.trim() == week &&
-                    section == (i - 1).toString()) {
-                  print('成功 假單: $link');
+                    (i - 1).toString() == section) {
+                  // print('成功 假單: $link');
                   setState(() {
                     _isSending = false;
+                    // Navigator.of(context).pop();
                   });
-                  _hideSendingDialog();
-                  _showAlertDialog('請假成功', link);
-
-                  MaterialPageRoute(
-                      builder: (context) => const LeaveRequestPage());
-
-                  break;
+                  // _hideSendingDialog();
+                  _showAlertDialog('請假成功', link, soup);
                 } else {
-                  print('失敗');
+                  // print('失敗');
                   setState(() {
                     _isSending = false;
+                    // Navigator.of(context).pop();
                   });
                   _hideSendingDialog();
                   // Navigator.of(context).pop();
                   _showDialog('此操作未達成，請重試');
-
-                  MaterialPageRoute(
-                      builder: (context) => const LeaveRequestPage());
-
-                  break;
                 }
+
+                return;
               }
             }
           }
@@ -597,7 +620,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                                   onPressed: () {
                                     if (_responseData.indexOf(data) == 0) {
                                       _showDialog(
-                                          '此系統僅提供事假/病假申請\n所有請假需在缺課1個月內完成申請');
+                                          '1.此系統僅提供事假/病假申請\n2.所有請假需在缺課1個月內完成申請\n3.此表格僅會顯示已被紀錄缺席之課堂\n4.若缺課無出現表示已超過請假時限或已完成請假');
                                     } else {
                                       showDialog(
                                         context: context,
@@ -681,8 +704,6 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                                                               dateToWeekDay(data[
                                                                       'date']!)
                                                                   .toString());
-                                                          // Navigator.of(context)
-                                                          //     .pop();
                                                         },
                                                         child: const Text('送出'),
                                                       ),
@@ -880,15 +901,15 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.shifting,
         showSelectedLabels: true,
-        showUnselectedLabels: false,
+        showUnselectedLabels: true,
         items: const [
           BottomNavigationBarItem(
               icon: Icon(Icons.assignment),
-              label: '缺曠紀錄',
+              label: '假單查詢',
               backgroundColor: Color.fromARGB(255, 40, 105, 218)),
           BottomNavigationBarItem(
               icon: Icon(Icons.format_list_bulleted),
-              label: '請假',
+              label: '缺曠紀錄',
               backgroundColor: Color.fromARGB(255, 40, 105, 218)),
         ],
         onTap: (int index) {
@@ -905,7 +926,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         centerTitle: true,
-        title: const Text('請假(e網通)'),
+        title: const Text('缺曠紀錄及請假(e網通)'),
         actions: [
           IconButton(
               iconSize: 35,
