@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as html_parser;
@@ -113,40 +114,73 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
     //     ?.attributes['value'];
 
     final formData = {
-        '__VIEWSTATE':'/wEPDwUIODc3ODc3MTlkZGs0hjL5S9HpSDL/Su6nK8R121w8',
-        '__VIEWSTATEGENERATOR':'975AEEEC',
-        '__EVENTVALIDATION': '/wEWBQLHlriDAQKUvNa1DwL666vYDAKnz4ybCALM9PumD7O1wjaAeVtrt6/GmxTQRUri0zMA',
-        'Login1\$UserName':_account,
-        'Login1\$Password':_password,
-        'Login1\$LoginButton':'登入'
+      '__VIEWSTATE': '/wEPDwUIODc3ODc3MTlkZGs0hjL5S9HpSDL/Su6nK8R121w8',
+      '__VIEWSTATEGENERATOR': '975AEEEC',
+      '__EVENTVALIDATION':
+          '/wEWBQLHlriDAQKUvNa1DwL666vYDAKnz4ybCALM9PumD7O1wjaAeVtrt6/GmxTQRUri0zMA',
+      'Login1\$UserName': _account,
+      'Login1\$Password': _password,
+      'Login1\$LoginButton': '登入'
     };
     print(formData);
 
+    var dio = Dio();
+    Response resp;
+    // try {
+      resp = await dio.post(
+        'https://course.stust.edu.tw/CourSel/Login.aspx',
+        data: formData,
+        options: Options(
+          contentType: Headers.formUrlEncodedContentType,
+          followRedirects: false,
+        validateStatus: (status) { return true; }
+          ),
+      );
+    // } catch (ex) {
+    //   print("E");
+    // }
+
     /// login
-    /// 
-      final uri = Uri.https(
-        'course.stust.edu.tw', '/CourSel/Login.aspx', formData);
-    //authenticate
-     var response = await session.post(uri);
+    ///
+    // final uri =
+    //     Uri.https('course.stust.edu.tw', '/CourSel/Login.aspx', formData);
+    // //authenticate
+    // var response = await session.post(uri);
     // response = await session.post(
     //     Uri.parse('https://course.stust.edu.tw/CourSel/Login.aspx'),
     //     headers: {...headers},
     //     body: formData);
-    String cookies = response.headers['set-cookie']!;
+    // var cookies = response.headers['set-cookie']!;
 
-    var responseBodyHex = hex.encode(response.bodyBytes);
-    var soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
-    print(soup.outerHtml);
+    // print(response.bodyBytes);
+    // var responseBodyHex = hex.encode(response.);
+    // var data = utf8.decode(hex.decode(responseBodyHex));
+    // print(response.headers.values);
+    // print(cookies);
+    // print(response.statusCode);
+    // if (response.statusCode == 302) {
+    //   print(response.headers['Location']!);
+    //   response = await session.get(Uri.https(response.headers['Location']!));
+    // }
+
+    // var responseBodyHex = hex.encode(response.bodyBytes);
+    // var soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+    // print(soup.outerHtml);
+
+    print(resp.headers['set-cookie']);
+    String cookies = resp.headers['set-cookie']!.join(";");
+    print(cookies);
 
     ///go to pressentScore
-    response = await session.get(
+    var response = await session.get(
         Uri.parse(
             'https://course.stust.edu.tw/CourSel/Pages/PresentScore.aspx?role=S'),
         headers: {...headers, 'cookie': cookies});
 
-    responseBodyHex = hex.encode(response.bodyBytes);
+    var responseBodyHex = hex.encode(response.bodyBytes);
     var pressentScoreData =
         html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+    // print(pressentScoreData.outerHtml);
 
     ///go to pastScore
     response = await session.get(
