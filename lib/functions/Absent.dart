@@ -30,7 +30,6 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
   @override
   void initState() {
     super.initState();
-    List<Map<String, String?>> responseData = [];
     _getlocal_UserData().then((data) {
       _account = data[0];
       _password = data[1];
@@ -52,7 +51,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
 
   late List<Map<String, String>> _responseData = [];
   late bool _isLoading = false; // Flag to indicate if API request is being made
-  late bool _isSending = false; // Flag to indicate if API request is being made
+// Flag to indicate if API request is being made
 
   void _showAlertDialog(String text, String href, dynamic soup) {
     showDialog(
@@ -335,7 +334,6 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
     // print(day);
 
     setState(() {
-      _isSending = true;
     });
     _showSendingDialog();
 
@@ -474,7 +472,6 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                     (i - 1).toString() == section) {
                   // print('成功');
                   setState(() {
-                    _isSending = false;
                   });
                   // _hideSendingDialog();
 
@@ -485,7 +482,6 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                     (i - 1).toString() == section) {
                   // print('成功 假單: $link');
                   setState(() {
-                    _isSending = false;
                     // Navigator.of(context).pop();
                   });
                   // _hideSendingDialog();
@@ -493,7 +489,6 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                 } else {
                   // print('失敗');
                   setState(() {
-                    _isSending = false;
                     // Navigator.of(context).pop();
                   });
                   _hideSendingDialog();

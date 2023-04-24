@@ -14,6 +14,7 @@ import './functions/home_work_detail.dart';
 import 'package:stust_app/model/panda_pick_model/pandaPickHelper.dart';
 import 'package:stust_app/model/panda_pick_model/pandaPickItemModel.dart';
 import 'package:page_transition/page_transition.dart';
+import '../functions/student_portfolio.dart';
 
 import 'package:stust_app/model/restuarent.dart';
 
@@ -140,6 +141,8 @@ class MyApp extends StatelessWidget {
         ReflectionPage.routeName: (context) => const ReflectionPage(),
         LeaveRequestPage.routeName: (context) => const LeaveRequestPage(),
         SendHomeworkPage.routeName: (context) => const SendHomeworkPage(),
+        StudentPortfolioPage.routeName: (context) => const StudentPortfolioPage(),
+
         ////////
         HomeWorkDetailPage.routeName: (context) => const HomeWorkDetailPage(),
       },
@@ -214,7 +217,7 @@ class MyHomePage extends StatelessWidget {
                     height: MediaQuery.of(context).size.height * .18,
                     width: double.infinity,
                     decoration: BoxDecoration(
-                        color: MyColors.primaryColor,
+                        color: const Color.fromARGB(255, 5, 5, 5),
                         borderRadius: BorderRadius.circular(10)),
                     child: Stack(
                       alignment: Alignment.bottomLeft,
@@ -321,6 +324,8 @@ class MyHomePage extends StatelessWidget {
                           InkWell(
                             onTap: () {
                               // Do something when this widget is tapped
+                                                  Navigator.push(context, PageTransition(type: PageTransitionType.leftToRightWithFade, child: const StudentPortfolioPage()));
+
                             },
                             child: Container(
                               height: MediaQuery.of(context).size.height * .15,
