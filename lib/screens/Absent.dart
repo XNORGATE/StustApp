@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:convert/convert.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:stust_app/utils/dialog_utils.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -100,25 +101,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
     );
   }
 
-  void _showDialog(String text) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(text),
-          // content: Text(href),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+
 
   void _showSendingDialog() {
     showDialog(
@@ -316,7 +299,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
     } catch (e) {
       setState(() {
         _isLoading = false;
-        _showDialog(e.toString());
+        showDialogBox(context,e.toString());
       });
     }
     // }
@@ -493,7 +476,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                   });
                   _hideSendingDialog();
                   // Navigator.of(context).pop();
-                  _showDialog('此操作未達成，請重試');
+                  showDialogBox(context,'此操作未達成，請重試');
                 }
 
                 return;
@@ -614,7 +597,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                                       color: Colors.black, size: 30),
                                   onPressed: () {
                                     if (_responseData.indexOf(data) == 0) {
-                                      _showDialog(
+                                      showDialogBox(context,
                                           '1.此系統僅提供事假/病假申請\n2.所有請假需在缺課1個月內完成申請\n3.此表格僅會顯示已被紀錄缺席之課堂\n4.若缺課無出現表示已超過請假時限或已完成請假');
                                     } else {
                                       showDialog(

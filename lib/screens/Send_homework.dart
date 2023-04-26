@@ -2,11 +2,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_html/flutter_html.dart';
-import 'package:stust_app/functions/home_work.dart';
-import 'package:stust_app/functions/leave_request.dart';
-import 'package:stust_app/functions/Bulletins.dart';
-import 'package:stust_app/functions/Absent.dart';
-import 'package:stust_app/functions/Reflection.dart';
+import 'package:stust_app/screens/home_work.dart';
+import 'package:stust_app/screens/leave_request.dart';
+import 'package:stust_app/screens/Bulletins.dart';
+import 'package:stust_app/screens/Absent.dart';
+import 'package:stust_app/screens/Reflection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';

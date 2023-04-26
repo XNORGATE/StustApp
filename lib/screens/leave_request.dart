@@ -4,9 +4,8 @@ import 'package:html/parser.dart' as html_parser;
 import 'dart:convert';
 import 'package:convert/convert.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
-
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:stust_app/utils/dialog_utils.dart';
 import '../main.dart';
 
 class AbsentPage extends StatefulWidget {
@@ -40,50 +39,49 @@ class _AbsentPageState extends State<AbsentPage> {
     });
   }
 
-void _showAlertDialog(dynamic soup) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        content: SizedBox(
-          width: MediaQuery.of(context).size.width * 0.8,
-          height: MediaQuery.of(context).size.height * 0.8,
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: HtmlWidget(soup.outerHtml),
-          ),
-        ),
-        actions: [
-          TextButton(
-            child: const Text('關閉'),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        ],
-      );
-    },
-  );
-}
-
-
-  void _showDialog(String text) {
+  void _showAlertDialog(dynamic soup) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(text),
-          // content: Text(href),
+          content: SizedBox(
+            width: MediaQuery.of(context).size.width * 0.8,
+            height: MediaQuery.of(context).size.height * 0.8,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: HtmlWidget(soup.outerHtml),
+            ),
+          ),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('OK'),
+              child: const Text('關閉'),
+              onPressed: () => Navigator.of(context).pop(),
             ),
           ],
         );
       },
     );
   }
+
+  // void _showDialog(String text) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: Text(text),
+  //         // content: Text(href),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //             child: const Text('OK'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   _getlocal_UserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -197,7 +195,7 @@ void _showAlertDialog(dynamic soup) {
     } catch (e) {
       setState(() {
         _isLoading = false;
-        _showDialog(e.toString());
+        showDialogBox(context,e.toString());
       });
     }
     // }

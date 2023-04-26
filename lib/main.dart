@@ -1,20 +1,20 @@
 import 'package:flutter_neumorphic_null_safety/flutter_neumorphic.dart';
-import 'package:stust_app/functions/home_work.dart';
-import 'package:stust_app/functions/leave_request.dart';
-import 'package:stust_app/functions/Bulletins.dart';
-import 'package:stust_app/functions/Absent.dart';
-import 'package:stust_app/functions/Reflection.dart';
-import 'package:stust_app/functions/Send_homework.dart';
+import 'package:stust_app/screens/home_work.dart';
+import 'package:stust_app/screens/leave_request.dart';
+import 'package:stust_app/screens/Bulletins.dart';
+import 'package:stust_app/screens/Absent.dart';
+import 'package:stust_app/screens/Reflection.dart';
+import 'package:stust_app/screens/Send_homework.dart';
 import './login/login_page.dart';
 import 'package:stust_app/constats/color.dart';
 import 'package:stust_app/constats/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
-import './functions/home_work_detail.dart';
+import 'screens/home_work_detail.dart';
 import 'package:stust_app/model/panda_pick_model/pandaPickHelper.dart';
 import 'package:stust_app/model/panda_pick_model/pandaPickItemModel.dart';
 import 'package:page_transition/page_transition.dart';
-import '../functions/student_portfolio.dart';
+import 'screens/student_portfolio.dart';
 
 import 'package:stust_app/model/restuarent.dart';
 
@@ -141,7 +141,8 @@ class MyApp extends StatelessWidget {
         ReflectionPage.routeName: (context) => const ReflectionPage(),
         LeaveRequestPage.routeName: (context) => const LeaveRequestPage(),
         SendHomeworkPage.routeName: (context) => const SendHomeworkPage(),
-        StudentPortfolioPage.routeName: (context) => const StudentPortfolioPage(),
+        StudentPortfolioPage.routeName: (context) =>
+            const StudentPortfolioPage(),
 
         ////////
         HomeWorkDetailPage.routeName: (context) => const HomeWorkDetailPage(),
@@ -150,14 +151,57 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
   static const routeName = '/home';
 
   const MyHomePage({super.key});
   @override
+
+  // ignore: library_private_types_in_public_api
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+Future<Map<String, String>> getValuesFromSharedPreferences() async {
+  // Get the SharedPreferences instance
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+
+  // Get the values for the keys
+  String? name = prefs.getString('name');
+  String? account = prefs.getString('account');
+
+  // Return the values as a map
+  return {'name': name ?? '', 'account': account ?? ''};
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  var name = '姓名';
+  var account = '學號';
+  @override
+  void initState() {
+    super.initState();
+    // getProfile().then((){
+    //   setState(() {});
+    //   }
+
+    // );
+    getProfile();
+
+  }
+
+   getProfile() async {
+    Map<String, String> values = await getValuesFromSharedPreferences();
+    name = values['name']!;
+    account = values['account']!;
+    setState(() {
+      
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height * 1;
     final width = MediaQuery.of(context).size.width * 1;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('南台通首頁'),
@@ -206,7 +250,11 @@ class MyHomePage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
                 child: InkWell(
                   onTap: () {
-                    Navigator.push(context, PageTransition(type: PageTransitionType.leftToRightWithFade, child: const HomeworkPage()));
+                    Navigator.push(
+                        context,
+                        PageTransition(
+                            type: PageTransitionType.leftToRightWithFade,
+                            child: const HomeworkPage()));
 
                     // Navigator.push(
                     //     context,
@@ -324,8 +372,12 @@ class MyHomePage extends StatelessWidget {
                           InkWell(
                             onTap: () {
                               // Do something when this widget is tapped
-                                                  Navigator.push(context, PageTransition(type: PageTransitionType.leftToRightWithFade, child: const StudentPortfolioPage()));
-
+                              Navigator.push(
+                                  context,
+                                  PageTransition(
+                                      type: PageTransitionType
+                                          .leftToRightWithFade,
+                                      child: const StudentPortfolioPage()));
                             },
                             child: Container(
                               height: MediaQuery.of(context).size.height * .15,
@@ -441,20 +493,59 @@ class MyHomePage extends StatelessWidget {
           children: [
             const DrawerHeader(
               decoration: BoxDecoration(
-                color: MyColors.primaryColor,
+                color: Color.fromARGB(255, 74, 154, 220),
               ),
-              child: CircleAvatar(
-                radius: 24,
-                backgroundImage: NetworkImage(
-                    'https://cdn.discordapp.com/attachments/672820483862953994/1088101079926984714/AL5GRJXhY34ARUUiwPjHIsBA_xQwyi0To9ShYof8S0Srs900-c-k-c0x00ffffff-no-rj.png'),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+                child: CircleAvatar(
+                  radius: 25.0,
+                  backgroundImage: NetworkImage(
+                      'https://cdn.discordapp.com/attachments/672820483862953994/1088101079926984714/AL5GRJXhY34ARUUiwPjHIsBA_xQwyi0To9ShYof8S0Srs900-c-k-c0x00ffffff-no-rj.png'),
+                ),
               ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            SizedBox(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                child:
+                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  Text(
+                    account,
+                    style: const TextStyle(
+                        color: Color(0xff323232),
+                        fontSize: 15,
+                        fontFamily: Bold),
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  Text(
+                    name,
+                    style: const TextStyle(
+                        color: Color(0xff323232),
+                        fontSize: 15,
+                        fontFamily: Bold),
+                  ),
+                ]),
+              ),
+            ),
+            const SizedBox(
+              height: 15,
+            ),
+            const Divider(
+              color: Color.fromARGB(255, 222, 220, 220),
+              thickness: 2,
+              height: 1,
             ),
             ListTile(
               title: const Text('設定',
                   style: TextStyle(fontFamily: Medium, color: Colors.black)),
               leading: const Icon(
                 Icons.settings_outlined,
-                color: MyColors.primaryColor,
+                color: Color.fromARGB(255, 24, 62, 216),
               ),
               onTap: () {
                 // Update the state of the app
@@ -522,6 +613,8 @@ class MyHomePage extends StatelessWidget {
                   final prefs = await SharedPreferences.getInstance();
                   prefs.remove('account');
                   prefs.remove('password');
+                  prefs.remove('name');
+
 // Navigate to login page
                   // ignore: use_build_context_synchronously
                   Navigator.pushNamedAndRemoveUntil(

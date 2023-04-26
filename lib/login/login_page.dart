@@ -3,17 +3,24 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
 import 'package:shared_preferences/shared_preferences.dart';
+import './my_button.dart';
+import './my_textfield.dart';
+import '../utils/dialog_utils.dart';
 
 class LoginPage extends StatefulWidget {
   static const routeName = '/login';
 
   const LoginPage({super.key});
+
   @override
   // ignore: library_private_types_in_public_api
   _LoginPageState createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
+  final usernameController = TextEditingController();
+  final passwordController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -23,6 +30,8 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    usernameController.dispose(); // 釋放控制器
+    passwordController.dispose(); // 釋放控制器
     super.dispose();
   }
 
@@ -38,12 +47,12 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
     }
   }
 
-  final _formKey = GlobalKey<FormState>();
+  final formKey = GlobalKey<FormState>();
   late String _account;
   late String _password;
   bool _isLoading = false;
 
-  Future<bool> authenticate(String account, String password) async {
+  Future<dynamic> authenticate(String account, String password) async {
     if (password == null) {
       return false;
     }
@@ -78,15 +87,33 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
       'csrf-t': hiddenInput ?? "error"
     };
 
+    var headers = {
+      'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
+    };
+
     // Send the login POST request
     final res = await session.post(
         Uri.parse('https://flipclass.stust.edu.tw/index/login'),
         body: payload);
 
+    String cookies = res.headers['set-cookie']!;
+
+    final nameRequest = await session.get(
+        Uri.parse('https://flipclass.stust.edu.tw/dashboard'),
+        headers: {...headers, 'cookie': cookies});
+
+    // Parse the response HTML
+    final nameSoup = parse(nameRequest.body);
+
+    // Find the value of the csrf-t hidden input
+    final name =
+        nameSoup.querySelector('div.fs-text-center > span')?.text.trim();
+    // print(name);
     Map<String, dynamic> responseMap = jsonDecode(res.body);
     String status = responseMap['ret']['status'];
     if (status == "true") {
-      return true;
+      return name;
     }
     return false; // do something else
   }
@@ -99,7 +126,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
             debugShowCheckedModeBanner: false,
             home: AlertDialog(
               title: Text(text),
-              content: const Text('Authenticate error(帳號密碼錯誤)'),
+              content: const Text('Authenticate error(帳號或密碼錯誤)'),
               actions: [
                 TextButton(
                   onPressed: () {
@@ -114,6 +141,75 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   }
 
   @override
+
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//         debugShowCheckedModeBanner: false,
+//         home: Scaffold(
+//           appBar: AppBar(
+//             automaticallyImplyLeading: false,
+//             centerTitle: true,
+//             title: const Text('南台通Beta v1.0'),
+//           ),
+//           body: Form(
+//             key: _formKey,
+//             child: Column(
+//               mainAxisAlignment: MainAxisAlignment.center,
+//               children: <Widget>[
+//                 TextFormField(
+//                   decoration: const InputDecoration(labelText: '帳號'),
+//                   onSaved: (value) => _account = value!,
+//                   validator: (value) => value!.isEmpty ? '請填入帳號' : null,
+//                 ),
+//                 TextFormField(
+//                   decoration: const InputDecoration(labelText: '密碼'),
+//                   onSaved: (value) => _password = value!,
+//                   validator: (value) => value!.isEmpty ? '請填入密碼' : null,
+//                   obscureText: true,
+//                 ),
+//                 const SizedBox(
+//                   height: 45,
+//                 ),
+//                 TextButton(
+//                   onPressed: () async {
+//                     if (_formKey.currentState!.validate()) {
+//                       _formKey.currentState!.save();
+//                       setState(() => _isLoading = true);
+//                       bool isAuthenticated =
+//                           await authenticate(_account, _password);
+//                       if (isAuthenticated) {
+//                         await SharedPreferences.getInstance().then((prefs) {
+//                           prefs.setString('account', _account);
+//                           prefs.setString('password', _password);
+//                         });
+//                         Navigator.of(context).pushNamed('/');
+// // Save account and password in shared preferences
+// // Go to main page
+//                       } else {
+//                         _showAlertDialog('錯誤提示');
+//                         setState(() {
+//                           _isLoading = false;
+//                         });
+//                       }
+//                     }
+//                   },
+//                   child: _isLoading
+//                       ? const SizedBox(
+//                           height: 24,
+//                           width: 24,
+//                           child: CircularProgressIndicator(),
+//                         )
+//                       : const Text(
+//                           '登入',
+//                           style: TextStyle(fontSize: 30),
+//                         ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ));
+//   }
+
   Widget build(BuildContext context) {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -123,61 +219,223 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
             centerTitle: true,
             title: const Text('南台通Beta v1.0'),
           ),
-          body: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                TextFormField(
-                  decoration: const InputDecoration(labelText: '帳號'),
-                  onSaved: (value) => _account = value!,
-                  validator: (value) => value!.isEmpty ? '請填入帳號' : null,
-                ),
-                TextFormField(
-                  decoration: const InputDecoration(labelText: '密碼'),
-                  onSaved: (value) => _password = value!,
-                  validator: (value) => value!.isEmpty ? '請填入密碼' : null,
-                  obscureText: true,
-                ),
-                const SizedBox(
-                  height: 45,
-                ),
-                TextButton(
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      _formKey.currentState!.save();
-                      setState(() => _isLoading = true);
-                      bool isAuthenticated =
-                          await authenticate(_account, _password);
-                      if (isAuthenticated) {
-                        await SharedPreferences.getInstance().then((prefs) {
-                          prefs.setString('account', _account);
-                          prefs.setString('password', _password);
-                        });
-                        Navigator.of(context).pushNamed('/');
+          backgroundColor: Colors.grey[300],
+          body: SafeArea(
+            child: _isLoading
+                ? const Center(
+                    child: Icon(
+                      Icons.lock_open,
+                      size: 100,
+                    ),
+                  )
+                : Center(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(height: 10),
+
+                          // logo
+                          const Icon(
+                            Icons.lock,
+                            size: 100,
+                          ),
+
+                          const SizedBox(height: 50),
+
+                          // welcome back, you've been missed!
+                          Text(
+                            '南臺通登入系統',
+                            style: TextStyle(
+                              color: Colors.grey[700],
+                              fontSize: 20,
+                            ),
+                          ),
+
+                          const SizedBox(height: 25),
+
+                          // username textfield
+
+                          // Padding(
+                          //   padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                          //   child: TextField(
+                          //     controller: usernameController,
+                          //     obscureText: true,
+                          //     decoration: InputDecoration(
+                          //         enabledBorder: const OutlineInputBorder(
+                          //           borderSide: BorderSide(color: Colors.white),
+                          //         ),
+                          //         focusedBorder: OutlineInputBorder(
+                          //           borderSide: BorderSide(color: Colors.grey.shade400),
+                          //         ),
+                          //         fillColor: Colors.grey.shade200,
+                          //         filled: true,
+                          //         hintText: '學號',
+                          //         hintStyle: TextStyle(color: Colors.grey[500])),
+                          //     onSubmitted: (value) => _account = value,
+                          //     // validator: (value) => value!.isEmpty ? '請填入帳號' : null,
+                          //   ),
+                          // ),
+
+                          MyTextField(
+                            controller: usernameController,
+                            hintText: '學號(大小寫皆可)',
+                            obscureText: false,
+                          ),
+
+                          const SizedBox(height: 10),
+
+                          // password textfield
+                          // Padding(
+                          //   padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                          //   child: TextField(
+                          //     controller: passwordController,
+                          //     obscureText: true,
+                          //     decoration: InputDecoration(
+                          //         enabledBorder: const OutlineInputBorder(
+                          //           borderSide: BorderSide(color: Colors.white),
+                          //         ),
+                          //         focusedBorder: OutlineInputBorder(
+                          //           borderSide: BorderSide(color: Colors.grey.shade400),
+                          //         ),
+                          //         fillColor: Colors.grey.shade200,
+                          //         filled: true,
+                          //         hintText: '密碼',
+                          //         hintStyle: TextStyle(color: Colors.grey[500])),
+                          //     onSubmitted: (value) => _password = value,
+                          //     // validator: (value) => value!.isEmpty ? '請填入帳號' : null,
+                          //   ),
+                          // ),
+
+                          MyTextField(
+                            controller: passwordController,
+                            hintText: '密碼',
+                            obscureText: true,
+                          ),
+
+                          const SizedBox(height: 10),
+
+                          // forgot password?
+                          // Padding(
+                          //   padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                          //   child: Row(
+                          //     mainAxisAlignment: MainAxisAlignment.end,
+                          //     children: [
+                          //       Text(
+                          //         'Forgot Password?',
+                          //         style: TextStyle(color: Colors.grey[600]),
+                          //       ),
+                          //     ],
+                          //   ),
+                          // ),
+
+                          const SizedBox(height: 25),
+
+                          // sign in button
+                          MyButton(
+                            onTap: () async {
+                              _account = usernameController.text;
+                              _password = passwordController.text;
+                              // if (_formKey.currentState!.validate()) {
+                              //   _formKey.currentState!.save();
+                              setState(() => _isLoading = true);
+                              var isAuthenticated =
+                                  await authenticate(_account, _password);
+                                  // print(isAuthenticated);
+                              if (isAuthenticated != false) {
+                                await SharedPreferences.getInstance()
+                                    .then((prefs) {
+                                  prefs.setString('account', _account);
+                                  prefs.setString('password', _password);
+                                  prefs.setString('name', isAuthenticated);
+                                });
+                                Navigator.of(context).pushNamed('/');
 // Save account and password in shared preferences
 // Go to main page
-                      } else {
-                        _showAlertDialog('錯誤提示');
-                        setState(() {
-                          _isLoading = false;
-                        });
-                      }
-                    }
-                  },
-                  child: _isLoading
-                      ? const SizedBox(
-                          height: 24,
-                          width: 24,
-                          child: CircularProgressIndicator(),
-                        )
-                      : const Text(
-                          '登入',
-                          style: TextStyle(fontSize: 30),
-                        ),
-                ),
-              ],
-            ),
+                              } else {
+                                _showAlertDialog('錯誤提示');
+                                setState(() {
+                                  _isLoading = false;
+                                });
+                              }
+                              // }
+                            },
+                          ),
+
+                          const SizedBox(height: 50),
+
+                          // // or continue with
+                          // Padding(
+                          //   padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                          //   child: Row(
+                          //     children: [
+                          //       Expanded(
+                          //         child: Divider(
+                          //           thickness: 0.5,
+                          //           color: Colors.grey[400],
+                          //         ),
+                          //       ),
+                          //       Padding(
+                          //         padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                          //         child: Text(
+                          //           'Or continue with',
+                          //           style: TextStyle(color: Colors.grey[700]),
+                          //         ),
+                          //       ),
+                          //       Expanded(
+                          //         child: Divider(
+                          //           thickness: 0.5,
+                          //           color: Colors.grey[400],
+                          //         ),
+                          //       ),
+                          //     ],
+                          //   ),
+                          // ),
+
+                          // const SizedBox(height: 50),
+
+                          // // google + apple sign in buttons
+                          // Row(
+                          //   mainAxisAlignment: MainAxisAlignment.center,
+                          //   children: const [
+                          //     // google button
+                          //     SquareTile(imagePath: 'lib/images/google.png'),
+
+                          //     SizedBox(width: 25),
+
+                          //     // apple button
+                          //     SquareTile(imagePath: 'lib/images/apple.png')
+                          //   ],
+                          // ),
+
+                          // const SizedBox(height: 50),
+
+                          // not a member? register now
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                '是新生?',
+                                style: TextStyle(color: Colors.grey[700]),
+                              ),
+                              const SizedBox(width: 4),
+                              InkWell(
+                                onTap: () => showDialogBox(context,
+                                    '新生請前往南臺校網註冊可登入\nFlipClass及選課系統之帳號'),
+                                child: const Text(
+                                  '前往校網註冊',
+                                  style: TextStyle(
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              )
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
           ),
         ));
   }

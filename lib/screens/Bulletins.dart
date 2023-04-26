@@ -1,6 +1,6 @@
 import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
-import 'package:stust_app/functions/home_work.dart';
+import 'package:stust_app/screens/home_work.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:url_launcher/url_launcher.dart';

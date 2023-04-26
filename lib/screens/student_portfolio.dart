@@ -1,7 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+// ignore: depend_on_referenced_packages
 import 'package:html/parser.dart' as html_parser;
+import 'package:url_launcher/url_launcher.dart';
+import '../utils/html_utils.dart';
+import 'package:stust_app/utils/dialog_utils.dart';
 
 import 'dart:convert';
 import 'package:convert/convert.dart';
@@ -32,6 +36,7 @@ class Pages {
       required this.timeTableData});
 }
 
+
 class _StudentPortfolioPageState extends State<StudentPortfolioPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
@@ -40,37 +45,20 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
   @override
   void initState() {
     super.initState();
+
     _getlocal_UserData().then((data) {
       _account = data[0];
       _password = data[1];
       //print(_account);
       //print(_password);
       setState(() {});
+      _submit();
     });
-    _submit();
 
     _tabController = TabController(length: 3, vsync: this);
   }
 
-  void _showDialog(String text) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(text),
-          // content: Text(href),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+
 
   _getlocal_UserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -80,7 +68,7 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
     return [_account, _password];
   }
 
-  late bool _isLoading = false; // Flag to indicate if API request is being made
+  late bool _isLoading = true; // Flag to indicate if API request is being made
 
   Future<Pages> getPages() async {
     // List<Map<String, String>> absentEvent = [];
@@ -122,20 +110,21 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
       'Login1\$Password': _password,
       'Login1\$LoginButton': '登入'
     };
-    print(formData);
+    // print(formData);
 
     var dio = Dio();
     Response resp;
     // try {
-      resp = await dio.post(
-        'https://course.stust.edu.tw/CourSel/Login.aspx',
-        data: formData,
-        options: Options(
+    resp = await dio.post(
+      'https://course.stust.edu.tw/CourSel/Login.aspx',
+      data: formData,
+      options: Options(
           contentType: Headers.formUrlEncodedContentType,
-          followRedirects: false,
-        validateStatus: (status) { return true; }
-          ),
-      );
+          followRedirects: true,
+          validateStatus: (status) {
+            return true;
+          }),
+    );
     // } catch (ex) {
     //   print("E");
     // }
@@ -167,9 +156,9 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
     // var soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
     // print(soup.outerHtml);
 
-    print(resp.headers['set-cookie']);
+    // print(resp.headers['set-cookie']);
     String cookies = resp.headers['set-cookie']!.join(";");
-    print(cookies);
+    // print(resp.data);
 
     ///go to pressentScore
     var response = await session.get(
@@ -228,7 +217,7 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
     } catch (e) {
       setState(() {
         _isLoading = false;
-        _showDialog(e.toString());
+        showDialogBox(context,e.toString());
       });
     }
     // }
@@ -304,91 +293,88 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
       body: TabBarView(
         controller: _tabController,
         children: [
+          // Center(child: CircularProgressIndicator()),
+          // Center(child: CircularProgressIndicator()),
+          // Center(child: CircularProgressIndicator())
           _isLoading
               ? const Center(child: CircularProgressIndicator())
-              : _pressentScore(),
+              : SingleChildScrollView(child: _pressentScore(context)),
           _isLoading
               ? const Center(child: CircularProgressIndicator())
-              : _pastScore(),
+              : SingleChildScrollView(child: _pastScore(context)),
           _isLoading
               ? const Center(child: CircularProgressIndicator())
-              : _timetable(),
+              : SingleChildScrollView(child: _timetable(context)),
         ],
       ),
     );
   }
 
-  Widget _pressentScore() {
+  Widget _pressentScore(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: GestureDetector(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.8,
-              height: MediaQuery.of(context).size.height * 0.8,
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: HtmlWidget(pressentScore.outerHtml),
+      padding: const EdgeInsets.all(10.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.8,
+            height: MediaQuery.of(context).size.height * 0.8,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: HtmlWidget(
+                extractHtmlContent(pressentScore.outerHtml, 'table', 'style8',
+                    index: 0),
+                onTapUrl: (url) => launchUrl(Uri.parse(url)),
               ),
             ),
-          ],
-        ),
-        onTap: () {
-          // Navigator.pushNamed(context, '/skill-contest-info-detail',
-          //     arguments: {'title': title, 'content': content});
-        },
+          ),
+        ],
       ),
     );
   }
 
-  Widget _pastScore() {
+  Widget _pastScore(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: GestureDetector(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.8,
-              height: MediaQuery.of(context).size.height * 0.8,
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: HtmlWidget(pastScore.outerHtml),
+      padding: const EdgeInsets.all(10.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.8,
+            height: MediaQuery.of(context).size.height * 0.8,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: HtmlWidget(
+                extractHtmlContent(pastScore.outerHtml, 'table', 'style8',
+                    index: 0),
+                onTapUrl: (url) => launchUrl(Uri.parse(url)),
               ),
             ),
-          ],
-        ),
-        onTap: () {
-          // Navigator.pushNamed(context, '/skill-contest-info-detail',
-          //     arguments: {'title': title, 'content': content});
-        },
+          ),
+        ],
       ),
     );
   }
 
-  Widget _timetable() {
+  Widget _timetable(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: GestureDetector(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.8,
-              height: MediaQuery.of(context).size.height * 0.8,
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: HtmlWidget(timeTable.outerHtml),
+      padding: const EdgeInsets.all(10.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.8,
+            height: MediaQuery.of(context).size.height * 0.8,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: HtmlWidget(
+                extractHtmlContent(timeTable.outerHtml, 'table', 'style8',
+                    index: 0),
+                onTapUrl: (url) => launchUrl(Uri.parse(url)),
               ),
             ),
-          ],
-        ),
-        onTap: () {
-          // Navigator.pushNamed(context, '/skill-contest-info-detail',
-          //     arguments: {'title': title, 'content': content});
-        },
+          ),
+        ],
       ),
     );
   }

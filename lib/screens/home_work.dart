@@ -5,7 +5,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
 
-import 'package:stust_app/functions/Bulletins.dart';
+import 'package:stust_app/screens/Bulletins.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // ignore: depend_on_referenced_packages
 import './home_work_detail.dart';
@@ -29,7 +29,6 @@ class _HomeworkPageState extends State<HomeworkPage>
   late String _account = '0'; // Set account and password to 0 by default
   late String _password = '0';
 
-
   @override
   void initState() {
     super.initState();
@@ -48,7 +47,7 @@ class _HomeworkPageState extends State<HomeworkPage>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-      _cancelToken = true;
+    _cancelToken = true;
 
     super.dispose();
   }
@@ -157,11 +156,11 @@ class _HomeworkPageState extends State<HomeworkPage>
           });
         }
 
-if (mounted && !_cancelToken) {
-  setState(() {
-    _responseData = newData;
-  });
-}
+        if (mounted && !_cancelToken) {
+          setState(() {
+            _responseData = newData;
+          });
+        }
         homeworkPage++;
         genHomework(homeworkPage);
       }
@@ -171,30 +170,30 @@ if (mounted && !_cancelToken) {
     return homework;
   }
 
-void _submitForm() async {
-  setState(() {
-    _isLoading = true;
-  });
+  void _submitForm() async {
+    setState(() {
+      _isLoading = true;
+    });
 
-  _cancelToken = false;
-  try {
-    final responseData = await getHomework();
-    if (mounted && !_cancelToken) {
-      setState(() {
-        _responseData = responseData;
-        _isLoading = false;
-      });
-      sleep(const Duration(seconds: 1));
-    }
-  } catch (e) {
-    if (mounted && !_cancelToken) {
-      setState(() {
-        _isLoading = false;
-        _showAlertDialog(e.toString(), e.toString());
-      });
+    _cancelToken = false;
+    try {
+      final responseData = await getHomework();
+      if (mounted && !_cancelToken) {
+        setState(() {
+          _responseData = responseData;
+          _isLoading = false;
+        });
+        sleep(const Duration(seconds: 1));
+      }
+    } catch (e) {
+      if (mounted && !_cancelToken) {
+        setState(() {
+          _isLoading = false;
+          _showAlertDialog(e.toString(), e.toString());
+        });
+      }
     }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -310,6 +309,6 @@ void _submitForm() async {
       ),
     );
   }
-    bool _cancelToken = false;
 
+  bool _cancelToken = false;
 }
