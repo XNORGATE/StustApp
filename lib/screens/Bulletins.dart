@@ -80,6 +80,8 @@ class _BulletinsPageState extends State<BulletinsPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           title: Text(text),
           content: Html(
             data: '<a href="$href">查看作業</a>',
@@ -273,26 +275,30 @@ class _BulletinsPageState extends State<BulletinsPage> {
                             final confirmed = await showDialog(
                               context: context,
                               builder: (context) => AlertDialog(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15)),
                                 title: Text(
                                   data['topic']!,
                                   style: const TextStyle(color: Colors.black),
                                 ),
-                                content: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(data['content']!),
-                                    if (data['filename'] != '0' &&
-                                        data['url'] != '0')
-                                      InkWell(
-                                        onTap: () =>
-                                            launchUrl(Uri.parse(data['url']!)),
-                                        child: Text(
-                                          '附件: ${data['filename']!}',
-                                          style: const TextStyle(
-                                              color: Colors.blue),
+                                content: SingleChildScrollView(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(data['content']!),
+                                      if (data['filename'] != '0' &&
+                                          data['url'] != '0')
+                                        InkWell(
+                                          onTap: () => launchUrl(
+                                              Uri.parse(data['url']!)),
+                                          child: Text(
+                                            '附件: ${data['filename']!}',
+                                            style: const TextStyle(
+                                                color: Colors.blue),
+                                          ),
                                         ),
-                                      ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                                 actions: [
                                   NeumorphicButton(
@@ -354,18 +360,19 @@ class _BulletinsPageState extends State<BulletinsPage> {
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: const Color.fromARGB(181, 65, 218, 190),
         type: BottomNavigationBarType.shifting,
         showSelectedLabels: true,
-        showUnselectedLabels: false,
+        showUnselectedLabels: true,
         items: const [
           BottomNavigationBarItem(
               icon: Icon(Icons.assignment),
               label: '最新作業',
-              backgroundColor: Color.fromARGB(255, 40, 105, 218)),
+              backgroundColor: Color.fromARGB(181, 65, 218, 190)),
           BottomNavigationBarItem(
               icon: Icon(Icons.format_list_bulleted),
               label: '最新公告',
-              backgroundColor: Color.fromARGB(255, 40, 105, 218)),
+              backgroundColor: Color.fromARGB(181, 65, 218, 190)),
           // BottomNavigationBarItem(
           //     icon: Icon(Icons.calendar_today),
           //     label: '曠課與遲到',
@@ -407,6 +414,7 @@ class _BulletinsPageState extends State<BulletinsPage> {
         },
       ),
       appBar: AppBar(
+        backgroundColor: const Color.fromARGB(181, 65, 218, 190),
         automaticallyImplyLeading: false,
         centerTitle: true,
         title: const Text('查詢最近公告(flipclass)'),

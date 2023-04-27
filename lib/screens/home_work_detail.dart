@@ -203,6 +203,9 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
     return Center(
       child: Scaffold(
         appBar: AppBar(
+          centerTitle: true,
+
+          backgroundColor: const Color.fromARGB(181, 65, 218, 190),
           title: Text(topic),
         ),
         body: SizedBox(

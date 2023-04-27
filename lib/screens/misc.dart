@@ -15,28 +15,35 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:flutter_neumorphic_null_safety/flutter_neumorphic.dart';
 
-class StudentPortfolioPage extends StatefulWidget {
-  static const routeName = '/student_portfolio';
+class StudentMiscPage extends StatefulWidget {
+  static const routeName = '/student_misc';
 
-  const StudentPortfolioPage({super.key});
+  const StudentMiscPage({super.key});
 
   @override
   // ignore: library_private_types_in_public_api
-  _StudentPortfolioPageState createState() => _StudentPortfolioPageState();
+  _StudentMiscPageState createState() => _StudentMiscPageState();
 }
 
 class Pages {
-  late dynamic pressentScoreData;
-  late dynamic pastScoreData;
-  late dynamic timeTableData;
+  late dynamic absentData;
+  late dynamic foreignTestData;
+  // late dynamic studentIndexData;
+  late dynamic lostAndFoundData;
+  late dynamic graduateData;
+  late dynamic departmentOfficeData;
 
-  Pages(
-      {required this.pressentScoreData,
-      required this.pastScoreData,
-      required this.timeTableData});
+  Pages({
+    required this.absentData, //  https://portal.stust.edu.tw/StudentPortfolio/Login.aspx
+    required this.foreignTestData, //  https://portal.stust.edu.tw/StudentPortfolio/Login.aspx
+    // required this.studentIndexData,
+    required this.graduateData, //  https://portal.stust.edu.tw/StudentPortfolio/Login.aspx
+    required this.departmentOfficeData, //ImageAsset +
+    required this.lostAndFoundData,
+  });
 }
 
-class _StudentPortfolioPageState extends State<StudentPortfolioPage>
+class _StudentMiscPageState extends State<StudentMiscPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late String _account = '0'; // Set account and password to 0 by default
@@ -54,7 +61,7 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
       _submit();
     });
 
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   _getlocal_UserData() async {
@@ -71,38 +78,17 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
     // List<Map<String, String>> absentEvent = [];
 
     var session = http.Client();
-    // print(_account);
-    // print(_password);
-
-    // print(_account);
-    // final uri = Uri.https(
-    //     'portal.stust.edu.tw', '/abs_stu/verify.asp', formData);
-    //authenticate
     final headers = {
       'User-Agent':
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
     };
 
-    // var response = await session
-    //     .get(Uri.parse('https://course.stust.edu.tw/CourSel/Login.aspx'),
-    //         // body: formData,
-    //         headers: {...headers});
-
-    // var soup = html_parser.parse(response.body);
-    // var viewState =
-    //     soup.querySelector('input[name="__VIEWSTATE"]')?.attributes['value'];
-    // var viewStateGenerator = soup
-    //     .querySelector('input[name="__VIEWSTATEGENERATOR"]')
-    //     ?.attributes['value'];
-    // var eventValidation = soup
-    //     .querySelector('input[name="__EVENTVALIDATION"]')
-    //     ?.attributes['value'];
-
     final formData = {
-      '__VIEWSTATE': '/wEPDwUIODc3ODc3MTlkZGs0hjL5S9HpSDL/Su6nK8R121w8',
-      '__VIEWSTATEGENERATOR': '975AEEEC',
+      '__VIEWSTATE':
+          '/wEPDwUKMTYwODgyOTkwMw9kFgICAw9kFgICAQ9kFgJmD2QWAgILDxAPFgIeB0NoZWNrZWRoZGRkZGQWKnTmzl1cURZoksJIMvq6hZTR7eDps+zEbINCwxd9Tg==',
+      '__VIEWSTATEGENERATOR': '2999667C',
       '__EVENTVALIDATION':
-          '/wEWBQLHlriDAQKUvNa1DwL666vYDAKnz4ybCALM9PumD7O1wjaAeVtrt6/GmxTQRUri0zMA',
+          '/wEdAASYmZq8LXOFJcfnwypq+y6A8x5TPe4Fb2SCxWQFXQqD6Fz4Ff/mRdr9eJovHJ26GXDQt9u8Yj9aTUScKk9HMLRqm6Ke5f4MGOu/AFmm6vTqnEnxdSqixh050We0ftBDOGk=',
       'Login1\$UserName': _account,
       'Login1\$Password': _password,
       'Login1\$LoginButton': '登入'
@@ -113,7 +99,7 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
     Response resp;
     // try {
     resp = await dio.post(
-      'https://course.stust.edu.tw/CourSel/Login.aspx',
+      'https://portal.stust.edu.tw/StudentPortfolio/Login.aspx',
       data: formData,
       options: Options(
           contentType: Headers.formUrlEncodedContentType,
@@ -126,77 +112,71 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
     //   print("E");
     // }
 
-    /// login
-    ///
-    // final uri =
-    //     Uri.https('course.stust.edu.tw', '/CourSel/Login.aspx', formData);
-    // //authenticate
-    // var response = await session.post(uri);
-    // response = await session.post(
-    //     Uri.parse('https://course.stust.edu.tw/CourSel/Login.aspx'),
-    //     headers: {...headers},
-    //     body: formData);
-    // var cookies = response.headers['set-cookie']!;
-
-    // print(response.bodyBytes);
-    // var responseBodyHex = hex.encode(response.);
-    // var data = utf8.decode(hex.decode(responseBodyHex));
-    // print(response.headers.values);
-    // print(cookies);
-    // print(response.statusCode);
-    // if (response.statusCode == 302) {
-    //   print(response.headers['Location']!);
-    //   response = await session.get(Uri.https(response.headers['Location']!));
-    // }
-
-    // var responseBodyHex = hex.encode(response.bodyBytes);
-    // var soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
-    // print(soup.outerHtml);
-
-    // print(resp.headers['set-cookie']);
     String cookies = resp.headers['set-cookie']!.join(";");
     // print(resp.data);
 
-    ///go to pressentScore
+    ///go to departmentOfficeData
     var response = await session.get(
-        Uri.parse(
-            'https://course.stust.edu.tw/CourSel/Pages/PresentScore.aspx?role=S'),
+        Uri.parse('https://portal.stust.edu.tw/StudentPortfolio/Board.aspx'),
         headers: {...headers, 'cookie': cookies});
 
     var responseBodyHex = hex.encode(response.bodyBytes);
-    var pressentScoreData =
+    var departmentOfficeData =
         html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
     // print(pressentScoreData.outerHtml);
 
-    ///go to pastScore
+    ///go to absentData
     response = await session.get(
         Uri.parse(
-            'https://course.stust.edu.tw/CourSel/Pages/PastScore.aspx?role=S'),
+            'https://portal.stust.edu.tw/StudentPortfolio/Pages/Manager/DataBrowse.aspx?role=S'),
         headers: {...headers, 'cookie': cookies});
 
     responseBodyHex = hex.encode(response.bodyBytes);
-    var pastScoreData =
+    var absentData =
         html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
 
-    ///go to timeTable
+    ///go to foreignTestData
     response = await session.get(
         Uri.parse(
-            'https://course.stust.edu.tw/CourSel/Pages/MyTimeTable.aspx?role=S'),
+            'https://portal.stust.edu.tw/StudentPortfolio/Pages/stud_lang_grad/stud_lang_grad.aspx'),
         headers: {...headers, 'cookie': cookies});
 
     responseBodyHex = hex.encode(response.bodyBytes);
-    var timeTableData =
+    var foreignTestData =
+        html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+
+    //go to graduateData
+    response = await session.get(
+        Uri.parse(
+            'https://portal.stust.edu.tw/StudentPortfolio/Pages/Manager/Student_Score.aspx?role=S'),
+        headers: {...headers, 'cookie': cookies});
+
+    responseBodyHex = hex.encode(response.bodyBytes);
+    var graduateData =
+        html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+
+    //
+    response = await session.get(
+        Uri.parse('https://aura.stust.edu.tw/life/lostthing.aspx'),
+        headers: {...headers});
+
+    responseBodyHex = hex.encode(response.bodyBytes);
+    var lostAndFoundData =
         html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
 
     return Pages(
-        pressentScoreData: pressentScoreData,
-        pastScoreData: pastScoreData,
-        timeTableData: timeTableData);
+        absentData: absentData,
+        foreignTestData: foreignTestData,
+        graduateData: graduateData,
+        departmentOfficeData: departmentOfficeData,
+        lostAndFoundData: lostAndFoundData);
   }
 
-  dynamic pressentScore = '';
-  dynamic pastScore = '';
-  dynamic timeTable = '';
+  dynamic absentData = '';
+  dynamic foreignTestData = '';
+  dynamic graduateData = '';
+  dynamic departmentOfficeData = '';
+  dynamic lostAndFoundData = '';
 
   void _submit() async {
     setState(() {
@@ -207,9 +187,12 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
       final res = await getPages();
       setState(() {
         _isLoading = false;
-        pressentScore = res.pressentScoreData;
-        pastScore = res.pastScoreData;
-        timeTable = res.timeTableData;
+
+        absentData = res.absentData;
+        foreignTestData = res.foreignTestData;
+        graduateData = res.graduateData;
+        departmentOfficeData = res.departmentOfficeData;
+        lostAndFoundData = res.lostAndFoundData;
       });
     } catch (e) {
       setState(() {
@@ -264,16 +247,20 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true,
-
         backgroundColor: const Color.fromARGB(181, 65, 218, 190),
         title: const Text('網路選課系統'),
         bottom: TabBar(
           controller: _tabController,
+          isScrollable: true,
           tabs: const [
-            Tab(text: '現在成績'),
-            Tab(text: '歷年成績'),
-            Tab(text: '課表'),
+            Tab(text: '缺曠明細'),
+            Tab(text: '外語檢定紀錄'),
+            Tab(text: '南台人學習檔'),
+
+            // Tab(text: '畢業學分'),
+            // Tab(text: '學校各處室'),
+            // Tab(text: '計算社團學分'),
+            Tab(text: '失物招領'),
           ],
           onTap: (int index) {
             // switch (index) {
@@ -298,19 +285,22 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
           // Center(child: CircularProgressIndicator())
           _isLoading
               ? const Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(child: _pressentScore(context)),
+              : SingleChildScrollView(child: _absentData(context)),
           _isLoading
               ? const Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(child: _pastScore(context)),
+              : SingleChildScrollView(child: _foreignTestData(context)),
           _isLoading
               ? const Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(child: _timetable(context)),
+              : SingleChildScrollView(child: _graduateData(context)),
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(child: _lostAndFoundData(context)),
         ],
       ),
     );
   }
 
-  Widget _pressentScore(BuildContext context) {
+  Widget _absentData(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Column(
@@ -322,7 +312,31 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
             child: FittedBox(
               fit: BoxFit.scaleDown,
               child: HtmlWidget(
-                extractHtmlContent(pressentScore.outerHtml, 'table', className: 'style8',
+                extractHtmlContent(absentData.outerHtml, 'table',
+                    id: 'ctl00_ContentPlaceHolder1_ctl00_GridView25', index: 0),
+                onTapUrl: (url) => launchUrl(Uri.parse(url)),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _foreignTestData(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.8,
+            height: MediaQuery.of(context).size.height * 0.8,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: HtmlWidget(
+                extractHtmlContent(foreignTestData.outerHtml, 'table',
+                    id: 'ctl00_ContentPlaceHolder1_stud_lang_grad_uc1_GridView2',
                     index: 0),
                 onTapUrl: (url) => launchUrl(Uri.parse(url)),
               ),
@@ -333,7 +347,7 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
     );
   }
 
-  Widget _pastScore(BuildContext context) {
+  Widget _graduateData(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Column(
@@ -344,10 +358,15 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
             height: MediaQuery.of(context).size.height * 0.8,
             child: FittedBox(
               fit: BoxFit.scaleDown,
-              child: HtmlWidget(
-                extractHtmlContent(pastScore.outerHtml, 'table',  className: 'style8',
-                    index: 0),
-                onTapUrl: (url) => launchUrl(Uri.parse(url)),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    HtmlWidget(
+                      graduateData.outerHtml,
+                      onTapUrl: (url) => launchUrl(Uri.parse(url)),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -356,7 +375,7 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
     );
   }
 
-  Widget _timetable(BuildContext context) {
+  Widget _lostAndFoundData(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Column(
@@ -368,8 +387,8 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
             child: FittedBox(
               fit: BoxFit.scaleDown,
               child: HtmlWidget(
-                extractHtmlContent(timeTable.outerHtml, 'table', className: 'style8',
-                    index: 0),
+                extractHtmlContent(lostAndFoundData.outerHtml, 'table',
+                    id: 'DataGrid1', index: 0),
                 onTapUrl: (url) => launchUrl(Uri.parse(url)),
               ),
             ),
@@ -379,3 +398,51 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
     );
   }
 }
+
+//   Widget _departmentOfficeData(BuildContext context) {
+//     return Padding(
+//       padding: const EdgeInsets.all(10.0),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           SizedBox(
+//             width: MediaQuery.of(context).size.width * 0.8,
+//             height: MediaQuery.of(context).size.height * 0.8,
+//             child: FittedBox(
+//               fit: BoxFit.scaleDown,
+//               child: PhotoView(
+//         imageProvider: Image.asset('assets/stustmap.png').image,
+//         minScale: PhotoViewComputedScale.contained * 0.8,
+//         maxScale: PhotoViewComputedScale.covered * 2,
+//       ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+
+//   Widget _reflectionData(BuildContext context) {
+//     return Padding(
+//       padding: const EdgeInsets.all(10.0),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           SizedBox(
+//             width: MediaQuery.of(context).size.width * 0.8,
+//             height: MediaQuery.of(context).size.height * 0.8,
+//             child: FittedBox(
+//               fit: BoxFit.scaleDown,
+//               child: HtmlWidget(
+//                 extractHtmlContent(timeTable.outerHtml, 'table', 'style8',
+//                     index: 0),
+//                 onTapUrl: (url) => launchUrl(Uri.parse(url)),
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }

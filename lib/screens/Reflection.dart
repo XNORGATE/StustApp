@@ -189,7 +189,7 @@ class _ReflectionPageState extends State<ReflectionPage> {
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.shifting,
         showSelectedLabels: false,
-        showUnselectedLabels: isMobile(context)? false:true,
+        showUnselectedLabels: isMobile(context) ? false : true,
         items: const [
           BottomNavigationBarItem(
               icon: Icon(Icons.assignment),
@@ -240,6 +240,7 @@ class _ReflectionPageState extends State<ReflectionPage> {
         },
       ),
       appBar: AppBar(
+        backgroundColor: const Color.fromARGB(181, 65, 218, 190),
         automaticallyImplyLeading: false,
         centerTitle: true,
         title: const Text('查詢未繳心得(e網通)'),

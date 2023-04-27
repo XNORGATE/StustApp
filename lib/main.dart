@@ -6,7 +6,6 @@ import 'package:stust_app/screens/Absent.dart';
 import 'package:stust_app/screens/Reflection.dart';
 import 'package:stust_app/screens/Send_homework.dart';
 import './login/login_page.dart';
-import 'package:stust_app/constats/color.dart';
 import 'package:stust_app/constats/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
@@ -15,7 +14,7 @@ import 'package:stust_app/model/panda_pick_model/pandaPickHelper.dart';
 import 'package:stust_app/model/panda_pick_model/pandaPickItemModel.dart';
 import 'package:page_transition/page_transition.dart';
 import 'screens/student_portfolio.dart';
-
+import './screens/misc.dart';
 import 'package:stust_app/model/restuarent.dart';
 
 void main() {
@@ -143,7 +142,8 @@ class MyApp extends StatelessWidget {
         SendHomeworkPage.routeName: (context) => const SendHomeworkPage(),
         StudentPortfolioPage.routeName: (context) =>
             const StudentPortfolioPage(),
-
+        StudentMiscPage.routeName: (context) =>
+            const StudentMiscPage(),
         ////////
         HomeWorkDetailPage.routeName: (context) => const HomeWorkDetailPage(),
       },
@@ -185,16 +185,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
     // );
     getProfile();
-
   }
 
-   getProfile() async {
+  getProfile() async {
     Map<String, String> values = await getValuesFromSharedPreferences();
     name = values['name']!;
     account = values['account']!;
-    setState(() {
-      
-    });
+    setState(() {});
   }
 
   @override
@@ -204,6 +201,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
+
+        backgroundColor: const Color.fromARGB(181, 65, 218, 190),
         title: const Text('南台通首頁'),
         // actions: const[
         //   Icon(Icons.shopping_bag_outlined),
@@ -270,11 +270,11 @@ class _MyHomePageState extends State<MyHomePage> {
                     child: Stack(
                       alignment: Alignment.bottomLeft,
                       children: [
-                        const Image(
-                            fit: BoxFit.fitWidth,
-                            width: double.infinity,
-                            image: NetworkImage(
-                                'https://cdn.pixabay.com/photo/2021/01/16/09/05/meal-5921491_960_720.jpg')),
+                        // const Image(
+                        //     fit: BoxFit.fitWidth,
+                        //     width: double.infinity,
+                        //     image: NetworkImage(
+                        //         'https://cdn.pixabay.com/photo/2021/01/16/09/05/meal-5921491_960_720.jpg')),
                         Padding(
                           padding: const EdgeInsets.all(6.0),
                           child: Padding(
@@ -333,8 +333,8 @@ class _MyHomePageState extends State<MyHomePage> {
                               children: const [
                                 CircleAvatar(
                                   radius: 50,
-                                  backgroundImage:
-                                      AssetImage('assets/pandamart.jpg'),
+                                  // backgroundImage:
+                                  //     AssetImage('assets/pandamart.jpg'),
                                 ),
                                 Positioned(
                                     bottom: 15,
@@ -383,10 +383,11 @@ class _MyHomePageState extends State<MyHomePage> {
                               height: MediaQuery.of(context).size.height * .15,
                               width: double.infinity,
                               decoration: BoxDecoration(
-                                  color: const Color(0xffef9fc4),
-                                  borderRadius: BorderRadius.circular(10),
-                                  image: const DecorationImage(
-                                      image: AssetImage('assets/food.jpg'))),
+                                color: const Color(0xffef9fc4),
+                                borderRadius: BorderRadius.circular(10),
+                                // image: const DecorationImage(
+                                //     image: AssetImage('assets/food.jpg'))
+                              ),
                               child: Padding(
                                 padding: const EdgeInsets.all(10.0),
                                 child: Column(
@@ -394,13 +395,13 @@ class _MyHomePageState extends State<MyHomePage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: const [
                                     Text(
-                                      '學習歷程',
+                                      '課程事項',
                                       style: TextStyle(
                                           color: blackColor,
                                           fontFamily: Bold,
                                           fontSize: 18),
                                     ),
-                                    Text('學習歷程資料總覽',
+                                    Text('成績與課表',
                                         style: TextStyle(
                                             color: blackColor,
                                             fontWeight: FontWeight.w500,
@@ -414,8 +415,14 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                           const SizedBox(height: 5),
                           InkWell(
-                            onTap: () {
+                           onTap: () {
                               // Do something when this widget is tapped
+                              Navigator.push(
+                                  context,
+                                  PageTransition(
+                                      type: PageTransitionType
+                                          .leftToRightWithFade,
+                                      child: const StudentMiscPage()));
                             },
                             child: Container(
                               height: MediaQuery.of(context).size.height * .1,
@@ -430,13 +437,13 @@ class _MyHomePageState extends State<MyHomePage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: const [
                                     Text(
-                                      '社團系統',
+                                      '學生其他事項',
                                       style: TextStyle(
                                           color: blackColor,
                                           fontFamily: Bold,
                                           fontSize: 18),
                                     ),
-                                    Text('查詢未填寫之心得',
+                                    Text('各式事項',
                                         style: TextStyle(
                                             color: blackColor,
                                             fontWeight: FontWeight.w500,
@@ -486,144 +493,348 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ),
+//       drawer: Drawer(
+//         shape: const RoundedRectangleBorder(
+//             borderRadius: BorderRadius.horizontal(right: Radius.circular(40))),
+//         child: ListView(
+//           // Important: Remove any padding from the ListView.
+//           padding: EdgeInsets.zero,
+//           children: [
+//             const DrawerHeader(
+//               decoration: BoxDecoration(
+//                 color: Color.fromARGB(255, 74, 154, 220),
+//               ),
+//               child: Padding(
+//                 padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+//                 child: CircleAvatar(
+//                   radius: 25.0,
+//                   backgroundImage: NetworkImage(
+//                       'https://cdn.discordapp.com/attachments/672820483862953994/1088101079926984714/AL5GRJXhY34ARUUiwPjHIsBA_xQwyi0To9ShYof8S0Srs900-c-k-c0x00ffffff-no-rj.png'),
+//                 ),
+//               ),
+//             ),
+//             const SizedBox(
+//               height: 10,
+//             ),
+//             SizedBox(
+//               child: Padding(
+//                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+//                 child:
+//                     Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+//                   Text(
+//                     account,
+//                     style: const TextStyle(
+//                         color: Color(0xff323232),
+//                         fontSize: 15,
+//                         fontFamily: Bold),
+//                   ),
+//                   const SizedBox(
+//                     width: 10,
+//                   ),
+//                   Text(
+//                     name,
+//                     style: const TextStyle(
+//                         color: Color(0xff323232),
+//                         fontSize: 15,
+//                         fontFamily: Bold),
+//                   ),
+//                 ]),
+//               ),
+//             ),
+//             const SizedBox(
+//               height: 15,
+//             ),
+//             const Divider(
+//               color: Color.fromARGB(255, 222, 220, 220),
+//               thickness: 2,
+//               height: 1,
+//             ),
+//             ListTile(
+//               title: const Text('設定',
+//                   style: TextStyle(fontFamily: Medium, color: Colors.black)),
+//               leading: const Icon(
+//                 Icons.settings_outlined,
+//                 color: Color.fromARGB(255, 24, 62, 216),
+//               ),
+//               onTap: () {
+//                 // Update the state of the app
+//                 // ...
+//                 // Then close the drawer
+//                 Navigator.pop(context);
+//               },
+//             ),
+//             ListTile(
+//               title: const Text('幫助中心',
+//                   style: TextStyle(fontFamily: Medium, color: Colors.black)),
+//               leading:
+//                   const Icon(Icons.help_outline, color: MyColors.primaryColor),
+//               onTap: () {
+//                 // Update the state of the app
+//                 // ...
+//                 // Then close the drawer
+//                 Navigator.pop(context);
+//               },
+//             ),
+//             ListTile(
+//               title: const Text('更多',
+//                   style: TextStyle(fontFamily: Medium, color: Colors.black)),
+//               leading:
+//                   const Icon(Icons.more_horiz, color: MyColors.primaryColor),
+//               onTap: () {
+//                 // Update the state of the app
+//                 // ...
+//                 // Then close the drawer
+//                 Navigator.pop(context);
+//               },
+//             ),
+//             ListTile(
+//               title: const Text('登出',
+//                   style: TextStyle(fontFamily: Medium, color: Colors.black)),
+//               leading: const Icon(Icons.login_outlined,
+//                   color: MyColors.primaryColor),
+//               onTap:
+//                   // Update the state of the app
+//                   // ...
+//                   // Then close the drawer
+//                   () async {
+//                 final confirmed = await showDialog(
+//                   context: context,
+//                   builder: (context) => AlertDialog(
+//                     title: const Text(
+//                       '登出',
+//                       style: TextStyle(color: Colors.black),
+//                     ),
+//                     content: const Text('確定要登出 ?'),
+//                     actions: [
+//                       NeumorphicButton(
+//                         onPressed: () => Navigator.pop(context, false),
+//                         child: const Text('取消'),
+//                       ),
+//                       NeumorphicButton(
+//                         onPressed: () => Navigator.pop(context, true),
+//                         child: const Text('確認'),
+//                       ),
+//                     ],
+//                   ),
+//                 );
+//                 if (confirmed == true) {
+// // Clear 'account' and 'password' from SharedPreferences
+//                   final prefs = await SharedPreferences.getInstance();
+//                   prefs.remove('account');
+//                   prefs.remove('password');
+//                   prefs.remove('name');
+
+// // Navigate to login page
+//                   // ignore: use_build_context_synchronously
+//                   Navigator.pushNamedAndRemoveUntil(
+//                       context, LoginPage.routeName, (route) => false);
+//                 }
+//               },
+//             ),
+//           ],
+//         ),
+//       ),
       drawer: Drawer(
-        child: ListView(
-          // Important: Remove any padding from the ListView.
-          padding: EdgeInsets.zero,
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Color.fromARGB(255, 74, 154, 220),
-              ),
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-                child: CircleAvatar(
-                  radius: 25.0,
-                  backgroundImage: NetworkImage(
-                      'https://cdn.discordapp.com/attachments/672820483862953994/1088101079926984714/AL5GRJXhY34ARUUiwPjHIsBA_xQwyi0To9ShYof8S0Srs900-c-k-c0x00ffffff-no-rj.png'),
-                ),
-              ),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            SizedBox(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                child:
-                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Text(
-                    account,
-                    style: const TextStyle(
-                        color: Color(0xff323232),
-                        fontSize: 15,
-                        fontFamily: Bold),
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  Text(
-                    name,
-                    style: const TextStyle(
-                        color: Color(0xff323232),
-                        fontSize: 15,
-                        fontFamily: Bold),
-                  ),
-                ]),
-              ),
-            ),
-            const SizedBox(
-              height: 15,
-            ),
-            const Divider(
-              color: Color.fromARGB(255, 222, 220, 220),
-              thickness: 2,
-              height: 1,
-            ),
-            ListTile(
-              title: const Text('設定',
-                  style: TextStyle(fontFamily: Medium, color: Colors.black)),
-              leading: const Icon(
-                Icons.settings_outlined,
-                color: Color.fromARGB(255, 24, 62, 216),
-              ),
-              onTap: () {
-                // Update the state of the app
-                // ...
-                // Then close the drawer
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text('幫助中心',
-                  style: TextStyle(fontFamily: Medium, color: Colors.black)),
-              leading:
-                  const Icon(Icons.help_outline, color: MyColors.primaryColor),
-              onTap: () {
-                // Update the state of the app
-                // ...
-                // Then close the drawer
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text('更多',
-                  style: TextStyle(fontFamily: Medium, color: Colors.black)),
-              leading:
-                  const Icon(Icons.more_horiz, color: MyColors.primaryColor),
-              onTap: () {
-                // Update the state of the app
-                // ...
-                // Then close the drawer
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text('登出',
-                  style: TextStyle(fontFamily: Medium, color: Colors.black)),
-              leading: const Icon(Icons.login_outlined,
-                  color: MyColors.primaryColor),
-              onTap:
-                  // Update the state of the app
-                  // ...
-                  // Then close the drawer
-                  () async {
-                final confirmed = await showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text(
-                      '登出',
-                      style: TextStyle(color: Colors.black),
+        width: 275,
+        elevation: 30,
+        backgroundColor: const Color(0xF3393838),
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.horizontal(right: Radius.circular(40))),
+        child: Container(
+          decoration: const BoxDecoration(
+              borderRadius: BorderRadius.horizontal(right: Radius.circular(40)),
+              boxShadow: [
+                BoxShadow(
+                    color: Color(0x3D000000), spreadRadius: 30, blurRadius: 20)
+              ]),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  children: [
+                    Row(
+                      children: const [
+                        Icon(
+                          Icons.arrow_back_ios,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                        SizedBox(
+                          width: 56,
+                        ),
+                        Text(
+                          '南臺通APP',
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                      ],
                     ),
-                    content: const Text('確定要登出 ?'),
-                    actions: [
-                      NeumorphicButton(
-                        onPressed: () => Navigator.pop(context, false),
-                        child: const Text('取消'),
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    Row(
+                      children: [
+                        const UserAvatar(
+                          filename: 'stust.png',
+                        ),
+                        const SizedBox(
+                          width: 20,
+                        ),
+                        Text(
+                          account,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                        const SizedBox(
+                          width: 15,
+                        ),
+                        Text(
+                          name,
+                          style: const TextStyle(color: Colors.white),
+                        )
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    // const DrawerItem(
+                    //   title: '帳號',
+                    //   icon: Icons.key,
+                    // ),
+                    DrawerItem(
+                      title: '幫助中心',
+                      icon: Icons.help_outline,
+                      onTap: () {},
+                    ),
+
+                    DrawerItem(
+                      title: '通知設置',
+                      icon: Icons.notifications,
+                      onTap: () {},
+                    ),
+
+                    DrawerItem(
+                      title: '關於此APP',
+                      icon: Icons.perm_contact_calendar,
+                      onTap: () {},
+                    ),
+
+                    DrawerItem(
+                      title: '幫助中心',
+                      icon: Icons.help,
+                      onTap: () {},
+                    ),
+                    const Divider(
+                      height: 35,
+                      color: Color.fromARGB(255, 149, 147, 147),
+                    ),
+                    // const DrawerItem(
+                    //     title: 'Invite a friend', icon: Icons.people_outline),
+                  ],
+                ),
+                DrawerItem(
+                  title: '登出',
+                  icon: Icons.logout,
+                  onTap: () async {
+                    final confirmed = await showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15)),
+                        title: const Text(
+                          '登出',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                        content: const Text('確定要登出 ?'),
+                        actions: [
+                          NeumorphicButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: const Text('取消'),
+                          ),
+                          NeumorphicButton(
+                            onPressed: () => Navigator.pop(context, true),
+                            child: const Text('確認'),
+                          ),
+                        ],
                       ),
-                      NeumorphicButton(
-                        onPressed: () => Navigator.pop(context, true),
-                        child: const Text('確認'),
-                      ),
-                    ],
-                  ),
-                );
-                if (confirmed == true) {
+                    );
+                    if (confirmed == true) {
 // Clear 'account' and 'password' from SharedPreferences
-                  final prefs = await SharedPreferences.getInstance();
-                  prefs.remove('account');
-                  prefs.remove('password');
-                  prefs.remove('name');
+                      final prefs = await SharedPreferences.getInstance();
+                      prefs.remove('account');
+                      prefs.remove('password');
+                      prefs.remove('name');
 
 // Navigate to login page
-                  // ignore: use_build_context_synchronously
-                  Navigator.pushNamedAndRemoveUntil(
-                      context, LoginPage.routeName, (route) => false);
-                }
-              },
+                      // ignore: use_build_context_synchronously
+                      Navigator.pushNamedAndRemoveUntil(
+                          context, LoginPage.routeName, (route) => false);
+                    }
+                  },
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class DrawerItem extends StatelessWidget {
+  final Function()? onTap;
+
+  final String title;
+  final IconData icon;
+  const DrawerItem({
+    super.key,
+    required this.title,
+    required this.icon,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              color: Colors.white,
+              size: 20,
+            ),
+            const SizedBox(
+              width: 40,
+            ),
+            Text(
+              title,
+              style: const TextStyle(color: Colors.white, fontSize: 16),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class UserAvatar extends StatelessWidget {
+  final String filename;
+  const UserAvatar({
+    super.key,
+    required this.filename,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return CircleAvatar(
+      radius: 32,
+      backgroundColor: Colors.white,
+      child: CircleAvatar(
+        radius: 29,
+        backgroundImage: Image.asset('assets/$filename').image,
       ),
     );
   }

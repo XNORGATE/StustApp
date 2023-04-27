@@ -56,30 +56,28 @@ class _SendHomeworkPageState extends State<SendHomeworkPage> {
   late bool _isLoading = false; // Flag to indicate if API request is being made
 
   void _submitForm() {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      setState(() => _isLoading = true);
 
-      if (_formKey.currentState!.validate()) {
-        _formKey.currentState!.save();
-        setState(() => _isLoading = true);
-
-        // Make POST request to the API
-        http
-            .get(
-          Uri.parse(
-              'http://api.xnor-development.com:70/send_homework?account=$_account&password=$_password&content=$_content&homework_code=$_homeworkCode'),
-        )
-            .then((response) {
-          final responseData = json.decode(response.body) as List;
-          //print(responseData);
-          setState(() {
-            _responseData = responseData;
-            _isLoading = false;
-          });
-          // Get the first item in the list (there should only be one item)
-          final data = responseData[0];
-          // Display alert dialog with response data
-          _showAlertDialog(data['text'], data['href']);
+      // Make POST request to the API
+      http
+          .get(
+        Uri.parse(
+            'http://api.xnor-development.com:70/send_homework?account=$_account&password=$_password&content=$_content&homework_code=$_homeworkCode'),
+      )
+          .then((response) {
+        final responseData = json.decode(response.body) as List;
+        //print(responseData);
+        setState(() {
+          _responseData = responseData;
+          _isLoading = false;
         });
-      
+        // Get the first item in the list (there should only be one item)
+        final data = responseData[0];
+        // Display alert dialog with response data
+        _showAlertDialog(data['text'], data['href']);
+      });
     }
   }
 
@@ -88,6 +86,8 @@ class _SendHomeworkPageState extends State<SendHomeworkPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           title: Text(text),
           content: Html(
             data: '<a href="$href">查看作業</a>',
@@ -117,7 +117,7 @@ class _SendHomeworkPageState extends State<SendHomeworkPage> {
                 // Content input
                 TextFormField(
                   onSaved: (value) {
-                      _content = value!;
+                    _content = value!;
                   },
                   decoration: const InputDecoration(labelText: '作業內容'),
                   validator: (value) => value!.isEmpty ? '作業內容' : null,
@@ -125,9 +125,10 @@ class _SendHomeworkPageState extends State<SendHomeworkPage> {
                 // Homework code input
                 TextFormField(
                   onSaved: (value) {
-                      _homeworkCode = value!;
+                    _homeworkCode = value!;
                   },
-                  decoration: const InputDecoration(labelText: '作業代碼，可於作業查詢中查到'),
+                  decoration:
+                      const InputDecoration(labelText: '作業代碼，可於作業查詢中查到'),
                   validator: (value) =>
                       value!.isEmpty ? '作業代碼，可於作業查詢中查到' : null,
                 ),
@@ -203,6 +204,7 @@ class _SendHomeworkPageState extends State<SendHomeworkPage> {
         },
       ),
       appBar: AppBar(
+        backgroundColor: const Color.fromARGB(181, 65, 218, 190),
         automaticallyImplyLeading: false,
         centerTitle: true,
         title: const Text('快速繳交作業(flipclass)'),

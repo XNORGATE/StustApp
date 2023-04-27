@@ -5,6 +5,7 @@ void showDialogBox(BuildContext context, String text) {
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         title: Text(text),
         actions: [
           TextButton(

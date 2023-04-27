@@ -44,6 +44,8 @@ class _AbsentPageState extends State<AbsentPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           content: SizedBox(
             width: MediaQuery.of(context).size.width * 0.8,
             height: MediaQuery.of(context).size.height * 0.8,
@@ -195,7 +197,7 @@ class _AbsentPageState extends State<AbsentPage> {
     } catch (e) {
       setState(() {
         _isLoading = false;
-        showDialogBox(context,e.toString());
+        showDialogBox(context, e.toString());
       });
     }
     // }
@@ -469,11 +471,11 @@ class _AbsentPageState extends State<AbsentPage> {
           BottomNavigationBarItem(
               icon: Icon(Icons.assignment),
               label: '假單查詢',
-              backgroundColor: Color.fromARGB(255, 40, 105, 218)),
+              backgroundColor: Color.fromARGB(181, 65, 218, 190)),
           BottomNavigationBarItem(
               icon: Icon(Icons.format_list_bulleted),
               label: '缺曠紀錄',
-              backgroundColor: Color.fromARGB(255, 40, 105, 218)),
+              backgroundColor: Color.fromARGB(181, 65, 218, 190)),
         ],
         onTap: (int index) {
           switch (index) {
@@ -487,6 +489,7 @@ class _AbsentPageState extends State<AbsentPage> {
         },
       ),
       appBar: AppBar(
+        backgroundColor: const Color.fromARGB(181, 65, 218, 190),
         automaticallyImplyLeading: false,
         centerTitle: true,
         title: const Text('假單查詢(e網通)'),

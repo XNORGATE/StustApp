@@ -59,6 +59,8 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           title: Text(text),
           content: InkWell(
             onTap: () {
@@ -66,6 +68,8 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15)),
                     content: SizedBox(
                       width: MediaQuery.of(context).size.width * 0.8,
                       height: MediaQuery.of(context).size.height * 0.8,
@@ -101,14 +105,14 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
     );
   }
 
-
-
   void _showSendingDialog() {
     showDialog(
       context: context,
       // barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: const <Widget>[
@@ -299,7 +303,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
     } catch (e) {
       setState(() {
         _isLoading = false;
-        showDialogBox(context,e.toString());
+        showDialogBox(context, e.toString());
       });
     }
     // }
@@ -316,8 +320,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
     // print(section);
     // print(day);
 
-    setState(() {
-    });
+    setState(() {});
     _showSendingDialog();
 
     try {
@@ -454,8 +457,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                     weekElement?.text.trim() == week &&
                     (i - 1).toString() == section) {
                   // print('成功');
-                  setState(() {
-                  });
+                  setState(() {});
                   // _hideSendingDialog();
 
                   _showAlertDialog('請假成功', link, soup);
@@ -476,7 +478,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                   });
                   _hideSendingDialog();
                   // Navigator.of(context).pop();
-                  showDialogBox(context,'此操作未達成，請重試');
+                  showDialogBox(context, '此操作未達成，請重試');
                 }
 
                 return;
@@ -884,11 +886,11 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
           BottomNavigationBarItem(
               icon: Icon(Icons.assignment),
               label: '假單查詢',
-              backgroundColor: Color.fromARGB(255, 40, 105, 218)),
+              backgroundColor: Color.fromARGB(181, 65, 218, 190)),
           BottomNavigationBarItem(
               icon: Icon(Icons.format_list_bulleted),
               label: '缺曠紀錄',
-              backgroundColor: Color.fromARGB(255, 40, 105, 218)),
+              backgroundColor: Color.fromARGB(181, 65, 218, 190)),
         ],
         onTap: (int index) {
           switch (index) {
@@ -902,6 +904,8 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
         },
       ),
       appBar: AppBar(
+        
+        backgroundColor: const Color.fromARGB(181, 65, 218, 190),
         automaticallyImplyLeading: false,
         centerTitle: true,
         title: const Text('缺曠紀錄及請假(e網通)'),

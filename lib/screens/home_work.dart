@@ -79,6 +79,8 @@ class _HomeworkPageState extends State<HomeworkPage>
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           title: Text(text),
           content: Html(
             data: '<a href="$href">查看作業</a>',
@@ -264,18 +266,19 @@ class _HomeworkPageState extends State<HomeworkPage>
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: const Color.fromARGB(181, 65, 218, 190),
         type: BottomNavigationBarType.shifting,
         showSelectedLabels: true,
-        showUnselectedLabels: false,
+        showUnselectedLabels: true,
         items: const [
           BottomNavigationBarItem(
               icon: Icon(Icons.assignment),
               label: '最新作業',
-              backgroundColor: Color.fromARGB(255, 40, 105, 218)),
+              backgroundColor: Color.fromARGB(181, 65, 218, 190)),
           BottomNavigationBarItem(
               icon: Icon(Icons.format_list_bulleted),
               label: '最新公告',
-              backgroundColor: Color.fromARGB(255, 40, 105, 218)),
+              backgroundColor: Color.fromARGB(181, 65, 218, 190)),
         ],
         onTap: (int index) {
           switch (index) {
@@ -289,6 +292,7 @@ class _HomeworkPageState extends State<HomeworkPage>
         },
       ),
       appBar: AppBar(
+        backgroundColor: const Color.fromARGB(181, 65, 218, 190),
         automaticallyImplyLeading: false,
         centerTitle: true,
         title: const Text('查詢最近作業(flipclass)'),

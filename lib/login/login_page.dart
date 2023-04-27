@@ -125,6 +125,8 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
         return MaterialApp(
             debugShowCheckedModeBanner: false,
             home: AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
               title: Text(text),
               content: const Text('Authenticate error(帳號或密碼錯誤)'),
               actions: [
@@ -215,6 +217,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
         debugShowCheckedModeBanner: false,
         home: Scaffold(
           appBar: AppBar(
+            backgroundColor: const Color.fromARGB(181, 65, 218, 190),
             automaticallyImplyLeading: false,
             centerTitle: true,
             title: const Text('南台通Beta v1.0'),
@@ -341,7 +344,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                               setState(() => _isLoading = true);
                               var isAuthenticated =
                                   await authenticate(_account, _password);
-                                  // print(isAuthenticated);
+                              // print(isAuthenticated);
                               if (isAuthenticated != false) {
                                 await SharedPreferences.getInstance()
                                     .then((prefs) {
