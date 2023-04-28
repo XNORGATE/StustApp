@@ -314,7 +314,7 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(
             width: MediaQuery.of(context).size.width * 0.8,
@@ -337,7 +337,7 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(
             width: MediaQuery.of(context).size.width * 0.8,
@@ -360,7 +360,7 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(
             width: MediaQuery.of(context).size.width * 0.8,

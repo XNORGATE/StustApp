@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 // ignore: depend_on_referenced_packages
 import 'package:html/parser.dart' as html_parser;
-import 'package:url_launcher/url_launcher.dart';
+import 'package:photo_view/photo_view.dart';
 import '../utils/html_utils.dart';
 import 'package:stust_app/utils/dialog_utils.dart';
 
@@ -26,20 +26,21 @@ class StudentMiscPage extends StatefulWidget {
 }
 
 class Pages {
-  late dynamic absentData;
+  // late dynamic absentData;
   late dynamic foreignTestData;
   // late dynamic studentIndexData;
   late dynamic lostAndFoundData;
   late dynamic graduateData;
   late dynamic departmentOfficeData;
-
+  late int totalcredit;
   Pages({
-    required this.absentData, //  https://portal.stust.edu.tw/StudentPortfolio/Login.aspx
+    // required this.absentData, //  https://portal.stust.edu.tw/StudentPortfolio/Login.aspx
     required this.foreignTestData, //  https://portal.stust.edu.tw/StudentPortfolio/Login.aspx
     // required this.studentIndexData,
     required this.graduateData, //  https://portal.stust.edu.tw/StudentPortfolio/Login.aspx
     required this.departmentOfficeData, //ImageAsset +
     required this.lostAndFoundData,
+    required this.totalcredit,
   });
 }
 
@@ -126,14 +127,14 @@ class _StudentMiscPageState extends State<StudentMiscPage>
     // print(pressentScoreData.outerHtml);
 
     ///go to absentData
-    response = await session.get(
-        Uri.parse(
-            'https://portal.stust.edu.tw/StudentPortfolio/Pages/Manager/DataBrowse.aspx?role=S'),
-        headers: {...headers, 'cookie': cookies});
+    // response = await session.get(
+    //     Uri.parse(
+    //         'https://portal.stust.edu.tw/StudentPortfolio/Pages/Manager/DataBrowse.aspx?role=S'),
+    //     headers: {...headers, 'cookie': cookies});
 
-    responseBodyHex = hex.encode(response.bodyBytes);
-    var absentData =
-        html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+    // responseBodyHex = hex.encode(response.bodyBytes);
+    // var absentData =
+    //     html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
 
     ///go to foreignTestData
     response = await session.get(
@@ -152,33 +153,93 @@ class _StudentMiscPageState extends State<StudentMiscPage>
         headers: {...headers, 'cookie': cookies});
 
     responseBodyHex = hex.encode(response.bodyBytes);
+    int totalcredit = 0;
     var graduateData =
         html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+
+    var graduateTable = graduateData
+        .querySelector('#ctl00_ContentPlaceHolder1_ctl00_GridView1');
+    var graduateTableRows = graduateTable!.querySelectorAll('tr');
+    try {
+      // print(graduateTableRows.);
+      for (int i = 1; i < graduateTableRows.length; i++) {
+        if (graduateTableRows[i].attributes['style'] == null ||
+            graduateTableRows[i].attributes['style'] ==
+                'background-color:#FEEBAB;') {
+          totalcredit += int.parse(
+              graduateTableRows[i].querySelectorAll('td')[5].text.trim());
+        }
+
+        // print(graduateTableRows[i].styles.getPropertyValue('background-color'));
+      }
+    } catch (e) {
+      print('error$e');
+    }
+    // print(totalcredit);
+    // print(graduateTable.styles);
+    // var failedClass = graduateTable.querySelectorAll('tr[style="background-color:#FFC4E1;"]');
+    // for (int j=1; j < graduateTableRows.length; j++){
+
+    // }
+    // print(failedClass);
 
     //
     response = await session.get(
         Uri.parse('https://aura.stust.edu.tw/life/lostthing.aspx'),
         headers: {...headers});
 
+    cookies = response.headers['set-cookie']!;
+
     responseBodyHex = hex.encode(response.bodyBytes);
+    List fullPage = [];
+
     var lostAndFoundData =
         html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+    fullPage.add(lostAndFoundData);
+    for (int i = 1; i < 5; i++) {
+      var hiddenInput = lostAndFoundData
+          .querySelector('input[name="__VIEWSTATE"]')
+          ?.attributes['value'];
 
+      final queryParameters = {
+        '__EVENTTARGET': 'DataGrid1:_ctl1:_ctl$i', //從第二頁開始爬
+        '__EVENTARGUMENT': '_password',
+        '__VIEWSTATE': hiddenInput,
+        '__VIEWSTATEGENERATOR': 'E8D08EA4'
+      };
+      response = await session.post(
+          Uri.parse('https://aura.stust.edu.tw/life/lostthing.aspx'),
+          headers: {...headers, 'cookie': cookies},
+          body: queryParameters);
+      responseBodyHex = hex.encode(response.bodyBytes);
+
+      var lostAndFoundpage =
+          html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+      fullPage.add(lostAndFoundpage);
+    }
     return Pages(
-        absentData: absentData,
+        // absentData: absentData,
         foreignTestData: foreignTestData,
         graduateData: graduateData,
         departmentOfficeData: departmentOfficeData,
-        lostAndFoundData: lostAndFoundData);
+        lostAndFoundData: fullPage,
+        totalcredit: totalcredit);
   }
 
-  dynamic absentData = '';
+  // dynamic absentData = '';
   dynamic foreignTestData = '';
   dynamic graduateData = '';
   dynamic departmentOfficeData = '';
   dynamic lostAndFoundData = '';
-
+  int totalcredit = 0;
   void _submit() async {
+// String removeTags(String html) {
+//   RegExp exp = RegExp(r'<div align="right">|<tr class="PagerCss" align="Center">');
+//   String newHtml = html.replaceAll(exp, '');
+//   print(newHtml);
+//   return newHtml;
+// }
+
     setState(() {
       _isLoading = true;
     });
@@ -188,11 +249,16 @@ class _StudentMiscPageState extends State<StudentMiscPage>
       setState(() {
         _isLoading = false;
 
-        absentData = res.absentData;
+        // absentData = res.absentData;
         foreignTestData = res.foreignTestData;
         graduateData = res.graduateData;
         departmentOfficeData = res.departmentOfficeData;
         lostAndFoundData = res.lostAndFoundData;
+        // lostAndFoundData = removeTags(extractHtmlContent(
+        //     res.lostAndFoundData.outerHtml, 'div',
+        //     className: 'BOX', index: 1));
+
+        totalcredit = res.totalcredit;
       });
     } catch (e) {
       setState(() {
@@ -247,18 +313,19 @@ class _StudentMiscPageState extends State<StudentMiscPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         backgroundColor: const Color.fromARGB(181, 65, 218, 190),
-        title: const Text('網路選課系統'),
+        title: const Text('學生其他事項'),
         bottom: TabBar(
           controller: _tabController,
-          isScrollable: true,
+          // isScrollable: true,
           tabs: const [
-            Tab(text: '缺曠明細'),
+            // Tab(text: '缺曠明細'),
             Tab(text: '外語檢定紀錄'),
-            Tab(text: '南台人學習檔'),
+            Tab(text: '修課學分'),
 
             // Tab(text: '畢業學分'),
-            // Tab(text: '學校各處室'),
+            Tab(text: '學校各處室'),
             // Tab(text: '計算社團學分'),
             Tab(text: '失物招領'),
           ],
@@ -283,15 +350,16 @@ class _StudentMiscPageState extends State<StudentMiscPage>
           // Center(child: CircularProgressIndicator()),
           // Center(child: CircularProgressIndicator()),
           // Center(child: CircularProgressIndicator())
+
           _isLoading
               ? const Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(child: _absentData(context)),
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(child: _foreignTestData(context)),
+              : _foreignTestData(context),
           _isLoading
               ? const Center(child: CircularProgressIndicator())
               : SingleChildScrollView(child: _graduateData(context)),
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(child: _departmentOfficeData(context)),
           _isLoading
               ? const Center(child: CircularProgressIndicator())
               : SingleChildScrollView(child: _lostAndFoundData(context)),
@@ -300,48 +368,52 @@ class _StudentMiscPageState extends State<StudentMiscPage>
     );
   }
 
-  Widget _absentData(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.8,
-            height: MediaQuery.of(context).size.height * 0.8,
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: HtmlWidget(
-                extractHtmlContent(absentData.outerHtml, 'table',
-                    id: 'ctl00_ContentPlaceHolder1_ctl00_GridView25', index: 0),
-                onTapUrl: (url) => launchUrl(Uri.parse(url)),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _absentData(BuildContext context) {
+  //   return Padding(
+  //     padding: const EdgeInsets.all(10.0),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         SizedBox(
+  //           width: MediaQuery.of(context).size.width * 0.8,
+  //           height: MediaQuery.of(context).size.height * 0.8,
+  //           child: FittedBox(
+  //             fit: BoxFit.scaleDown,
+  //             child: HtmlWidget(
+  //               extractHtmlContent(absentData.outerHtml, 'table',
+  //                   id: 'ctl00_ContentPlaceHolder1_ctl00_GridView25', index: 0),
+  //               onTapUrl: (url) => launchUrl(Uri.parse(url)),
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _foreignTestData(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.fromLTRB(0, 75, 75, 0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.8,
-            height: MediaQuery.of(context).size.height * 0.8,
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: HtmlWidget(
-                extractHtmlContent(foreignTestData.outerHtml, 'table',
-                    id: 'ctl00_ContentPlaceHolder1_stud_lang_grad_uc1_GridView2',
-                    index: 0),
-                onTapUrl: (url) => launchUrl(Uri.parse(url)),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: MediaQuery.of(context).size.width * 0.125,
+                height: MediaQuery.of(context).size.height * 0.7,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: HtmlWidget(
+                    extractHtmlContent(foreignTestData.outerHtml, 'div',
+                        className: 'conplace', index: 0),
+                    // onTapUrl: (url) => launchUrl(Uri.parse(url)),
+                  ),
+                ),
               ),
-            ),
-          ),
+            ],
+          )
         ],
       ),
     );
@@ -351,7 +423,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(
             width: MediaQuery.of(context).size.width * 0.8,
@@ -362,9 +434,36 @@ class _StudentMiscPageState extends State<StudentMiscPage>
                 child: Column(
                   children: [
                     HtmlWidget(
-                      graduateData.outerHtml,
-                      onTapUrl: (url) => launchUrl(Uri.parse(url)),
+                      extractHtmlContent(graduateData.outerHtml, 'div',
+                          // id: 'ctl00_ContentPlaceHolder1_ctl00_GridView2',
+                          index: 19),
                     ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    const Divider(
+                      thickness: 5,
+                      color: Color.fromARGB(255, 16, 14, 14),
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          '目前已修課學分: $totalcredit',
+                          style: const TextStyle(fontSize: 25),
+                        ),
+                        totalcredit >= 128
+                            ? const Text(
+                                '  已修滿畢業學分(128)',
+                                style: TextStyle(
+                                    fontSize: 25, color: Colors.green),
+                              )
+                            : const Text(
+                                '  尚未修滿畢業學分(128)',
+                                style:
+                                    TextStyle(fontSize: 25, color: Colors.red),
+                              ),
+                      ],
+                    )
                   ],
                 ),
               ),
@@ -377,19 +476,82 @@ class _StudentMiscPageState extends State<StudentMiscPage>
 
   Widget _lostAndFoundData(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(10.0),
+      padding: const EdgeInsets.all(5.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: MediaQuery.of(context).size.width * 0.8,
-            height: MediaQuery.of(context).size.height * 0.8,
+            width: MediaQuery.of(context).size.width * 0.9,
+            height: MediaQuery.of(context).size.height * 0.9,
+            child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      _infoRow(context, 0),
+                      HtmlWidget(extractHtmlContent(
+                          lostAndFoundData[0].outerHtml, 'div',
+                          className: 'BOX', index: 1)),
+                    ],
+                  ),
+                )),
+          ),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.9,
+            height: MediaQuery.of(context).size.height * 0.9,
             child: FittedBox(
               fit: BoxFit.scaleDown,
-              child: HtmlWidget(
-                extractHtmlContent(lostAndFoundData.outerHtml, 'table',
-                    id: 'DataGrid1', index: 0),
-                onTapUrl: (url) => launchUrl(Uri.parse(url)),
+              child: Column(
+                children: [
+                  _infoRow(context, 1),
+                  HtmlWidget(extractHtmlContent(
+                      lostAndFoundData[1].outerHtml, 'div',
+                      className: 'BOX', index: 1)),
+                ],
+              ),
+            ),
+          ),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.9,
+            height: MediaQuery.of(context).size.height * 0.9,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Column(
+                children: [
+                  _infoRow(context, 2),
+                  HtmlWidget(extractHtmlContent(
+                      lostAndFoundData[2].outerHtml, 'div',
+                      className: 'BOX', index: 1)),
+                ],
+              ),
+            ),
+          ),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.9,
+            height: MediaQuery.of(context).size.height * 0.9,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Column(
+                children: [
+                  _infoRow(context, 3),
+                  HtmlWidget(extractHtmlContent(
+                      lostAndFoundData[3].outerHtml, 'div',
+                      className: 'BOX', index: 1)),
+                ],
+              ),
+            ),
+          ),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.9,
+            height: MediaQuery.of(context).size.height * 0.9,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Column(
+                children: [
+                  _infoRow(context, 4),
+                  HtmlWidget(extractHtmlContent(
+                      lostAndFoundData[4].outerHtml, 'div',
+                      className: 'BOX', index: 1)),
+                ],
               ),
             ),
           ),
@@ -397,32 +559,89 @@ class _StudentMiscPageState extends State<StudentMiscPage>
       ),
     );
   }
+
+  Widget _departmentOfficeData(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.9,
+            height: MediaQuery.of(context).size.height * 0.9,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: HtmlWidget(
+                extractHtmlContent(departmentOfficeData.outerHtml, 'div',
+                    className: 'conplace', index: 0),
+                // textStyle: const TextStyle(fontSize: 50),
+              ),
+            ),
+          ),
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.8,
+            height: MediaQuery.of(context).size.height * 0.8,
+            // child: SingleChildScrollView(
+            child: PhotoView(
+              imageProvider: const AssetImage('assets/stustmap.png'),
+              minScale: PhotoViewComputedScale.contained * 0.8,
+              maxScale: PhotoViewComputedScale.covered * 2,
+            ),
+            // ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-//   Widget _departmentOfficeData(BuildContext context) {
-//     return Padding(
-//       padding: const EdgeInsets.all(10.0),
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           SizedBox(
-//             width: MediaQuery.of(context).size.width * 0.8,
-//             height: MediaQuery.of(context).size.height * 0.8,
-//             child: FittedBox(
-//               fit: BoxFit.scaleDown,
-//               child: PhotoView(
-//         imageProvider: Image.asset('assets/stustmap.png').image,
-//         minScale: PhotoViewComputedScale.contained * 0.8,
-//         maxScale: PhotoViewComputedScale.covered * 2,
-//       ),
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
+Widget _infoRow(BuildContext context, int index) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.center,
+    children: [
+      Center(
+        child: Text(
+          '第${index+1}頁',
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+      ),
+      const SizedBox(height: 10),
+      Row(
+        children: const [
+          Text(
+            '編號',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(width: 30),
+          Text(
+            '公告日期',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(width: 30),
+          Text(
+            '物品名稱',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(width: 30),
+          Text(
+            '數量',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(width: 30),
+          Text(
+            '簽領情形',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(width: 30),
+          Text(
+            '簽領日期',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    ],
+  );
+}
 //   Widget _reflectionData(BuildContext context) {
 //     return Padding(
 //       padding: const EdgeInsets.all(10.0),
