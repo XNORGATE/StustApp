@@ -50,10 +50,10 @@ dependencies:
   intl: ^0.18.0
   page_transition: ^2.0.9
   flutter_widget_from_html: ^0.9.1
-  table_calendar: ^3.0.9
   dio: ^5.1.1
   photo_view: ^0.14.0
-  
+  # googleapis: any
+
 
 dev_dependencies:
   flutter_test:

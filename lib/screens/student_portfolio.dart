@@ -265,7 +265,6 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-
         backgroundColor: const Color.fromARGB(181, 65, 218, 190),
         title: const Text('網路選課系統'),
         bottom: TabBar(
@@ -322,8 +321,8 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
             child: FittedBox(
               fit: BoxFit.scaleDown,
               child: HtmlWidget(
-                extractHtmlContent(pressentScore.outerHtml, 'table', className: 'style8',
-                    index: 0),
+                extractHtmlContent(pressentScore.outerHtml, 'table',
+                    className: 'style8', index: 0),
                 onTapUrl: (url) => launchUrl(Uri.parse(url)),
               ),
             ),
@@ -345,8 +344,8 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
             child: FittedBox(
               fit: BoxFit.scaleDown,
               child: HtmlWidget(
-                extractHtmlContent(pastScore.outerHtml, 'table',  className: 'style8',
-                    index: 0),
+                extractHtmlContent(pastScore.outerHtml, 'table',
+                    className: 'style8', index: 0),
                 onTapUrl: (url) => launchUrl(Uri.parse(url)),
               ),
             ),
@@ -368,8 +367,8 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
             child: FittedBox(
               fit: BoxFit.scaleDown,
               child: HtmlWidget(
-                extractHtmlContent(timeTable.outerHtml, 'table', className: 'style8',
-                    index: 0),
+                extractHtmlContent(timeTable.outerHtml, 'table',
+                    className: 'style8', index: 0),
                 onTapUrl: (url) => launchUrl(Uri.parse(url)),
               ),
             ),

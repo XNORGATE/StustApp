@@ -9,13 +9,17 @@ import './login/login_page.dart';
 import 'package:stust_app/constats/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
+import 'model/activities.dart';
 import 'screens/home_work_detail.dart';
-import 'package:stust_app/model/panda_pick_model/pandaPickHelper.dart';
-import 'package:stust_app/model/panda_pick_model/pandaPickItemModel.dart';
 import 'package:page_transition/page_transition.dart';
 import 'screens/student_portfolio.dart';
 import './screens/misc.dart';
-import 'package:stust_app/model/restuarent.dart';
+import 'dart:convert';
+import 'package:convert/convert.dart';
+import 'package:http/http.dart' as http;
+import 'package:html/parser.dart' as html_parser;
+import 'dart:math';
+import './model/restuarent.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -142,8 +146,7 @@ class MyApp extends StatelessWidget {
         SendHomeworkPage.routeName: (context) => const SendHomeworkPage(),
         StudentPortfolioPage.routeName: (context) =>
             const StudentPortfolioPage(),
-        StudentMiscPage.routeName: (context) =>
-            const StudentMiscPage(),
+        StudentMiscPage.routeName: (context) => const StudentMiscPage(),
         ////////
         HomeWorkDetailPage.routeName: (context) => const HomeWorkDetailPage(),
       },
@@ -176,14 +179,46 @@ Future<Map<String, String>> getValuesFromSharedPreferences() async {
 class _MyHomePageState extends State<MyHomePage> {
   var name = '姓名';
   var account = '學號';
+  bool _isLoading = true;
+  bool _isActivitesLoading = true;
+  late List<Map<String, String>> StustAppFoodList = [];
+  late List<Map<String, String>> StustActivitiesList = [];
+
   @override
   void initState() {
     super.initState();
-    // getProfile().then((){
-    //   setState(() {});
-    //   }
 
+    getFoodList().then((data) {
+      setState(() {
+        StustAppFoodList = data;
+        // print(StustAppFoodList);
+        _isLoading = false;
+      });
+    });
+
+    getActivitiesList().then((data) {
+      setState(() {
+        StustActivitiesList = data;
+        // print(StustActivitiesList);
+        _isActivitesLoading = false;
+      });
+    });
     // );
+    // try {
+    //   final res = getFoodList();
+
+    //   setState(() {
+    //     StustAppFoodList = res as List<Map<String, String>>;
+    //     print(StustAppFoodList);
+
+    //     _isLoading = false;
+    //   });
+    // } catch (e) {
+    //   setState(() {
+    //     _isLoading = false;
+    //     showDialogBox(context, e.toString());
+    //   });
+    // }
     getProfile();
   }
 
@@ -193,6 +228,97 @@ class _MyHomePageState extends State<MyHomePage> {
     account = values['account']!;
     setState(() {});
   }
+
+  final headers = {
+    'User-Agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
+  };
+  var session = http.Client();
+
+  Future<List<Map<String, String>>> getFoodList() async {
+    // const url =
+    //     "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWoZnufjinYoSp0lQ9KOLuNRpxxMlOp9K2leRL7bNN4I2_wuvx-h7wWQJg4xOK4pTVv85qs3TbvyOG/pubhtml";
+    // final response = await Dio().get(
+    //   url,
+    // );
+
+    var response = await session.get(
+        Uri.parse(
+            'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWoZnufjinYoSp0lQ9KOLuNRpxxMlOp9K2leRL7bNN4I2_wuvx-h7wWQJg4xOK4pTVv85qs3TbvyOG/pubhtml'),
+        headers: {...headers});
+
+    var responseBodyHex = hex.encode(response.bodyBytes);
+    var document = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+    // print(pressentScoreData.outerHtml);
+
+    var Alltr = document.querySelectorAll('tr');
+
+    for (int i = 0; i < Alltr.length; i++) {
+      var AlltdInside = Alltr[i].querySelectorAll('td');
+
+      if (Alltr[i].attributes['style'] != null &&
+          Alltr[i].attributes['style'] == 'height: 20px' &&
+          AlltdInside[0].attributes['class'] != 's0') {
+        StustAppFoodList.add({
+          'name': AlltdInside[0].text.trim(),
+          'price': AlltdInside[1].text.trim(),
+          'time': AlltdInside[2].text.trim(),
+          'ratting': AlltdInside[3].text.trim(),
+          'foodType': AlltdInside[4].text.trim(),
+          'totalRating': AlltdInside[5].text.trim(),
+          'link': AlltdInside[6].text.trim(),
+          'image': AlltdInside[7].text.trim(),
+        });
+      }
+    }
+
+    // print(StustAppFoodList);
+    final random = Random();
+    StustAppFoodList.shuffle(random); // randomize the order of the list
+
+    return StustAppFoodList;
+  }
+
+  Future<List<Map<String, String>>> getActivitiesList() async {
+    // const url =
+    //     "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWoZnufjinYoSp0lQ9KOLuNRpxxMlOp9K2leRL7bNN4I2_wuvx-h7wWQJg4xOK4pTVv85qs3TbvyOG/pubhtml";
+    // final response = await Dio().get(
+    //   url,
+    // );
+
+    var response = await session.get(
+        Uri.parse(
+            'https://www.stust.edu.tw/'),
+        headers: {...headers});
+
+    var responseBodyHex = hex.encode(response.bodyBytes);
+    var document = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+    // print(document.outerHtml);
+
+    var Alldivinside = document.querySelectorAll('div.ad-slider2 > div');
+    // print(Alldivinside); //all banner-item  class
+    for (int i = 0; i < Alldivinside.length ; i++) {
+      var href = Alldivinside[i].querySelector('a')!.attributes['href'];
+      var img = Alldivinside[i].querySelector('img')!.attributes['src'];
+      var topic = Alldivinside[i].querySelector('div.adlist-txt')!.text.trim();
+    // print(href);
+    // print(img);
+    // print(title);
+        StustActivitiesList.add({
+          'href': href!,
+          'image': img!,
+          'topic': topic,
+        });
+      
+    }
+
+    // print(StustActivitiesList);
+    // final random = Random();
+    // StustActivitiesList.shuffle(random); // randomize the order of the list
+
+    return StustActivitiesList;
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -415,7 +541,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                           const SizedBox(height: 5),
                           InkWell(
-                           onTap: () {
+                            onTap: () {
                               // Do something when this widget is tapped
                               Navigator.push(
                                   context,
@@ -461,32 +587,74 @@ class _MyHomePageState extends State<MyHomePage> {
                   ],
                 ),
               ),
-              const Text(
-                '其他功能',
-                style: TextStyle(
-                    color: Color(0xff323232), fontSize: 15, fontFamily: Bold),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 10),
+                child: Text(
+                  '美食地圖',
+                  style: TextStyle(
+                      color: Color.fromARGB(255, 18, 18, 18),
+                      fontSize: 17.5,
+                      fontFamily: Bold),
+                ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10),
+                padding: const EdgeInsets.symmetric(vertical: 0),
                 child: SizedBox(
-                  height: MediaQuery.of(context).size.height * .3,
-                  child: ListView.builder(
-                      itemCount: PandaPickHelper.itemCount,
-                      scrollDirection: Axis.horizontal,
-                      itemBuilder: (context, index) {
-                        PandaPickItemModel model =
-                            PandaPickHelper.getStatusItem(index);
-                        return RestuarentScreen(
-                          name: model.name,
-                          image: model.image,
-                          remainingTime: model.remaingTime,
-                          totalRating: model.totalRating,
-                          subTitle: model.subTitle,
-                          rating: model.ratting,
-                          deliveryTime: model.remaingTime,
-                          deliveryPrice: model.deliveryPrice,
-                        );
-                      }),
+                  height: MediaQuery.of(context).size.height * .2,
+                  child:
+                      // const Center(child: CircularProgressIndicator())
+                      _isLoading
+                          ? const Center(child: CircularProgressIndicator())
+                          : ListView.builder(
+                              itemCount: StustAppFoodList.length,
+                              scrollDirection: Axis.horizontal,
+                              itemBuilder: (context, index) {
+                                // PandaPickItemModel model =
+                                final data = StustAppFoodList[index];
+                                return RestuarentScreen(
+                                  name: data['name'] ?? '',
+                                  image: data['image'] ?? '',
+                                  time: data['time'] ?? '',
+                                  totalRating: data['totalRating'] ?? '',
+                                  foodType: data['foodType'] ?? '',
+                                  rating: data['ratting'] ?? '',
+                                  link: data['link'] ?? '',
+                                  price: data['price'] ?? '',
+                                );
+                              }),
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 10),
+                child: Text(
+                  '校園活動',
+                  style: TextStyle(
+                      color: Color(0xff323232),
+                      fontSize: 17.5,
+                      fontFamily: Bold),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 1),
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height * .2,
+                  child:
+                      // const Center(child: CircularProgressIndicator())
+                      _isActivitesLoading
+                          ? const Center(child: CircularProgressIndicator())
+                          : ListView.builder(
+                              itemCount: StustActivitiesList.length,
+                              scrollDirection: Axis.horizontal,
+                              itemBuilder: (context, index) {
+                                // PandaPickItemModel model =
+                                final data = StustActivitiesList[index];
+                                // print(data);
+                                return ActivitiesScreen(
+                                  href: data['href'] ?? '',
+                                  image: data['image'] ?? '',
+                                  topic: data['topic'] ?? '',
+                                );
+                              }),
                 ),
               ),
             ],
