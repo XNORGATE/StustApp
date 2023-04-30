@@ -252,14 +252,14 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                   ),
                   // if (videoUrl != null)
                   InkWell(
-                    onTap: () => launchUrl(Uri.parse(videoUrl!)),
+                    onTap: () => launchUrl(Uri.parse(videoUrl!),mode: LaunchMode.externalNonBrowserApplication),
                     child: ListTile(
                       title: Text('Video URL: $videoUrl'),
                     ),
                   ),
                   // if (attachmentUrl!.isNotEmpty)
                   InkWell(
-                    onTap: () => launchUrl(attachmentUrl as Uri),
+                    onTap: () => launchUrl(attachmentUrl as Uri,mode: LaunchMode.externalNonBrowserApplication),
                     child: ListTile(
                       title: Text('Attachment: $attachmentName'),
                     ),

@@ -392,6 +392,8 @@ class _StudentMiscPageState extends State<StudentMiscPage>
   // }
 
   Widget _foreignTestData(BuildContext context) {
+        final width = MediaQuery.of(context).size.width;
+        final height = MediaQuery.of(context).size.height;
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 75, 75, 0),
       child: Row(
@@ -401,15 +403,21 @@ class _StudentMiscPageState extends State<StudentMiscPage>
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(
-                width: MediaQuery.of(context).size.width * 0.125,
-                height: MediaQuery.of(context).size.height * 0.7,
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: HtmlWidget(
-                    extractHtmlContent(foreignTestData.outerHtml, 'div',
-                        className: 'conplace', index: 0),
-                    // onTapUrl: (url) => launchUrl(Uri.parse(url)),
-                  ),
+                width: width * 0.125,
+                height: height * 0.7,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: height *.08,),
+                    FittedBox(
+              fit: BoxFit.contain,
+                      child: HtmlWidget(
+                        extractHtmlContent(foreignTestData.outerHtml, 'div',
+                            className: 'conplace', index: 0),
+                        // onTapUrl: (url) => launchUrl(Uri.parse(url)),
+                      textStyle: const TextStyle(fontSize: 15.1),),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -420,53 +428,62 @@ class _StudentMiscPageState extends State<StudentMiscPage>
   }
 
   Widget _graduateData(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+        final height = MediaQuery.of(context).size.height;
+
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(
-            width: MediaQuery.of(context).size.width * 0.8,
-            height: MediaQuery.of(context).size.height * 0.8,
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    HtmlWidget(
-                      extractHtmlContent(graduateData.outerHtml, 'div',
-                          // id: 'ctl00_ContentPlaceHolder1_ctl00_GridView2',
-                          index: 19),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    const Divider(
-                      thickness: 5,
-                      color: Color.fromARGB(255, 16, 14, 14),
-                    ),
-                    Row(
+            width: width * 0.8,
+            height: height * 0.8,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: height*.2,),
+                FittedBox(
+                  fit: BoxFit.none,
+                  child: SingleChildScrollView(
+                    child: Column(
                       children: [
-                        Text(
-                          '目前已修課學分: $totalcredit',
-                          style: const TextStyle(fontSize: 25),
+                        HtmlWidget(
+                          extractHtmlContent(graduateData.outerHtml, 'div',
+                              // id: 'ctl00_ContentPlaceHolder1_ctl00_GridView2',
+                              index: 19),
+                        textStyle: const TextStyle(fontSize: 25)),
+                        const SizedBox(
+                          height: 10,
                         ),
-                        totalcredit >= 128
-                            ? const Text(
-                                '  已修滿畢業學分(128)',
-                                style: TextStyle(
-                                    fontSize: 25, color: Colors.green),
-                              )
-                            : const Text(
-                                '  尚未修滿畢業學分(128)',
-                                style:
-                                    TextStyle(fontSize: 25, color: Colors.red),
-                              ),
+                        const Divider(
+                          thickness: 5,
+                          color: Color.fromARGB(255, 16, 14, 14),
+                        ),
+                        Row(
+                          children: [
+                            Text(
+                              '目前已修課學分: $totalcredit',
+                              style: const TextStyle(fontSize: 20),
+                            ),
+                            totalcredit >= 128
+                                ? const Text(
+                                    '  已修滿畢業學分(128)',
+                                    style: TextStyle(
+                                        fontSize: 18, color: Colors.green),
+                                  )
+                                : const Text(
+                                    '  尚未修滿畢業學分(128)',
+                                    style:
+                                        TextStyle(fontSize: 18, color: Colors.red),
+                                  ),
+                          ],
+                        )
                       ],
-                    )
-                  ],
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
         ],
@@ -483,7 +500,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
             width: MediaQuery.of(context).size.width * 0.9,
             height: MediaQuery.of(context).size.height * 0.9,
             child: FittedBox(
-                fit: BoxFit.scaleDown,
+                fit: BoxFit.contain,
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
@@ -561,26 +578,37 @@ class _StudentMiscPageState extends State<StudentMiscPage>
   }
 
   Widget _departmentOfficeData(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+        final height = MediaQuery.of(context).size.height;
+
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(
-            width: MediaQuery.of(context).size.width * 0.9,
-            height: MediaQuery.of(context).size.height * 0.9,
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: HtmlWidget(
-                extractHtmlContent(departmentOfficeData.outerHtml, 'div',
-                    className: 'conplace', index: 0),
-                // textStyle: const TextStyle(fontSize: 50),
-              ),
+            width: width * 0.9,
+            height: height * 0.9,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                                          SizedBox(height: height* .2,),
+
+                FittedBox(
+                  fit: BoxFit.none,
+                  child: HtmlWidget(
+                    extractHtmlContent(departmentOfficeData.outerHtml, 'div',
+                        className: 'conplace', index: 0),
+                    // textStyle: const TextStyle(fontSize: 50),
+                  textStyle: const TextStyle(fontSize: 7),),
+                ),
+
+              ],
             ),
           ),
           SizedBox(
-            width: MediaQuery.of(context).size.width * 0.8,
-            height: MediaQuery.of(context).size.height * 0.8,
+            width: width * 0.8,
+            height: height * 0.8,
             // child: SingleChildScrollView(
             child: PhotoView(
               imageProvider: const AssetImage('assets/stustmap.png'),

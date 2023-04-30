@@ -323,8 +323,8 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
               child: HtmlWidget(
                 extractHtmlContent(pressentScore.outerHtml, 'table',
                     className: 'style8', index: 0),
-                onTapUrl: (url) => launchUrl(Uri.parse(url)),
-              ),
+                onTapUrl: (url) => launchUrl(Uri.parse(url),mode: LaunchMode.externalNonBrowserApplication),
+              textStyle: const TextStyle(fontSize: 50),),
             ),
           ),
         ],
@@ -346,8 +346,8 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
               child: HtmlWidget(
                 extractHtmlContent(pastScore.outerHtml, 'table',
                     className: 'style8', index: 0),
-                onTapUrl: (url) => launchUrl(Uri.parse(url)),
-              ),
+                onTapUrl: (url) => launchUrl(Uri.parse(url),mode: LaunchMode.externalNonBrowserApplication),
+              textStyle: const TextStyle(fontSize: 50),),
             ),
           ),
         ],
@@ -365,12 +365,12 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
             width: MediaQuery.of(context).size.width * 0.8,
             height: MediaQuery.of(context).size.height * 0.8,
             child: FittedBox(
-              fit: BoxFit.scaleDown,
+              fit: BoxFit.contain,
               child: HtmlWidget(
                 extractHtmlContent(timeTable.outerHtml, 'table',
                     className: 'style8', index: 0),
-                onTapUrl: (url) => launchUrl(Uri.parse(url)),
-              ),
+                onTapUrl: (url) => launchUrl(Uri.parse(url),mode: LaunchMode.externalNonBrowserApplication),
+              textStyle: const TextStyle(fontSize: 20),),
             ),
           ),
         ],

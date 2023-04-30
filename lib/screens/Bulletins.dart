@@ -290,7 +290,7 @@ class _BulletinsPageState extends State<BulletinsPage> {
                                           data['url'] != '0')
                                         InkWell(
                                           onTap: () => launchUrl(
-                                              Uri.parse(data['url']!)),
+                                              Uri.parse(data['url']!),mode: LaunchMode.externalNonBrowserApplication),
                                           child: Text(
                                             '附件: ${data['filename']!}',
                                             style: const TextStyle(
@@ -315,7 +315,7 @@ class _BulletinsPageState extends State<BulletinsPage> {
                               ),
                             );
                             if (confirmed == true) {
-                              launchUrl(Uri.parse(data['href']!));
+                              launchUrl(Uri.parse(data['href']!),mode: LaunchMode.externalNonBrowserApplication);
                             }
                           },
                           child: Card(

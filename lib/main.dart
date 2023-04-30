@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_neumorphic_null_safety/flutter_neumorphic.dart';
 import 'package:stust_app/screens/home_work.dart';
 import 'package:stust_app/screens/leave_request.dart';
@@ -20,13 +21,83 @@ import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as html_parser;
 import 'dart:math';
 import './model/restuarent.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-void main() {
+const homeworkTask = "flipclass_homework";
+dynamic oldHomeWorkList;
+
+_getoldHomeWorkList() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  oldHomeWorkList = prefs.getString('oldHomeWorkList') ?? '';
+  if (oldHomeWorkList.length == 0) {
+    return [];
+  } else {
+    return json.decode(oldHomeWorkList);
+  }
+}
+
+int id = 0;
+
+List<Map<String, String>> findDifferences(
+    List<Map<String, String>> map1, List<Map<String, String>> map2) {
+  List<Map<String, String>> differences = [];
+
+  for (var item in map2) {
+    if (!map1.any((element) => mapEquals(element, item))) {
+      differences.add(item);
+    }
+  }
+
+  return differences;
+}
+
+// Future<void> fetchData() async {
+//   _getoldHomeWorkList().then((data) async {
+//     if (data != null || data != []) {
+//       oldHomeWorkList = data;
+//       final newHomeWorkList = await const HomeworkPage().getHomework();
+//       var listdiff = findDifferences(oldHomeWorkList, newHomeWorkList);
+//       if (listdiff.length > 0) {
+//         await SharedPreferences.getInstance().then((prefs) {
+//           prefs.setString('oldHomeWorkList', json.encode(newHomeWorkList));
+//         });
+//         await showLocalNotification('flipclass_homework', '作業更新', '有新的作業');
+//       }
+//     }
+//   });
+
+// final response = await http.get('your_api_url_here');
+// if (response.statusCode == 200) {
+//   final data = jsonDecode(response.body);
+//   // You can compare the data with your shared preferences here
+//   // If the data is different, call your local notification function
+// } else {
+//   // Handle the error
+// }
+// }
+
+// void callbackDispatcher() {
+//   Workmanager().executeTask((task, inputData) async {
+//     await _showNotification();
+//     return Future.value(true);
+//   });
+// }
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+  NotificationService().initNotification();
+  // final workmanager = Workmanager();
+  // await workmanager.initialize(callbackDispatcher, isInDebugMode: true);
+  // await workmanager.registerPeriodicTask(
+  //   homeworkTask,
+  //   "作業監控中",
+  //   frequency: const Duration(seconds: 30), // Adjust the frequency as needed
+  // );
+
   runApp(MaterialApp(
     theme: ThemeData.light(),
     debugShowCheckedModeBanner: false,
@@ -225,6 +296,8 @@ class _MyHomePageState extends State<MyHomePage> {
     //   });
     // }
     getProfile();
+    NotificationService()
+        .showNotification(title: 'Sample title', body: 'It works!');
   }
 
   getProfile() async {
@@ -376,17 +449,18 @@ class _MyHomePageState extends State<MyHomePage> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: InkWell(
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        PageTransition(
-                            type: PageTransitionType.leftToRightWithFade,
-                            child: const HomeworkPage()));
-
+                  onTap: () async {
                     // Navigator.push(
                     //     context,
-                    //     MaterialPageRoute(
-                    //         builder: (context) => const HomeworkPage()));
+                    //     PageTransition(
+                    //         type: PageTransitionType.leftToRightWithFade,
+                    //         child: const HomeworkPage()));
+                    // await NotificationService().showNotification(
+                    //     title: 'Sample title', body: 'It works!');
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const HomeworkPage()));
                   },
                   child: Container(
                     height: MediaQuery.of(context).size.height * .18,
@@ -638,7 +712,7 @@ class _MyHomePageState extends State<MyHomePage> {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 1),
                 child: SizedBox(
-                  height: MediaQuery.of(context).size.height * .2,
+                  height: MediaQuery.of(context).size.height * .25,
                   child:
                       // const Center(child: CircularProgressIndicator())
                       _isActivitesLoading
@@ -824,16 +898,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 Column(
                   children: [
                     Row(
-                      children: const [
-                        Icon(
-                          Icons.arrow_back_ios,
+                      children: [
+                        IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(Icons.arrow_back_ios),
                           color: Colors.white,
-                          size: 20,
+                          iconSize: 20,
                         ),
-                        SizedBox(
+                        const SizedBox(
                           width: 56,
                         ),
-                        Text(
+                        const Text(
                           '南臺通APP',
                           style: TextStyle(color: Colors.white, fontSize: 16),
                         ),
@@ -852,14 +927,16 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                         Text(
                           account,
-                          style: const TextStyle(color: Colors.white),
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 18),
                         ),
                         const SizedBox(
                           width: 15,
                         ),
                         Text(
                           name,
-                          style: const TextStyle(color: Colors.white),
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 18),
                         )
                       ],
                     ),
@@ -901,9 +978,12 @@ class _MyHomePageState extends State<MyHomePage> {
                                       width: width * .3,
                                       height: height * .3,
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
                                         children: [
-                                                                                    const SizedBox(height: 50,),
+                                          const SizedBox(
+                                            height: 30,
+                                          ),
                                           Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
@@ -925,7 +1005,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                             ],
                                           ),
 
-                                                                                    const SizedBox(height: 50,),
+                                          const SizedBox(
+                                            height: 30,
+                                          ),
 
                                           Row(
                                             mainAxisAlignment:
@@ -1028,6 +1110,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       prefs.remove('account');
                       prefs.remove('password');
                       prefs.remove('name');
+                      prefs.remove('oldHomeWorkList');
 
 // Navigate to login page
                       // ignore: use_build_context_synchronously
@@ -1389,3 +1472,33 @@ class UserAvatar extends StatelessWidget {
 //     );
 //   }
 // }
+class NotificationService {
+  final FlutterLocalNotificationsPlugin notificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  Future<void> initNotification() async {
+    AndroidInitializationSettings initializationSettingsAndroid =
+        const AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    var initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid,
+    );
+    await notificationsPlugin.initialize(
+      initializationSettings,
+    );
+  }
+
+  notificationDetails() {
+    return const NotificationDetails(
+      android: AndroidNotificationDetails(
+          'default_notification_channel_id', 'Default',
+          importance: Importance.max),
+    );
+  }
+
+  Future showNotification(
+      {int id = 0, String? title, String? body, String? payLoad}) async {
+    return notificationsPlugin.show(
+        id, title, body, await notificationDetails());
+  }
+}

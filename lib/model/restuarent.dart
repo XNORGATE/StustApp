@@ -4,6 +4,7 @@ import 'package:stust_app/constats/constants.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 import '../rwd_module/responsive.dart';
+
 class RestuarentScreen extends StatefulWidget {
   final String name, image, time, foodType, rating, link, totalRating, price;
   const RestuarentScreen(
@@ -24,15 +25,13 @@ class RestuarentScreen extends StatefulWidget {
 }
 
 class _RestuarentScreenState extends State<RestuarentScreen> {
- 
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height * 1;
     final width = MediaQuery.of(context).size.width * 1;
     return InkWell(
-      onTap: ()  {
-       launchUrl(Uri.parse(widget.link));
-   
+      onTap: () {
+        launchUrl(Uri.parse(widget.link),mode: LaunchMode.externalApplication);
       },
       child: Padding(
         padding: const EdgeInsets.only(right: 10),
@@ -104,8 +103,8 @@ class _RestuarentScreenState extends State<RestuarentScreen> {
                     const SizedBox(
                       height: 5,
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           widget.name,
@@ -133,7 +132,6 @@ class _RestuarentScreenState extends State<RestuarentScreen> {
                               itemSize: 19.0,
                               direction: Axis.horizontal,
                             ),
-                            
                             Text(
                               "  (${widget.totalRating})",
                               style: const TextStyle(

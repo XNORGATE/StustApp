@@ -75,7 +75,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                       height: MediaQuery.of(context).size.height * 0.8,
                       child: FittedBox(
                         fit: BoxFit.scaleDown,
-                        child: HtmlWidget(soup.outerHtml),
+                        child: HtmlWidget(soup.outerHtml,textStyle: const TextStyle(fontSize: 50),),
                       ),
                     ),
                     actions: [
