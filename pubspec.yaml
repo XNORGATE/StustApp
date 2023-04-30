@@ -52,6 +52,8 @@ dependencies:
   flutter_widget_from_html: ^0.9.1
   dio: ^5.1.1
   photo_view: ^0.14.0
+  workmanager: any
+  flutter_local_notifications: any
   # googleapis: any
 
 
@@ -94,14 +96,7 @@ flutter:
       - asset: fonts/Exo2-Thin.ttf
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/burger.jpg
-    - assets/noddels.jpg
-    - assets/pizza.jpg
-    - assets/cake.jpg
-    - assets/chicken.jpg
-    - assets/chinese.jpg
-    - assets/pandamart.jpg
-    - assets/food.jpg
+
     - assets/logo.png
     - assets/splash.png
     - assets/stust.png

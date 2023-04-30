@@ -181,6 +181,11 @@ class _MyHomePageState extends State<MyHomePage> {
   var account = '學號';
   bool _isLoading = true;
   bool _isActivitesLoading = true;
+  bool _ActivateHomeWorkNoti = false;
+  bool _ActivateBulletinsNoti = false;
+
+  final bool _value2 = false;
+
   late List<Map<String, String>> StustAppFoodList = [];
   late List<Map<String, String>> StustActivitiesList = [];
 
@@ -286,10 +291,8 @@ class _MyHomePageState extends State<MyHomePage> {
     //   url,
     // );
 
-    var response = await session.get(
-        Uri.parse(
-            'https://www.stust.edu.tw/'),
-        headers: {...headers});
+    var response = await session
+        .get(Uri.parse('https://www.stust.edu.tw/'), headers: {...headers});
 
     var responseBodyHex = hex.encode(response.bodyBytes);
     var document = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
@@ -297,19 +300,18 @@ class _MyHomePageState extends State<MyHomePage> {
 
     var Alldivinside = document.querySelectorAll('div.ad-slider2 > div');
     // print(Alldivinside); //all banner-item  class
-    for (int i = 0; i < Alldivinside.length ; i++) {
+    for (int i = 0; i < Alldivinside.length; i++) {
       var href = Alldivinside[i].querySelector('a')!.attributes['href'];
       var img = Alldivinside[i].querySelector('img')!.attributes['src'];
       var topic = Alldivinside[i].querySelector('div.adlist-txt')!.text.trim();
-    // print(href);
-    // print(img);
-    // print(title);
-        StustActivitiesList.add({
-          'href': href!,
-          'image': img!,
-          'topic': topic,
-        });
-      
+      // print(href);
+      // print(img);
+      // print(title);
+      StustActivitiesList.add({
+        'href': href!,
+        'image': img!,
+        'topic': topic,
+      });
     }
 
     // print(StustActivitiesList);
@@ -318,7 +320,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return StustActivitiesList;
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -878,7 +879,102 @@ class _MyHomePageState extends State<MyHomePage> {
                     DrawerItem(
                       title: '通知設置',
                       icon: Icons.notifications,
-                      onTap: () {},
+                      onTap: () {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15)),
+                                title: const Text('通知設置'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('確定'),
+                                  ),
+                                ],
+                                content: Padding(
+                                    padding: const EdgeInsets.all(.0),
+                                    child: SizedBox(
+                                      width: width * .3,
+                                      height: height * .3,
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                                                                    const SizedBox(height: 50,),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              SelectorWidget(
+                                                labelText: '開啟作業通知',
+                                                options: const ['開啟', '關閉'],
+                                                onChanged: (value) {
+                                                  // Handle the value change
+                                                  if (value == '開啟') {
+                                                    _ActivateHomeWorkNoti =
+                                                        true;
+                                                  } else {
+                                                    _ActivateHomeWorkNoti =
+                                                        false;
+                                                  }
+                                                },
+                                              ),
+                                            ],
+                                          ),
+
+                                                                                    const SizedBox(height: 50,),
+
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              SelectorWidget(
+                                                labelText: '開啟公告通知',
+                                                options: const ['開啟', '關閉'],
+                                                onChanged: (value) {
+                                                  // Handle the value change
+                                                  if (value == '開啟') {
+                                                    _ActivateBulletinsNoti =
+                                                        true;
+                                                  } else {
+                                                    _ActivateBulletinsNoti =
+                                                        false;
+                                                  }
+                                                  print(_ActivateBulletinsNoti);
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                          // CheckboxListTile(
+                                          //   activeColor: Colors.red,
+                                          //   title: const Text('開啟作業通知'),
+                                          //   value: _ActivateHomeWorkNoti,
+                                          //   onChanged: (value) {
+                                          //     setState(() {
+                                          //       _ActivateHomeWorkNoti = value!;
+                                          //     });
+                                          //   },
+                                          // ),
+                                          // CheckboxListTile(
+                                          //   activeColor: Colors.red,
+                                          //   title: const Text('開啟公告通知'),
+                                          //   value: _ActivateHomeWorkNoti,
+                                          //   onChanged: (value) {
+                                          //     setState(() {
+                                          //       _ActivateBulletinsNoti = value!;
+                                          //       print(_ActivateBulletinsNoti);
+                                          //     });
+                                          //   },
+                                          // ),
+                                        ],
+                                      ),
+                                    )),
+                              );
+                            });
+                      },
                     ),
 
                     DrawerItem(
