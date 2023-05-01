@@ -28,6 +28,16 @@ import 'package:workmanager/workmanager.dart';
 const homeworkTask = "flipclass_homework";
 dynamic oldHomeWorkList;
 
+@pragma(
+    'vm:entry-point') // Mandatory if the App is obfuscated or using Flutter 3.1+
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    await NotificationService()
+        .showNotification(title: '作業通知', body: '體育: 線上作業');
+    return Future.value(true);
+  });
+}
+
 _getoldHomeWorkList() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   oldHomeWorkList = prefs.getString('oldHomeWorkList') ?? '';
@@ -77,15 +87,6 @@ List<Map<String, String>> findDifferences(
 //   // Handle the error
 // }
 // }
-@pragma(
-    'vm:entry-point') // Mandatory if the App is obfuscated or using Flutter 3.1+
-void callbackDispatcher() {
-  Workmanager().executeTask((task, inputData) async {
-    await NotificationService()
-        .showNotification(title: 'Workmanager', body: 'It works!');
-    return Future.value(true);
-  });
-}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -96,6 +97,7 @@ Future<void> main() async {
   NotificationService().initNotification();
   var notistatus = await Permission.notification.status;
   var mediaLibrarystatus = await Permission.mediaLibrary.status;
+  var photosstatus = await Permission.photos.status;
 
   if (notistatus.isDenied ||
       notistatus.isPermanentlyDenied ||
@@ -116,18 +118,14 @@ Future<void> main() async {
     ].request();
   }
 
-  Workmanager().initialize(
-      callbackDispatcher, // The top level function, aka callbackDispatcher
-      isInDebugMode:
-          true // If enabled it will post a notification whenever the task is running. Handy for debugging tasks
-      );
-  Workmanager().registerPeriodicTask(
-    "作業監控中",
-    homeworkTask,
-    // When no frequency is provided the default 15 minutes is set.
-    // Minimum frequency is 15 min. Android will automatically change your frequency to 15 min if you have configured a lower frequency.
-    frequency: const Duration(seconds: 1),
-  );
+  if (photosstatus.isDenied ||
+      photosstatus.isPermanentlyDenied ||
+      photosstatus.isRestricted) {
+    // We didn't ask for permission yet or the permission has been denied before but not permanently.
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.photos,
+    ].request();
+  }
 
   runApp(MaterialApp(
     theme: ThemeData.light(),
@@ -481,7 +479,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 borderRadius: BorderRadius.circular(10),
                 child: InkWell(
                   onTap: () async {
-                    Workmanager().cancelAll();
                     // Navigator.push(
                     //     context,
                     //     PageTransition(
@@ -1022,15 +1019,35 @@ class _MyHomePageState extends State<MyHomePage> {
                                             children: [
                                               SelectorWidget(
                                                 labelText: '開啟作業通知',
-                                                options: const ['開啟', '關閉'],
+                                                options: const ['關閉', '開啟'],
                                                 onChanged: (value) {
                                                   // Handle the value change
                                                   if (value == '開啟') {
                                                     _ActivateHomeWorkNoti =
                                                         true;
+
+                                                    Workmanager().initialize(
+                                                        callbackDispatcher, // The top level function, aka callbackDispatcher
+                                                        isInDebugMode:
+                                                            true // If enabled it will post a notification whenever the task is running. Handy for debugging tasks
+                                                        );
+                                                    Workmanager().registerPeriodicTask(
+                                                        "flipclass_homework",
+                                                        '作業監控中',
+                                                        // When no frequency is provided the default 15 minutes is set.
+                                                        // Minimum frequency is 15 min. Android will automatically change your frequency to 15 min if you have configured a lower frequency.
+                                                        constraints:
+                                                            Constraints(
+                                                          networkType:
+                                                              NetworkType
+                                                                  .connected,
+                                                        ));
                                                   } else {
                                                     _ActivateHomeWorkNoti =
                                                         false;
+                                                    Workmanager()
+                                                        .cancelByUniqueName(
+                                                            'flipclass_homework');
                                                   }
                                                 },
                                               ),
@@ -1047,7 +1064,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                             children: [
                                               SelectorWidget(
                                                 labelText: '開啟公告通知',
-                                                options: const ['開啟', '關閉'],
+                                                options: const ['關閉', '開啟'],
                                                 onChanged: (value) {
                                                   // Handle the value change
                                                   if (value == '開啟') {
@@ -1143,6 +1160,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       prefs.remove('password');
                       prefs.remove('name');
                       prefs.remove('oldHomeWorkList');
+                      Workmanager().cancelAll();
 
 // Navigate to login page
                       // ignore: use_build_context_synchronously
