@@ -23,6 +23,7 @@ import 'dart:math';
 import './model/restuarent.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:workmanager/workmanager.dart';
 
 const homeworkTask = "flipclass_homework";
 dynamic oldHomeWorkList;
@@ -76,13 +77,15 @@ List<Map<String, String>> findDifferences(
 //   // Handle the error
 // }
 // }
-
-// void callbackDispatcher() {
-//   Workmanager().executeTask((task, inputData) async {
-//     await _showNotification();
-//     return Future.value(true);
-//   });
-// }
+@pragma(
+    'vm:entry-point') // Mandatory if the App is obfuscated or using Flutter 3.1+
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    await NotificationService()
+        .showNotification(title: 'Workmanager', body: 'It works!');
+    return Future.value(true);
+  });
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -92,7 +95,7 @@ Future<void> main() async {
   ]);
   NotificationService().initNotification();
   var notistatus = await Permission.notification.status;
-  var storagestatus = await Permission.storage.status;
+  var mediaLibrarystatus = await Permission.mediaLibrary.status;
 
   if (notistatus.isDenied ||
       notistatus.isPermanentlyDenied ||
@@ -104,22 +107,27 @@ Future<void> main() async {
     ].request();
   }
 
-  if (storagestatus.isDenied ||
-      storagestatus.isPermanentlyDenied ||
-      storagestatus.isRestricted) {
+  if (mediaLibrarystatus.isDenied ||
+      mediaLibrarystatus.isPermanentlyDenied ||
+      mediaLibrarystatus.isRestricted) {
     // We didn't ask for permission yet or the permission has been denied before but not permanently.
     Map<Permission, PermissionStatus> statuses = await [
-      Permission.storage,
+      Permission.mediaLibrary,
     ].request();
   }
 
-  // final workmanager = Workmanager();
-  // await workmanager.initialize(callbackDispatcher, isInDebugMode: true);
-  // await workmanager.registerPeriodicTask(
-  //   homeworkTask,
-  //   "作業監控中",
-  //   frequency: const Duration(seconds: 30), // Adjust the frequency as needed
-  // );
+  Workmanager().initialize(
+      callbackDispatcher, // The top level function, aka callbackDispatcher
+      isInDebugMode:
+          true // If enabled it will post a notification whenever the task is running. Handy for debugging tasks
+      );
+  Workmanager().registerPeriodicTask(
+    "作業監控中",
+    homeworkTask,
+    // When no frequency is provided the default 15 minutes is set.
+    // Minimum frequency is 15 min. Android will automatically change your frequency to 15 min if you have configured a lower frequency.
+    frequency: const Duration(seconds: 1),
+  );
 
   runApp(MaterialApp(
     theme: ThemeData.light(),
@@ -319,8 +327,8 @@ class _MyHomePageState extends State<MyHomePage> {
     //   });
     // }
     getProfile();
-    NotificationService()
-        .showNotification(title: 'Sample title', body: 'It works!');
+    // NotificationService()
+    //     .showNotification(title: 'Sample title', body: 'It works!');
   }
 
   getProfile() async {
@@ -473,6 +481,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 borderRadius: BorderRadius.circular(10),
                 child: InkWell(
                   onTap: () async {
+                    Workmanager().cancelAll();
                     // Navigator.push(
                     //     context,
                     //     PageTransition(
