@@ -22,6 +22,7 @@ import 'package:html/parser.dart' as html_parser;
 import 'dart:math';
 import './model/restuarent.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 const homeworkTask = "flipclass_homework";
 dynamic oldHomeWorkList;
@@ -90,6 +91,28 @@ Future<void> main() async {
     DeviceOrientation.portraitDown,
   ]);
   NotificationService().initNotification();
+  var notistatus = await Permission.notification.status;
+  var storagestatus = await Permission.storage.status;
+
+  if (notistatus.isDenied ||
+      notistatus.isPermanentlyDenied ||
+      notistatus.isRestricted) {
+    // We didn't ask for permission yet or the permission has been denied before but not permanently.
+
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.notification,
+    ].request();
+  }
+
+  if (storagestatus.isDenied ||
+      storagestatus.isPermanentlyDenied ||
+      storagestatus.isRestricted) {
+    // We didn't ask for permission yet or the permission has been denied before but not permanently.
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.storage,
+    ].request();
+  }
+
   // final workmanager = Workmanager();
   // await workmanager.initialize(callbackDispatcher, isInDebugMode: true);
   // await workmanager.registerPeriodicTask(

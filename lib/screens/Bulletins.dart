@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
 import 'package:stust_app/screens/home_work.dart';
@@ -17,9 +19,10 @@ class BulletinsPage extends StatefulWidget {
   _BulletinsPageState createState() => _BulletinsPageState();
 }
 
-class _BulletinsPageState extends State<BulletinsPage> {
+class _BulletinsPageState extends State<BulletinsPage> with WidgetsBindingObserver {
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  bool _cancelToken = false;
 
   late String _account = '0'; // Set account and password to 0 by default
   late String _password = '0';
@@ -27,6 +30,8 @@ class _BulletinsPageState extends State<BulletinsPage> {
   @override
   void initState() {
     super.initState();
+      WidgetsBinding.instance.addObserver(this);
+
     List<Map<String, String?>> responseData = [];
     _getlocal_UserData().then((data) {
       _account = data[0];
@@ -40,6 +45,23 @@ class _BulletinsPageState extends State<BulletinsPage> {
     _submitForm();
   }
 
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _cancelToken = true;
+
+    super.dispose();
+  }
+
+@override
+void didChangeAppLifecycleState(AppLifecycleState state) {
+  super.didChangeAppLifecycleState(state);
+  if (state == AppLifecycleState.resumed) {
+    // Enable controls when the page is resumed
+  } else if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
+    // Disable controls when the page is inactive or paused
+  }
+}
   _getlocal_UserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     _account = prefs.getString('account')!;
@@ -217,30 +239,28 @@ class _BulletinsPageState extends State<BulletinsPage> {
   }
 
   void _submitForm() async {
-    // if (!_formKey.currentState!.mounted) {
-    //   return;
-    // }
-
-    // if (_formKey.currentState!.validate()) {
-    //   _formKey.currentState!.save();
-
     setState(() {
       _isLoading = true;
     });
 
+    _cancelToken = false;
     try {
       final responseData = await gen_bulletin();
-      setState(() {
-        _responseData = responseData;
-        _isLoading = false;
-      });
+      if (mounted && !_cancelToken) {
+        setState(() {
+          _responseData = responseData;
+          _isLoading = false;
+        });
+        sleep(const Duration(seconds: 1));
+      }
     } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _showAlertDialog(e.toString(), e.toString());
-      });
+      if (mounted && !_cancelToken) {
+        setState(() {
+          _isLoading = false;
+          _showAlertDialog(e.toString(), e.toString());
+        });
+      }
     }
-    // }
   }
 
   @override

@@ -25,6 +25,9 @@ class _HomeworkPageState extends State<HomeworkPage>
     with WidgetsBindingObserver {
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  bool _cancelToken = false;
+
+
 
   late String _account = '0'; // Set account and password to 0 by default
   late String _password = '0';
@@ -314,5 +317,4 @@ class _HomeworkPageState extends State<HomeworkPage>
     );
   }
 
-  bool _cancelToken = false;
 }
