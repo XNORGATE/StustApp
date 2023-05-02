@@ -352,7 +352,9 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                                   prefs.setString('password', _password);
                                   prefs.setString('name', isAuthenticated);
                                 });
-                                Navigator.of(context).pushNamed('/');
+                                if (!mounted) return;
+                                Navigator.of(context).pushNamedAndRemoveUntil(
+                                    '/', (Route<dynamic> route) => false);
 // Save account and password in shared preferences
 // Go to main page
                               } else {

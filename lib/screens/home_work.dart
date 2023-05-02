@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
@@ -219,7 +217,6 @@ class _HomeworkPageState extends State<HomeworkPage>
           _responseData = responseData;
           _isLoading = false;
         });
-        sleep(const Duration(seconds: 1));
       }
     } catch (e) {
       if (mounted && !_cancelToken) {
@@ -251,6 +248,8 @@ class _HomeworkPageState extends State<HomeworkPage>
                       separatorBuilder: (context, index) => const Divider(),
                       itemBuilder: (context, index) {
                         final data = _responseData[index];
+                        bool isStringTooLong = data['topic']!.length > 15;
+
                         return InkWell(
                           onTap: () {
                             Navigator.push(
@@ -272,14 +271,18 @@ class _HomeworkPageState extends State<HomeworkPage>
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Padding(padding: const EdgeInsets.only(left: 5,),child:                               Text(
-                                  data['src']!,
-                                  style: const TextStyle(
-                                    fontSize: 15.0,
-                                    fontWeight: FontWeight.bold,
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                    left: 10,
                                   ),
-                                ),),
-  
+                                  child: Text(
+                                    data['src']!,
+                                    style: const TextStyle(
+                                      fontSize: 15.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
                                 Padding(
                                   padding: const EdgeInsets.all(20.0),
                                   child: Row(
@@ -312,19 +315,37 @@ class _HomeworkPageState extends State<HomeworkPage>
                                         width: 20,
                                       ),
 
-                                      Expanded(
-                                        child: Padding(
-                                          padding:
-                                              const EdgeInsets.only(left: 15.0),
-                                          child: Text(
-                                            data['topic']!,
-                                            style: const TextStyle(
-                                              fontSize: 18.0,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                      )
+                                      isStringTooLong
+                                          ? Expanded(
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(
+                                                    left: 15.0),
+                                                child: Text(
+                                                  data['topic']!,
+                                                  style: const TextStyle(
+                                                    fontSize: 18.0,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            )
+                                          : Expanded(child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+
+                                              Padding(
+                                                  padding: const EdgeInsets.only(
+                                                      left: 15.0),
+                                                  child: Text(
+                                                    data['topic']!,
+                                                    style: const TextStyle(
+                                                      fontSize: 18.0,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                            ],
+                                          ),)
 
                                       // ),
                                     ],

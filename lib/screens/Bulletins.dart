@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
@@ -251,7 +250,6 @@ void didChangeAppLifecycleState(AppLifecycleState state) {
           _responseData = responseData;
           _isLoading = false;
         });
-        sleep(const Duration(seconds: 1));
       }
     } catch (e) {
       if (mounted && !_cancelToken) {
