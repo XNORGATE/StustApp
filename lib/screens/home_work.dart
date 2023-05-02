@@ -27,8 +27,6 @@ class _HomeworkPageState extends State<HomeworkPage>
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _cancelToken = false;
 
-
-
   late String _account = '0'; // Set account and password to 0 by default
   late String _password = '0';
 
@@ -101,6 +99,23 @@ class _HomeworkPageState extends State<HomeworkPage>
     );
   }
 
+  String extractMonthAndDay(String dateString) {
+    List<String> dateParts = dateString.split("-");
+    String month = dateParts[1];
+    String day = dateParts[2].substring(0, 2);
+    return "$month-$day";
+  }
+
+  // String extractHomeworkCode(String url) {
+  //   List<String> segments = url.split("/");
+  //   return segments.last;
+  // }
+
+  String extractString(String originalString) {
+    int index = originalString.indexOf("_");
+    return index >= 0 ? originalString.substring(0, index) : originalString;
+  }
+
   Future<List<Map<String, String>>> getHomework() async {
     int homeworkPage = 1;
     List<Map<String, String>> homework = [];
@@ -152,12 +167,28 @@ class _HomeworkPageState extends State<HomeworkPage>
           var dateDiv = works[i]
               .querySelector('td.text-center.col-date > div.text-overflow');
           var date = dateDiv?.attributes['title'];
+          var isDoneresponse = await session.get(
+              Uri.parse('https://flipclass.stust.edu.tw$href'),
+              headers: {...headers, 'cookie': cookies});
+          var isDonesoup = parse(isDoneresponse.body);
+
+          String isDone = '未繳交';
+          // print(soup.outerHtml);
+          var doneButtonText = isDonesoup
+              .querySelector('div.text-center.fs-margin-default > a > span')
+              ?.text
+              .trim();
+          // print(doneButtonText);
+          if (doneButtonText!.contains('檢視')) {
+            isDone = '已繳交';
+          }
 
           newData.add({
             'topic': topic ?? '',
             'src': src ?? '',
             'href': 'https://flipclass.stust.edu.tw$href',
             'date': date ?? '',
+            'isDone': isDone
           });
         }
 
@@ -238,21 +269,68 @@ class _HomeworkPageState extends State<HomeworkPage>
                             );
                           },
                           child: Card(
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      data['topic']!,
-                                      style: const TextStyle(
-                                        fontSize: 18.0,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(padding: const EdgeInsets.only(left: 5,),child:                               Text(
+                                  data['src']!,
+                                  style: const TextStyle(
+                                    fontSize: 15.0,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                ],
-                              ),
+                                ),),
+  
+                                Padding(
+                                  padding: const EdgeInsets.all(20.0),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      // Expanded(
+                                      Text(
+                                        extractMonthAndDay(data['date']!),
+                                        style: const TextStyle(
+                                          fontSize: 18.0,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        width: 20,
+                                      ),
+                                      data['isDone'] == '未繳交'
+                                          ? const Icon(
+                                              Icons.assignment,
+                                              color: Color.fromARGB(
+                                                  255, 243, 79, 29),
+                                            )
+                                          : const Icon(
+                                              Icons.done,
+                                              color: Color.fromARGB(
+                                                  255, 11, 167, 245),
+                                            ),
+                                      const SizedBox(
+                                        width: 20,
+                                      ),
+
+                                      Expanded(
+                                        child: Padding(
+                                          padding:
+                                              const EdgeInsets.only(left: 15.0),
+                                          child: Text(
+                                            data['topic']!,
+                                            style: const TextStyle(
+                                              fontSize: 18.0,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      )
+
+                                      // ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         );
@@ -316,5 +394,4 @@ class _HomeworkPageState extends State<HomeworkPage>
       ),
     );
   }
-
 }

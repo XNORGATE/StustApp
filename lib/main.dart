@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_neumorphic_null_safety/flutter_neumorphic.dart';
 import 'package:stust_app/screens/home_work.dart';
 import 'package:stust_app/screens/leave_request.dart';
@@ -23,45 +22,44 @@ import 'dart:math';
 import './model/restuarent.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:workmanager/workmanager.dart';
 
-const homeworkTask = "flipclass_homework";
-dynamic oldHomeWorkList;
+// const homeworkTask = "flipclass_homework";
+// dynamic oldHomeWorkList;
 
-@pragma(
-    'vm:entry-point') // Mandatory if the App is obfuscated or using Flutter 3.1+
-void callbackDispatcher() {
-  Workmanager().executeTask((task, inputData) async {
-    await NotificationService()
-        .showNotification(title: '作業通知', body: '體育: 線上作業');
-    return Future.value(true);
-  });
-}
+// @pragma(
+//     'vm:entry-point') // Mandatory if the App is obfuscated or using Flutter 3.1+
+// void callbackDispatcher() {
+//   Workmanager().executeTask((task, inputData) async {
+//     await NotificationService()
+//         .showNotification(title: '作業通知', body: '體育: 線上作業');
+//     return Future.value(true);
+//   });
+// }
 
-_getoldHomeWorkList() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  oldHomeWorkList = prefs.getString('oldHomeWorkList') ?? '';
-  if (oldHomeWorkList.length == 0) {
-    return [];
-  } else {
-    return json.decode(oldHomeWorkList);
-  }
-}
+// _getoldHomeWorkList() async {
+//   SharedPreferences prefs = await SharedPreferences.getInstance();
+//   oldHomeWorkList = prefs.getString('oldHomeWorkList') ?? '';
+//   if (oldHomeWorkList.length == 0) {
+//     return [];
+//   } else {
+//     return json.decode(oldHomeWorkList);
+//   }
+// }
 
-int id = 0;
+// int id = 0;
 
-List<Map<String, String>> findDifferences(
-    List<Map<String, String>> map1, List<Map<String, String>> map2) {
-  List<Map<String, String>> differences = [];
+// List<Map<String, String>> findDifferences(
+//     List<Map<String, String>> map1, List<Map<String, String>> map2) {
+//   List<Map<String, String>> differences = [];
 
-  for (var item in map2) {
-    if (!map1.any((element) => mapEquals(element, item))) {
-      differences.add(item);
-    }
-  }
+//   for (var item in map2) {
+//     if (!map1.any((element) => mapEquals(element, item))) {
+//       differences.add(item);
+//     }
+//   }
 
-  return differences;
-}
+//   return differences;
+// }
 
 // Future<void> fetchData() async {
 //   _getoldHomeWorkList().then((data) async {
@@ -95,19 +93,19 @@ Future<void> main() async {
     DeviceOrientation.portraitDown,
   ]);
   NotificationService().initNotification();
-  var notistatus = await Permission.notification.status;
+  // var notistatus = await Permission.notification.status;
   var mediaLibrarystatus = await Permission.mediaLibrary.status;
   var photosstatus = await Permission.photos.status;
 
-  if (notistatus.isDenied ||
-      notistatus.isPermanentlyDenied ||
-      notistatus.isRestricted) {
-    // We didn't ask for permission yet or the permission has been denied before but not permanently.
+  // if (notistatus.isDenied ||
+  //     notistatus.isPermanentlyDenied ||
+  //     notistatus.isRestricted) {
+  //   // We didn't ask for permission yet or the permission has been denied before but not permanently.
 
-    Map<Permission, PermissionStatus> statuses = await [
-      Permission.notification,
-    ].request();
-  }
+  //   Map<Permission, PermissionStatus> statuses = await [
+  //     Permission.notification,
+  //   ].request();
+  // }
 
   if (mediaLibrarystatus.isDenied ||
       mediaLibrarystatus.isPermanentlyDenied ||
@@ -281,8 +279,8 @@ class _MyHomePageState extends State<MyHomePage> {
   var account = '學號';
   bool _isLoading = true;
   bool _isActivitesLoading = true;
-  bool _ActivateHomeWorkNoti = false;
-  bool _ActivateBulletinsNoti = false;
+  final bool _ActivateHomeWorkNoti = false;
+  final bool _ActivateBulletinsNoti = false;
 
   final bool _value2 = false;
 
@@ -982,131 +980,131 @@ class _MyHomePageState extends State<MyHomePage> {
                       onTap: () {},
                     ),
 
-                    DrawerItem(
-                      title: '通知設置',
-                      icon: Icons.notifications,
-                      onTap: () {
-                        showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15)),
-                                title: const Text('通知設置'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text('確定'),
-                                  ),
-                                ],
-                                content: Padding(
-                                    padding: const EdgeInsets.all(.0),
-                                    child: SizedBox(
-                                      width: width * .3,
-                                      height: height * .3,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          const SizedBox(
-                                            height: 30,
-                                          ),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              SelectorWidget(
-                                                labelText: '開啟作業通知',
-                                                options: const ['關閉', '開啟'],
-                                                onChanged: (value) {
-                                                  // Handle the value change
-                                                  if (value == '開啟') {
-                                                    _ActivateHomeWorkNoti =
-                                                        true;
+                    // DrawerItem(
+                    //   title: '通知設置',
+                    //   icon: Icons.notifications,
+                    //   onTap: () {
+                    //     showDialog(
+                    //         context: context,
+                    //         builder: (context) {
+                    //           return AlertDialog(
+                    //             shape: RoundedRectangleBorder(
+                    //                 borderRadius: BorderRadius.circular(15)),
+                    //             title: const Text('通知設置'),
+                    //             actions: [
+                    //               TextButton(
+                    //                 onPressed: () {
+                    //                   Navigator.of(context).pop();
+                    //                 },
+                    //                 child: const Text('確定'),
+                    //               ),
+                    //             ],
+                    //             content: Padding(
+                    //                 padding: const EdgeInsets.all(.0),
+                    //                 child: SizedBox(
+                    //                   width: width * .3,
+                    //                   height: height * .3,
+                    //                   child: Column(
+                    //                     crossAxisAlignment:
+                    //                         CrossAxisAlignment.center,
+                    //                     children: [
+                    //                       const SizedBox(
+                    //                         height: 30,
+                    //                       ),
+                    //                       Row(
+                    //                         mainAxisAlignment:
+                    //                             MainAxisAlignment.center,
+                    //                         children: [
+                    //                           SelectorWidget(
+                    //                             labelText: '開啟作業通知',
+                    //                             options: const ['關閉', '開啟'],
+                    //                             onChanged: (value) {
+                    //                               // Handle the value change
+                    //                               if (value == '開啟') {
+                    //                                 _ActivateHomeWorkNoti =
+                    //                                     true;
 
-                                                    Workmanager().initialize(
-                                                        callbackDispatcher, // The top level function, aka callbackDispatcher
-                                                        isInDebugMode:
-                                                            true // If enabled it will post a notification whenever the task is running. Handy for debugging tasks
-                                                        );
-                                                    Workmanager().registerPeriodicTask(
-                                                        "flipclass_homework",
-                                                        '作業監控中',
-                                                        // When no frequency is provided the default 15 minutes is set.
-                                                        // Minimum frequency is 15 min. Android will automatically change your frequency to 15 min if you have configured a lower frequency.
-                                                        constraints:
-                                                            Constraints(
-                                                          networkType:
-                                                              NetworkType
-                                                                  .connected,
-                                                        ));
-                                                  } else {
-                                                    _ActivateHomeWorkNoti =
-                                                        false;
-                                                    Workmanager()
-                                                        .cancelByUniqueName(
-                                                            'flipclass_homework');
-                                                  }
-                                                },
-                                              ),
-                                            ],
-                                          ),
+                    //                                 Workmanager().initialize(
+                    //                                     callbackDispatcher, // The top level function, aka callbackDispatcher
+                    //                                     isInDebugMode:
+                    //                                         true // If enabled it will post a notification whenever the task is running. Handy for debugging tasks
+                    //                                     );
+                    //                                 Workmanager().registerPeriodicTask(
+                    //                                     "flipclass_homework",
+                    //                                     '作業監控中',
+                    //                                     // When no frequency is provided the default 15 minutes is set.
+                    //                                     // Minimum frequency is 15 min. Android will automatically change your frequency to 15 min if you have configured a lower frequency.
+                    //                                     constraints:
+                    //                                         Constraints(
+                    //                                       networkType:
+                    //                                           NetworkType
+                    //                                               .connected,
+                    //                                     ));
+                    //                               } else {
+                    //                                 _ActivateHomeWorkNoti =
+                    //                                     false;
+                    //                                 Workmanager()
+                    //                                     .cancelByUniqueName(
+                    //                                         'flipclass_homework');
+                    //                               }
+                    //                             },
+                    //                           ),
+                    //                         ],
+                    //                       ),
 
-                                          const SizedBox(
-                                            height: 30,
-                                          ),
+                    //                       const SizedBox(
+                    //                         height: 30,
+                    //                       ),
 
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              SelectorWidget(
-                                                labelText: '開啟公告通知',
-                                                options: const ['關閉', '開啟'],
-                                                onChanged: (value) {
-                                                  // Handle the value change
-                                                  if (value == '開啟') {
-                                                    _ActivateBulletinsNoti =
-                                                        true;
-                                                  } else {
-                                                    _ActivateBulletinsNoti =
-                                                        false;
-                                                  }
-                                                  print(_ActivateBulletinsNoti);
-                                                },
-                                              ),
-                                            ],
-                                          ),
-                                          // CheckboxListTile(
-                                          //   activeColor: Colors.red,
-                                          //   title: const Text('開啟作業通知'),
-                                          //   value: _ActivateHomeWorkNoti,
-                                          //   onChanged: (value) {
-                                          //     setState(() {
-                                          //       _ActivateHomeWorkNoti = value!;
-                                          //     });
-                                          //   },
-                                          // ),
-                                          // CheckboxListTile(
-                                          //   activeColor: Colors.red,
-                                          //   title: const Text('開啟公告通知'),
-                                          //   value: _ActivateHomeWorkNoti,
-                                          //   onChanged: (value) {
-                                          //     setState(() {
-                                          //       _ActivateBulletinsNoti = value!;
-                                          //       print(_ActivateBulletinsNoti);
-                                          //     });
-                                          //   },
-                                          // ),
-                                        ],
-                                      ),
-                                    )),
-                              );
-                            });
-                      },
-                    ),
+                    //                       Row(
+                    //                         mainAxisAlignment:
+                    //                             MainAxisAlignment.center,
+                    //                         children: [
+                    //                           SelectorWidget(
+                    //                             labelText: '開啟公告通知',
+                    //                             options: const ['關閉', '開啟'],
+                    //                             onChanged: (value) {
+                    //                               // Handle the value change
+                    //                               if (value == '開啟') {
+                    //                                 _ActivateBulletinsNoti =
+                    //                                     true;
+                    //                               } else {
+                    //                                 _ActivateBulletinsNoti =
+                    //                                     false;
+                    //                               }
+                    //                               print(_ActivateBulletinsNoti);
+                    //                             },
+                    //                           ),
+                    //                         ],
+                    //                       ),
+                    //                       // CheckboxListTile(
+                    //                       //   activeColor: Colors.red,
+                    //                       //   title: const Text('開啟作業通知'),
+                    //                       //   value: _ActivateHomeWorkNoti,
+                    //                       //   onChanged: (value) {
+                    //                       //     setState(() {
+                    //                       //       _ActivateHomeWorkNoti = value!;
+                    //                       //     });
+                    //                       //   },
+                    //                       // ),
+                    //                       // CheckboxListTile(
+                    //                       //   activeColor: Colors.red,
+                    //                       //   title: const Text('開啟公告通知'),
+                    //                       //   value: _ActivateHomeWorkNoti,
+                    //                       //   onChanged: (value) {
+                    //                       //     setState(() {
+                    //                       //       _ActivateBulletinsNoti = value!;
+                    //                       //       print(_ActivateBulletinsNoti);
+                    //                       //     });
+                    //                       //   },
+                    //                       // ),
+                    //                     ],
+                    //                   ),
+                    //                 )),
+                    //           );
+                    //         });
+                    //   },
+                    // ),
 
                     DrawerItem(
                       title: '關於此APP',
@@ -1159,8 +1157,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       prefs.remove('account');
                       prefs.remove('password');
                       prefs.remove('name');
-                      prefs.remove('oldHomeWorkList');
-                      Workmanager().cancelAll();
+                      // prefs.remove('oldHomeWorkList');
+                      // Workmanager().cancelAll();
 
 // Navigate to login page
                       // ignore: use_build_context_synchronously
