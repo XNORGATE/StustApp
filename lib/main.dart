@@ -477,17 +477,19 @@ class _MyHomePageState extends State<MyHomePage> {
                 borderRadius: BorderRadius.circular(10),
                 child: InkWell(
                   onTap: () async {
-                    // Navigator.push(
-                    //     context,
-                    //     PageTransition(
-                    //         type: PageTransitionType.leftToRightWithFade,
-                    //         child: const HomeworkPage()));
-                    // await NotificationService().showNotification(
-                    //     title: 'Sample title', body: 'It works!');
                     Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (context) => const HomeworkPage()));
+                        PageTransition(
+                            type: PageTransitionType.leftToRightWithFade,
+                            child: const HomeworkPage()));
+                    // await NotificationService().showNotification(
+                    //     title: 'Sample title', body: 'It works!');
+                    // Navigator.of(context).pushReplacementNamed('/homework');
+
+                    // Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(
+                    //         builder: (context) => const HomeworkPage()));
                   },
                   child: Container(
                     height: MediaQuery.of(context).size.height * .18,
@@ -950,7 +952,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           filename: 'stust.png',
                         ),
                         const SizedBox(
-                          width: 20,
+                          width: 15,
                         ),
                         Text(
                           account,
@@ -958,7 +960,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               color: Colors.white, fontSize: 18),
                         ),
                         const SizedBox(
-                          width: 15,
+                          width: 10,
                         ),
                         Text(
                           name,

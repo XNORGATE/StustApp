@@ -3,7 +3,6 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
 
-import 'package:stust_app/screens/Bulletins.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // ignore: depend_on_referenced_packages
 import './home_work_detail.dart';
@@ -108,6 +107,18 @@ class _HomeworkPageState extends State<HomeworkPage>
   //   List<String> segments = url.split("/");
   //   return segments.last;
   // }
+  String calculateRemainingTime(String dateString) {
+    DateTime targetDate = DateTime.parse(dateString);
+    DateTime now = DateTime.now();
+    Duration difference = targetDate.difference(now);
+    if (difference.inSeconds < 0) {
+      return '已過期';
+    } else if (difference.inDays < 1) {
+      return '${difference.inHours}小時';
+    } else {
+      return '${difference.inDays}天';
+    }
+  }
 
   String extractString(String originalString) {
     int index = originalString.indexOf("_");
@@ -176,6 +187,21 @@ class _HomeworkPageState extends State<HomeworkPage>
               .querySelector('div.text-center.fs-margin-default > a > span')
               ?.text
               .trim();
+
+          var numberOfSubmissions = isDonesoup
+              .querySelectorAll('dt')
+              .firstWhere((element) => element.text == '已繳交')
+              .nextElementSibling
+              ?.text
+              .trim();
+          var submissionDeadline = isDonesoup
+              .querySelectorAll('dt')
+              .firstWhere((element) => element.text == '繳交期限')
+              .nextElementSibling
+              ?.querySelector('span')
+              ?.text
+              .trim();
+          var remain = calculateRemainingTime(submissionDeadline!);
           // print(doneButtonText);
           if (doneButtonText!.contains('檢視')) {
             isDone = '已繳交';
@@ -186,14 +212,23 @@ class _HomeworkPageState extends State<HomeworkPage>
             'src': src ?? '',
             'href': 'https://flipclass.stust.edu.tw$href',
             'date': date ?? '',
-            'isDone': isDone
+            'isDone': isDone,
+            'numberOfSubmissions': numberOfSubmissions ?? '',
+            'submissionDeadline': submissionDeadline,
+            'remain': remain
           });
         }
 
         if (mounted && !_cancelToken) {
-          setState(() {
-            _responseData = newData;
-          });
+          try {
+            setState(() {
+              _responseData = newData;
+            });
+          } catch (e) {
+            setState(() {
+              _responseData = newData;
+            });
+          }
         }
         homeworkPage++;
         genHomework(homeworkPage);
@@ -284,70 +319,122 @@ class _HomeworkPageState extends State<HomeworkPage>
                                   ),
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.all(20.0),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                  padding:
+                                      const EdgeInsets.fromLTRB(20, 15, 15, 5),
+                                  child: Column(
                                     children: [
-                                      // Expanded(
-                                      Text(
-                                        extractMonthAndDay(data['date']!),
-                                        style: const TextStyle(
-                                          fontSize: 18.0,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const SizedBox(
-                                        width: 20,
-                                      ),
-                                      data['isDone'] == '未繳交'
-                                          ? const Icon(
-                                              Icons.assignment,
-                                              color: Color.fromARGB(
-                                                  255, 243, 79, 29),
-                                            )
-                                          : const Icon(
-                                              Icons.done,
-                                              color: Color.fromARGB(
-                                                  255, 11, 167, 245),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          // Expanded(
+                                          Text(
+                                            extractMonthAndDay(data['date']!),
+                                            style: const TextStyle(
+                                              fontSize: 18.0,
+                                              fontWeight: FontWeight.bold,
                                             ),
-                                      const SizedBox(
-                                        width: 20,
-                                      ),
-
-                                      isStringTooLong
-                                          ? Expanded(
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    left: 15.0),
-                                                child: Text(
-                                                  data['topic']!,
-                                                  style: const TextStyle(
-                                                    fontSize: 18.0,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
+                                          ),
+                                          const SizedBox(
+                                            width: 20,
+                                          ),
+                                          data['isDone'] == '未繳交'
+                                              ? const Icon(
+                                                  Icons.assignment,
+                                                  color: Color.fromARGB(
+                                                      255, 243, 29, 29),
+                                                )
+                                              : const Icon(
+                                                  Icons.done,
+                                                  color: Color.fromARGB(
+                                                      255, 11, 167, 245),
                                                 ),
-                                              ),
-                                            )
-                                          : Expanded(child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
+                                          const SizedBox(
+                                            width: 20,
+                                          ),
 
-                                              Padding(
-                                                  padding: const EdgeInsets.only(
-                                                      left: 15.0),
-                                                  child: Text(
-                                                    data['topic']!,
-                                                    style: const TextStyle(
-                                                      fontSize: 18.0,
-                                                      fontWeight: FontWeight.bold,
+                                          isStringTooLong
+                                              ? Expanded(
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 15.0),
+                                                    child: Text(
+                                                      data['topic']!,
+                                                      style: const TextStyle(
+                                                        fontSize: 18.0,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                            ],
-                                          ),)
+                                                )
+                                              : Expanded(
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .only(
+                                                                left: 15.0),
+                                                        child: Text(
+                                                          data['topic']!,
+                                                          style:
+                                                              const TextStyle(
+                                                            fontSize: 18.0,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                )
 
-                                      // ),
+                                          // ),
+                                        ],
+                                      ),
+                                      const SizedBox(
+                                        height: 5,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            '期限: ${data['submissionDeadline']}',
+                                            style: const TextStyle(
+                                              color: Colors.grey,
+                                              fontSize: 13.0,
+                                              fontWeight: FontWeight.w400,
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            width: 5,
+                                          ),
+                                          Text(
+                                            '已交: ${data['numberOfSubmissions']}',
+                                            style: const TextStyle(
+                                              color: Colors.grey,
+                                              fontSize: 13.0,
+                                              fontWeight: FontWeight.w400,
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            width: 5,
+                                          ),
+                                          Text(
+                                            '剩餘: ${data['remain']}',
+                                            style: const TextStyle(
+                                              color: Colors.grey,
+                                              fontSize: 13.0,
+                                              fontWeight: FontWeight.w400,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -385,10 +472,21 @@ class _HomeworkPageState extends State<HomeworkPage>
         onTap: (int index) {
           switch (index) {
             case 0:
-              Navigator.of(context).pushNamed(HomeworkPage.routeName);
+              if (ModalRoute.of(context)?.settings.name == '/homework') {
+                return;
+              }
+              Navigator.of(context).pushReplacementNamed('/homework');
+              // Navigator.of(context).pushNamedAndRemoveUntil('/homework',ModalRoute.withName('/home'));
+              // Navigator.pushNamedAndRemoveUntil(
+              //     context, '/homework', (route) => false);
               break;
             case 1:
-              Navigator.of(context).pushNamed(BulletinsPage.routeName);
+              if (ModalRoute.of(context)?.settings.name == '/bulletins') {
+                return;
+              }
+              Navigator.of(context).pushReplacementNamed('/bulletins');
+              // Navigator.pushNamedAndRemoveUntil(
+              //     context, '/bulletins', (route) => false);
               break;
           }
         },

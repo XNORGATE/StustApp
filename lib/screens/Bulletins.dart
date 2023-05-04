@@ -1,7 +1,6 @@
-
+import 'package:flutter/gestures.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
-import 'package:stust_app/screens/home_work.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:url_launcher/url_launcher.dart';
@@ -18,7 +17,8 @@ class BulletinsPage extends StatefulWidget {
   _BulletinsPageState createState() => _BulletinsPageState();
 }
 
-class _BulletinsPageState extends State<BulletinsPage> with WidgetsBindingObserver {
+class _BulletinsPageState extends State<BulletinsPage>
+    with WidgetsBindingObserver {
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _cancelToken = false;
@@ -29,7 +29,7 @@ class _BulletinsPageState extends State<BulletinsPage> with WidgetsBindingObserv
   @override
   void initState() {
     super.initState();
-      WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
 
     List<Map<String, String?>> responseData = [];
     _getlocal_UserData().then((data) {
@@ -52,15 +52,17 @@ class _BulletinsPageState extends State<BulletinsPage> with WidgetsBindingObserv
     super.dispose();
   }
 
-@override
-void didChangeAppLifecycleState(AppLifecycleState state) {
-  super.didChangeAppLifecycleState(state);
-  if (state == AppLifecycleState.resumed) {
-    // Enable controls when the page is resumed
-  } else if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
-    // Disable controls when the page is inactive or paused
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      // Enable controls when the page is resumed
+    } else if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused) {
+      // Disable controls when the page is inactive or paused
+    }
   }
-}
+
   _getlocal_UserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     _account = prefs.getString('account')!;
@@ -72,30 +74,6 @@ void didChangeAppLifecycleState(AppLifecycleState state) {
   late List<Map<String, String>> _responseData = [];
   late bool _isLoading = false; // Flag to indicate if API request is being made
 
-  // void _submitForm() {
-  //   if (_formKey.currentState!.validate()) {
-  //     _formKey.currentState!.save();
-
-  //     setState(() {
-  //       _isLoading = true;
-  //     });
-
-  //     // Make POST request to the API
-  //     http
-  //         .get(
-  //       Uri.parse(
-  //           'http://api.xnor-development.com:70/homework?account=$_account&password=$_password'),
-  //     )
-  //         .then((response) {
-  //       final responseData = json.decode(response.body) as List;
-  //       //print(responseData);
-  //       setState(() {
-  //         _responseData = responseData;
-  //         _isLoading = false;
-  //       });
-  //     });
-  //   }
-  // }
   void _showAlertDialog(String text, String href) {
     showDialog(
       context: context,
@@ -118,6 +96,13 @@ void didChangeAppLifecycleState(AppLifecycleState state) {
         );
       },
     );
+  }
+
+  String extractMonthAndDay(String dateString) {
+    List<String> dateParts = dateString.split("-");
+    String month = dateParts[1];
+    String day = dateParts[2].substring(0, 2);
+    return "$month-$day";
   }
 
   Future<List<Map<String, String>>> gen_bulletin() async {
@@ -223,10 +208,17 @@ void didChangeAppLifecycleState(AppLifecycleState state) {
             'url': fileUrl
           });
         }
-
-        setState(() {
-          _responseData = newData;
-        });
+        if (mounted && !_cancelToken) {
+          try {
+            setState(() {
+              _responseData = newData;
+            });
+          } catch (e) {
+            setState(() {
+              _responseData = newData;
+            });
+          }
+        }
 
         bulletinPage++;
         gen_bulletin(bulletinPage);
@@ -240,9 +232,9 @@ void didChangeAppLifecycleState(AppLifecycleState state) {
   void _submitForm() async {
     setState(() {
       _isLoading = true;
+      _cancelToken = false;
     });
 
-    _cancelToken = false;
     try {
       final responseData = await gen_bulletin();
       if (mounted && !_cancelToken) {
@@ -288,6 +280,7 @@ void didChangeAppLifecycleState(AppLifecycleState state) {
                       separatorBuilder: (context, index) => const Divider(),
                       itemBuilder: (context, index) {
                         final data = _responseData[index];
+
                         return InkWell(
                           onTap: () async {
                             final confirmed = await showDialog(
@@ -303,12 +296,104 @@ void didChangeAppLifecycleState(AppLifecycleState state) {
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Text(data['content']!),
+                                      RichText(
+                                        text: TextSpan(
+                                          style: const TextStyle(
+                                              fontSize: 16.0,
+                                              color: Colors.black),
+                                          children: data['content']!
+                                              .split('\n')
+                                              .map((line) {
+                                            final RegExp regex = RegExp(
+                                              r"(?:(?:https?|ftp):\/\/|www\.)[^\s/$.?#].[^\s]*",
+                                              caseSensitive: false,
+                                            );
+                                            final Iterable<Match> matches =
+                                                regex.allMatches(line);
+                                            List<InlineSpan> children = [];
+                                            int start = 0;
+                                            for (Match match in matches) {
+                                              if (match.start > start) {
+                                                children.add(TextSpan(
+                                                  text: line.substring(
+                                                      start, match.start),
+                                                ));
+                                              }
+                                              String urlText = match.group(0)!;
+                                              final List<String> urlParts =
+                                                  urlText.split(RegExp(
+                                                      r"(https?://|www\.)"));
+                                              if (urlParts.length > 2) {
+                                                print(urlParts.length);
+                                                for (int i = 0;
+                                                    i < urlParts.length;
+                                                    i++) {
+                                                  final String part =
+                                                      urlParts[i];
+                                                  if (part.isNotEmpty) {
+                                                    final String url = i > 0
+                                                        ? 'https://${urlParts[i]}'
+                                                        : urlParts[i];
+                                                    children.add(TextSpan(
+                                                      text: url,
+                                                      style: const TextStyle(
+                                                        decoration:
+                                                            TextDecoration
+                                                                .underline,
+                                                        color: Colors.blue,
+                                                      ),
+                                                      recognizer:
+                                                          TapGestureRecognizer()
+                                                            ..onTap = () async {
+                                                              if (await canLaunch(
+                                                                  url)) {
+                                                                await launch(
+                                                                    url);
+                                                              }
+                                                            },
+                                                    ));
+                                                  }
+                                                }
+                                              } else {
+                                                children.add(TextSpan(
+                                                  text: urlText,
+                                                  style: const TextStyle(
+                                                    decoration: TextDecoration
+                                                        .underline,
+                                                    color: Colors.blue,
+                                                  ),
+                                                  recognizer:
+                                                      TapGestureRecognizer()
+                                                        ..onTap = () async {
+                                                          if (await canLaunch(
+                                                              urlText)) {
+                                                            await launch(
+                                                                urlText);
+                                                          }
+                                                        },
+                                                ));
+                                              }
+                                              start = match.end;
+                                            }
+                                            if (start < line.length) {
+                                              children.add(TextSpan(
+                                                text: line.substring(start),
+                                              ));
+                                            }
+                                            children.add(const TextSpan(
+                                              text: "\n",
+                                            ));
+                                            return TextSpan(children: children);
+                                          }).toList(),
+                                        ),
+                                      ),
                                       if (data['filename'] != '0' &&
                                           data['url'] != '0')
                                         InkWell(
                                           onTap: () => launchUrl(
-                                              Uri.parse(data['url']!),mode: LaunchMode.externalNonBrowserApplication),
+                                              Uri.parse(data['url']!),
+                                              mode: LaunchMode
+                                                  .externalNonBrowserApplication),
                                           child: Text(
                                             '附件: ${data['filename']!}',
                                             style: const TextStyle(
@@ -333,35 +418,66 @@ void didChangeAppLifecycleState(AppLifecycleState state) {
                               ),
                             );
                             if (confirmed == true) {
-                              launchUrl(Uri.parse(data['href']!),mode: LaunchMode.externalNonBrowserApplication);
+                              launchUrl(Uri.parse(data['href']!),
+                                  mode:
+                                      LaunchMode.externalNonBrowserApplication);
                             }
                           },
                           child: Card(
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      '${data['date']!} ${data['class']} : ${data['topic']!}',
-                                      style: const TextStyle(
-                                        fontSize: 18.0,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 10),
+                                  child: Text(
+                                    data['class']!,
+                                    style: const TextStyle(
+                                      fontSize: 15.0,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  // IconButton(
-                                  //   icon: Icon(
-                                  //     _isFavorite(newsTitle)
-                                  //         ? Icons.favorite
-                                  //         : Icons.favorite_border,
-                                  //   ),
-                                  //   onPressed: () {
-                                  //     _toggleFavorite(newsTitle);
-                                  //   },
-                                  // ),
-                                ],
-                              ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        extractMonthAndDay(data['date']!),
+                                        style: const TextStyle(
+                                          fontSize: 18.0,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        width: 20,
+                                      ),
+                                      const Icon(
+                                        Icons.feed_outlined,
+                                        color:
+                                            Color.fromARGB(255, 11, 167, 245),
+                                      ),
+                                      const SizedBox(
+                                        width: 20,
+                                      ),
+                                      Expanded(
+                                        child: Padding(
+                                          padding:
+                                              const EdgeInsets.only(left: 30.0),
+                                          child: Text(
+                                            data['topic']!,
+                                            style: const TextStyle(
+                                              fontSize: 18.0,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         );
@@ -391,43 +507,25 @@ void didChangeAppLifecycleState(AppLifecycleState state) {
               icon: Icon(Icons.format_list_bulleted),
               label: '最新公告',
               backgroundColor: Color.fromARGB(181, 65, 218, 190)),
-          // BottomNavigationBarItem(
-          //     icon: Icon(Icons.calendar_today),
-          //     label: '曠課與遲到',
-          //     backgroundColor: Color.fromARGB(255, 40, 105, 218)),
-          // BottomNavigationBarItem(
-          //     icon: Icon(Icons.question_answer),
-          //     label: '未繳心得',
-          //     backgroundColor: Color.fromARGB(255, 40, 105, 218)),
-          // BottomNavigationBarItem(
-          //     icon: Icon(Icons.add_box),
-          //     label: '請假',
-          //     backgroundColor: Color.fromARGB(255, 40, 105, 218)),
-          // BottomNavigationBarItem(
-          //     icon: Icon(Icons.send),
-          //     label: '快速繳交作業',
-          //     backgroundColor: Color.fromARGB(255, 40, 105, 218)),
         ],
         onTap: (int index) {
           switch (index) {
             case 0:
-              Navigator.of(context).pushNamed(HomeworkPage.routeName);
+              if (ModalRoute.of(context)?.settings.name == '/homework') {
+                return;
+              }
+              // Navigator.of(context).pushNamedAndRemoveUntil('/homework',ModalRoute.withName('/home'));
+              Navigator.pushNamedAndRemoveUntil(
+                  context, '/homework', (route) => false);
               break;
             case 1:
-              Navigator.of(context).pushNamed(BulletinsPage.routeName);
+              if (ModalRoute.of(context)?.settings.name == '/bulletins') {
+                return;
+              }
+              // Navigator.of(context).pushNamedAndRemoveUntil('/bulletins',ModalRoute.withName('/home'));
+              Navigator.pushNamedAndRemoveUntil(
+                  context, '/bulletins', (route) => false);
               break;
-            // case 2:
-            //   Navigator.of(context).pushNamed(AbsentPage.routeName);
-            //   break;
-            // case 3:
-            //   Navigator.of(context).pushNamed(ReflectionPage.routeName);
-            //   break;
-            // case 4:
-            //   Navigator.of(context).pushNamed(LeaveRequestPage.routeName);
-            //   break;
-            // case 5:
-            //   Navigator.of(context).pushNamed(SendHomeworkPage.routeName);
-            //   break;
           }
         },
       ),
@@ -445,19 +543,6 @@ void didChangeAppLifecycleState(AppLifecycleState state) {
                     context, MyHomePage.routeName, (route) => false);
               },
               icon: const Icon(IconData(0xe328, fontFamily: 'MaterialIcons')))
-          // NeumorphicButton(
-          //   child: Icon(Icons.exit_to_app_outlined),
-          //   style: NeumorphicStyle(
-          //       shape: NeumorphicShape.concave,
-          //       boxShape:
-          //           NeumorphicBoxShape.roundRect(BorderRadius.circular(50)),
-          //       depth: 3,
-          //       color: Color.fromARGB(255, 212, 69, 76)),
-          //   drawSurfaceAboveChild: false,
-          //   margin: EdgeInsets.fromLTRB(0.0, 10.0, 15.0, 10.0),
-          //   //padding: EdgeInsets.only(bottom: 1),
-
-          // ),
         ],
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
