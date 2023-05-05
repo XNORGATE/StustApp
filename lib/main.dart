@@ -158,8 +158,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: '南台通Beta v1.0',
       themeMode: ThemeMode.light,
-      theme: const NeumorphicThemeData(
-        baseColor: Color(0xFFFFFFFF),
+      theme:  const NeumorphicThemeData(
+        baseColor: Color.fromARGB(255, 255,255,255),
         lightSource: LightSource.topLeft,
         depth: 10,
       ),
@@ -430,8 +430,8 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         centerTitle: true,
 
-        backgroundColor: const Color.fromARGB(181, 65, 218, 190),
-        title: const Text('南台通首頁'),
+        backgroundColor:  Colors.green[200],
+        title: const Text('南台通首頁',style: TextStyle(fontSize: 20,fontWeight: FontWeight.normal),),
         // actions: const[
         //   Icon(Icons.shopping_bag_outlined),
         //   SizedBox(width: 10,)

@@ -108,10 +108,12 @@ class _HomeworkPageState extends State<HomeworkPage>
   //   return segments.last;
   // }
   String calculateRemainingTime(String dateString) {
-    DateTime targetDate = DateTime.parse(dateString);
+    DateTime targetDate =
+        DateTime.parse(dateString).add(const Duration(seconds: 86399)); // Add one day
     DateTime now = DateTime.now();
     Duration difference = targetDate.difference(now);
     if (difference.inSeconds < 0) {
+      print('targetDate :$targetDate now :$now difference :$difference');
       return '已過期';
     } else if (difference.inDays < 1) {
       return '${difference.inHours}小時';
@@ -401,7 +403,8 @@ class _HomeworkPageState extends State<HomeworkPage>
                                         height: 5,
                                       ),
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
                                             '期限: ${data['submissionDeadline']}',

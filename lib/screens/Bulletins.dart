@@ -288,9 +288,15 @@ class _BulletinsPageState extends State<BulletinsPage>
                               builder: (context) => AlertDialog(
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(15)),
-                                title: Text(
-                                  data['topic']!,
-                                  style: const TextStyle(color: Colors.black),
+                                title: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      data['topic']!,
+                                      style: const TextStyle(color: Colors.black),
+                                    ),
+                                    const Divider(thickness: 1.5,)
+                                  ],
                                 ),
                                 content: SingleChildScrollView(
                                   child: Column(
@@ -301,90 +307,97 @@ class _BulletinsPageState extends State<BulletinsPage>
                                           style: const TextStyle(
                                               fontSize: 16.0,
                                               color: Colors.black),
-                                          children: data['content']!
-                                              .split('\n')
-                                              .map((line) {
+                                          children: () {
                                             final RegExp regex = RegExp(
-                                              r"(?:(?:https?|ftp):\/\/|www\.)[^\s/$.?#].[^\s]*",
+                                              r"(?:(?:https?|ftp):\/\/|www\.)[^\s/$.?#].[^\s]*|[\s\S]+?(?=(?:(?:https?|ftp):\/\/|www\.)[^\s/$.?#].[^\s]*|$)",
                                               caseSensitive: false,
                                             );
+                                            final RegExp urlSeparatorRegex =
+                                                RegExp(
+                                              r'(?<=[^/])(?=https?://)',
+                                            );
                                             final Iterable<Match> matches =
-                                                regex.allMatches(line);
+                                                regex.allMatches(
+                                                    data['content']!);
                                             List<InlineSpan> children = [];
-                                            int start = 0;
                                             for (Match match in matches) {
-                                              if (match.start > start) {
-                                                children.add(TextSpan(
-                                                  text: line.substring(
-                                                      start, match.start),
-                                                ));
-                                              }
-                                              String urlText = match.group(0)!;
-                                              final List<String> urlParts =
-                                                  urlText.split(RegExp(
-                                                      r"(https?://|www\.)"));
-                                              if (urlParts.length > 2) {
-                                                print(urlParts.length);
-                                                for (int i = 0;
-                                                    i < urlParts.length;
-                                                    i++) {
-                                                  final String part =
-                                                      urlParts[i];
-                                                  if (part.isNotEmpty) {
-                                                    final String url = i > 0
-                                                        ? 'https://${urlParts[i]}'
-                                                        : urlParts[i];
-                                                    children.add(TextSpan(
-                                                      text: url,
-                                                      style: const TextStyle(
-                                                        decoration:
-                                                            TextDecoration
-                                                                .underline,
-                                                        color: Colors.blue,
-                                                      ),
-                                                      recognizer:
-                                                          TapGestureRecognizer()
-                                                            ..onTap = () async {
-                                                              if (await canLaunch(
-                                                                  url)) {
-                                                                await launch(
-                                                                    url);
-                                                              }
-                                                            },
-                                                    ));
-                                                  }
+                                              if (match
+                                                      .group(0)!
+                                                      .startsWith('http') ||
+                                                  match
+                                                      .group(0)!
+                                                      .startsWith('www') ||
+                                                  match
+                                                      .group(0)!
+                                                      .startsWith('ftp')) {
+                                                Iterable<Match>
+                                                    separatedUrlMatches =
+                                                    urlSeparatorRegex
+                                                        .allMatches(
+                                                            match.group(0)!);
+                                                int previousUrlEnd = 0;
+                                                for (Match separatedUrlMatch
+                                                    in separatedUrlMatches) {
+                                                  String url = match
+                                                      .group(0)!
+                                                      .substring(
+                                                          previousUrlEnd,
+                                                          separatedUrlMatch
+                                                              .start);
+                                                  children.add(TextSpan(
+                                                    text: url,
+                                                    style: const TextStyle(
+                                                      decoration: TextDecoration
+                                                          .underline,
+                                                      color: Colors.blue,
+                                                    ),
+                                                    recognizer:
+                                                        TapGestureRecognizer()
+                                                        ..onTap = () async {
+                                                          launchUrl(
+                                                              Uri.parse(
+                                                                  url),
+                                                              mode: LaunchMode
+                                                                  .externalNonBrowserApplication);
+                                                        },
+                                                  ));
+                                                  children.add(const TextSpan(
+                                                      text: '\n'));
+                                                  previousUrlEnd =
+                                                      separatedUrlMatch.start;
                                                 }
-                                              } else {
+                                                String lastUrl = match
+                                                    .group(0)!
+                                                    .substring(previousUrlEnd);
                                                 children.add(TextSpan(
-                                                  text: urlText,
+                                                  text: lastUrl,
                                                   style: const TextStyle(
                                                     decoration: TextDecoration
                                                         .underline,
                                                     color: Colors.blue,
                                                   ),
+                                                  
                                                   recognizer:
                                                       TapGestureRecognizer()
                                                         ..onTap = () async {
-                                                          if (await canLaunch(
-                                                              urlText)) {
-                                                            await launch(
-                                                                urlText);
-                                                          }
+                                                          launchUrl(
+                                                              Uri.parse(
+                                                                  lastUrl),
+                                                              mode: LaunchMode
+                                                                  .externalNonBrowserApplication);
                                                         },
                                                 ));
+                                              } else {
+                                                children.add(TextSpan(
+                                                  text: match.group(0),
+                                                ));
                                               }
-                                              start = match.end;
-                                            }
-                                            if (start < line.length) {
-                                              children.add(TextSpan(
-                                                text: line.substring(start),
+                                              children.add(const TextSpan(
+                                                text: "\n",
                                               ));
                                             }
-                                            children.add(const TextSpan(
-                                              text: "\n",
-                                            ));
-                                            return TextSpan(children: children);
-                                          }).toList(),
+                                            return children;
+                                          }(),
                                         ),
                                       ),
                                       if (data['filename'] != '0' &&
@@ -405,11 +418,19 @@ class _BulletinsPageState extends State<BulletinsPage>
                                 ),
                                 actions: [
                                   NeumorphicButton(
+                                    // style: const NeumorphicStyle(
+                                    //   color: Color.fromARGB(255, 171, 245, 167),
+                                    //   shape: NeumorphicShape.flat,
+                                    // ),
                                     onPressed: () =>
                                         Navigator.pop(context, false),
                                     child: const Text('退出'),
                                   ),
                                   NeumorphicButton(
+                                    style: const NeumorphicStyle(
+                                      color: Color.fromARGB(255, 188, 250, 185),
+                                      shape: NeumorphicShape.flat,
+                                    ),
                                     onPressed: () =>
                                         Navigator.pop(context, true),
                                     child: const Text('前往課程'),
