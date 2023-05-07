@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 // ignore: depend_on_referenced_packages
 import 'package:html/parser.dart' as html;
@@ -203,69 +202,87 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
     return Center(
       child: Scaffold(
         appBar: AppBar(
-          centerTitle: true,
+          title: const Text(''),
+        backgroundColor:  Colors.green[200],
 
-          backgroundColor: const Color.fromARGB(181, 65, 218, 190),
-          title: Text(topic),
         ),
         body: SizedBox(
           child: Card(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: ListView(
+              child: Column(
                 children: [
-                  // if (topic.isNotEmpty)
-                  ListTile(
-                    title: Text('Topic: $topic'),
-                  ),
-                  // if (src.isNotEmpty)
-                  ListTile(
-                    title: Text('Class: $src'),
-                  ),
-                  // if (typeOfHomework.isNotEmpty)
-                  ListTile(
-                    title: Text('Type of Homework: $typeOfHomework'),
-                  ),
-                  // if (openForSubmission.isNotEmpty)
-                  ListTile(
-                    title: Text('Open for Submission: $openForSubmission'),
-                  ),
-                  // if (numberOfSubmissions!.isNotEmpty)
-                  ListTile(
-                    title: Text('Number of Submissions: $numberOfSubmissions'),
-                  ),
-                  // if (allowLateSubmission!.isNotEmpty)
-                  ListTile(
-                    title: Text('Allow Late Submission: $allowLateSubmission'),
-                  ),
-                  // if (gradeWeight!.isNotEmpty)
-                  ListTile(
-                    title: Text('Grade Weight: $gradeWeight'),
-                  ),
-                  // if (gradingMethod!.isNotEmpty)
-                  ListTile(
-                    title: Text('Grading Method: $gradingMethod'),
-                  ),
-                  // if (detail != null)
-                  ListTile(
-                    title: Text('Detail: $detail'),
-                  ),
-                  // if (videoUrl != null)
-                  InkWell(
-                    onTap: () => launchUrl(Uri.parse(videoUrl!),mode: LaunchMode.externalNonBrowserApplication),
-                    child: ListTile(
-                      title: Text('Video URL: $videoUrl'),
-                    ),
-                  ),
-                  // if (attachmentUrl!.isNotEmpty)
-                  InkWell(
-                    onTap: () => launchUrl(attachmentUrl as Uri,mode: LaunchMode.externalNonBrowserApplication),
-                    child: ListTile(
-                      title: Text('Attachment: $attachmentName'),
-                    ),
-                  ),
-                ],
+                  Center(child: Text('Topic: $topic',style: const TextStyle(fontWeight: FontWeight.bold,fontSize: 20),)),
+                                    const Divider(thickness: 1.5,),
+                  Row(mainAxisAlignment: MainAxisAlignment.start, 
+                  children: [
+                    Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text('課程: $src'),
+                      Text('功課類型: $typeOfHomework'),
+                      Text('開放繳交: $openForSubmission'),
+                      Text('已交人數: $numberOfSubmissions'),
+                      Text('允許遲交: $allowLateSubmission'),
+                      Text('成績比重: $gradeWeight'),
+                      Text('評分方式: $gradingMethod'),
+                      Text('說明: $detail'),
+                    ],))
+                  ],)
+                  ],
               ),
+              // child: ListView(
+              //   children: [
+              //     // if (topic.isNotEmpty)
+              //     ListTile(
+              //       title: Text('Topic: $topic'),
+              //     ),
+              //     // if (src.isNotEmpty)
+              //     ListTile(
+              //       title: Text('Class: $src'),
+              //     ),
+              //     // if (typeOfHomework.isNotEmpty)
+              //     ListTile(
+              //       title: Text('Type of Homework: $typeOfHomework'),
+              //     ),
+              //     // if (openForSubmission.isNotEmpty)
+              //     ListTile(
+              //       title: Text('Open for Submission: $openForSubmission'),
+              //     ),
+              //     // if (numberOfSubmissions!.isNotEmpty)
+              //     ListTile(
+              //       title: Text('Number of Submissions: $numberOfSubmissions'),
+              //     ),
+              //     // if (allowLateSubmission!.isNotEmpty)
+              //     ListTile(
+              //       title: Text('Allow Late Submission: $allowLateSubmission'),
+              //     ),
+              //     // if (gradeWeight!.isNotEmpty)
+              //     ListTile(
+              //       title: Text('Grade Weight: $gradeWeight'),
+              //     ),
+              //     // if (gradingMethod!.isNotEmpty)
+              //     ListTile(
+              //       title: Text('Grading Method: $gradingMethod'),
+              //     ),
+              //     // if (detail != null)
+              //     ListTile(
+              //       title: Text('Detail: $detail'),
+              //     ),
+              //     // if (videoUrl != null)
+              //     InkWell(
+              //       onTap: () => launchUrl(Uri.parse(videoUrl!),mode: LaunchMode.externalNonBrowserApplication),
+              //       child: ListTile(
+              //         title: Text('Video URL: $videoUrl'),
+              //       ),
+              //     ),
+              //     // if (attachmentUrl!.isNotEmpty)
+              //     InkWell(
+              //       onTap: () => launchUrl(attachmentUrl as Uri,mode: LaunchMode.externalNonBrowserApplication),
+              //       child: ListTile(
+              //         title: Text('Attachment: $attachmentName'),
+              //       ),
+              //     ),
+              //   ],
+              // ),
             ),
           ),
         ),

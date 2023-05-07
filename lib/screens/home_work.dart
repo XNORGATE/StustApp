@@ -458,7 +458,7 @@ class _HomeworkPageState extends State<HomeworkPage>
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: const Color.fromARGB(181, 65, 218, 190),
+        backgroundColor:  Colors.green[200],
         type: BottomNavigationBarType.shifting,
         showSelectedLabels: true,
         showUnselectedLabels: true,

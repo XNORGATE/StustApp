@@ -551,7 +551,7 @@ class _BulletinsPageState extends State<BulletinsPage>
         },
       ),
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(181, 65, 218, 190),
+        backgroundColor:  Colors.green[200],
         automaticallyImplyLeading: false,
         centerTitle: true,
         title: const Text('查詢最近公告(flipclass)'),
