@@ -46,7 +46,7 @@ class _HomeworkPageState extends State<HomeworkPage>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _cancelToken = true;
-
+    // http.Client().close();
     super.dispose();
   }
 
@@ -108,8 +108,8 @@ class _HomeworkPageState extends State<HomeworkPage>
   //   return segments.last;
   // }
   String calculateRemainingTime(String dateString) {
-    DateTime targetDate =
-        DateTime.parse(dateString).add(const Duration(seconds: 86399)); // Add one day
+    DateTime targetDate = DateTime.parse(dateString)
+        .add(const Duration(seconds: 86399)); // Add one day
     DateTime now = DateTime.now();
     Duration difference = targetDate.difference(now);
     if (difference.inSeconds < 0) {
@@ -134,6 +134,7 @@ class _HomeworkPageState extends State<HomeworkPage>
     var session = http.Client();
     var loginUrl = 'https://flipclass.stust.edu.tw/index/login';
     var response = await session.get(Uri.parse(loginUrl));
+    print(response.statusCode);
     var soup = parse(response.body);
 
     var hiddenInput =
@@ -276,16 +277,18 @@ class _HomeworkPageState extends State<HomeworkPage>
             child: Column(
               children: [
                 const SizedBox(
-                  height: 50,
+                  height: 30,
                 ),
                 if (_responseData != null) // Add this check here
                   Expanded(
                     child: ListView.separated(
                       itemCount: _responseData.length,
-                      separatorBuilder: (context, index) => const Divider(),
+                      separatorBuilder: (context, index) => const Divider(
+                        height: 5,
+                      ),
                       itemBuilder: (context, index) {
                         final data = _responseData[index];
-                        bool isStringTooLong = data['topic']!.length > 15;
+                        bool isStringTooLong = data['topic']!.length > 13;
 
                         return InkWell(
                           onTap: () {
@@ -305,6 +308,8 @@ class _HomeworkPageState extends State<HomeworkPage>
                             );
                           },
                           child: Card(
+                              child: Padding(
+                            padding: const EdgeInsets.all(5),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -443,7 +448,7 @@ class _HomeworkPageState extends State<HomeworkPage>
                                 ),
                               ],
                             ),
-                          ),
+                          )),
                         );
                       },
                     ),
@@ -458,7 +463,7 @@ class _HomeworkPageState extends State<HomeworkPage>
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor:  Colors.green[200],
+        backgroundColor: Colors.green[200],
         type: BottomNavigationBarType.shifting,
         showSelectedLabels: true,
         showUnselectedLabels: true,

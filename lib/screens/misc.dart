@@ -64,7 +64,12 @@ class _StudentMiscPageState extends State<StudentMiscPage>
 
     _tabController = TabController(length: 4, vsync: this);
   }
-
+  
+  @override
+  void dispose() {
+    http.Client().close();
+    super.dispose();
+  }
   _getlocal_UserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     _account = prefs.getString('account')!;
@@ -217,6 +222,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
           html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
       fullPage.add(lostAndFoundpage);
     }
+
     return Pages(
         // absentData: absentData,
         foreignTestData: foreignTestData,

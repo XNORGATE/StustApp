@@ -48,7 +48,7 @@ class _BulletinsPageState extends State<BulletinsPage>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _cancelToken = true;
-
+    http.Client().close();
     super.dispose();
   }
 
@@ -226,6 +226,7 @@ class _BulletinsPageState extends State<BulletinsPage>
     }
 
     gen_bulletin(bulletinPage);
+
     return Bulletin;
   }
 
@@ -264,7 +265,7 @@ class _BulletinsPageState extends State<BulletinsPage>
             child: Column(
               children: [
                 const SizedBox(
-                  height: 50,
+                  height: 30,
                 ),
                 // TextButton(
                 //   onPressed: _submitForm,
@@ -277,7 +278,9 @@ class _BulletinsPageState extends State<BulletinsPage>
                   Expanded(
                     child: ListView.separated(
                       itemCount: _responseData.length,
-                      separatorBuilder: (context, index) => const Divider(),
+                      separatorBuilder: (context, index) => const Divider(
+                        height: 5,
+                      ),
                       itemBuilder: (context, index) {
                         final data = _responseData[index];
 
@@ -293,9 +296,12 @@ class _BulletinsPageState extends State<BulletinsPage>
                                   children: [
                                     Text(
                                       data['topic']!,
-                                      style: const TextStyle(color: Colors.black),
+                                      style:
+                                          const TextStyle(color: Colors.black),
                                     ),
-                                    const Divider(thickness: 1.5,)
+                                    const Divider(
+                                      thickness: 1.5,
+                                    )
                                   ],
                                 ),
                                 content: SingleChildScrollView(
@@ -353,13 +359,12 @@ class _BulletinsPageState extends State<BulletinsPage>
                                                     ),
                                                     recognizer:
                                                         TapGestureRecognizer()
-                                                        ..onTap = () async {
-                                                          launchUrl(
-                                                              Uri.parse(
-                                                                  url),
-                                                              mode: LaunchMode
-                                                                  .externalNonBrowserApplication);
-                                                        },
+                                                          ..onTap = () async {
+                                                            launchUrl(
+                                                                Uri.parse(url),
+                                                                mode: LaunchMode
+                                                                    .externalNonBrowserApplication);
+                                                          },
                                                   ));
                                                   children.add(const TextSpan(
                                                       text: '\n'));
@@ -376,7 +381,6 @@ class _BulletinsPageState extends State<BulletinsPage>
                                                         .underline,
                                                     color: Colors.blue,
                                                   ),
-                                                  
                                                   recognizer:
                                                       TapGestureRecognizer()
                                                         ..onTap = () async {
@@ -445,6 +449,8 @@ class _BulletinsPageState extends State<BulletinsPage>
                             }
                           },
                           child: Card(
+                              child: Padding(
+                            padding: const EdgeInsets.all(5),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -500,7 +506,7 @@ class _BulletinsPageState extends State<BulletinsPage>
                                 ),
                               ],
                             ),
-                          ),
+                          )),
                         );
                       },
                     ),
@@ -551,7 +557,7 @@ class _BulletinsPageState extends State<BulletinsPage>
         },
       ),
       appBar: AppBar(
-        backgroundColor:  Colors.green[200],
+        backgroundColor: Colors.green[200],
         automaticallyImplyLeading: false,
         centerTitle: true,
         title: const Text('查詢最近公告(flipclass)'),

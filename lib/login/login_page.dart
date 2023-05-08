@@ -112,6 +112,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
     // print(name);
     Map<String, dynamic> responseMap = jsonDecode(res.body);
     String status = responseMap['ret']['status'];
+
     if (status == "true") {
       return name;
     }
@@ -226,10 +227,10 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
           body: SafeArea(
             child: _isLoading
                 ? const Center(
-                    child: Icon(
-                      Icons.lock_open,
-                      size: 100,
-                    ),
+                    child: CircularProgressIndicator(
+
+
+                    )
                   )
                 : Center(
                     child: SingleChildScrollView(

@@ -159,7 +159,7 @@ class MyApp extends StatelessWidget {
       title: '南台通Beta v1.0',
       themeMode: ThemeMode.light,
       theme:  const NeumorphicThemeData(
-        baseColor: Color.fromARGB(255, 255,255,255),
+        baseColor: Color.fromARGB(255, 236,236,236),
         lightSource: LightSource.topLeft,
         depth: 10,
       ),
@@ -327,6 +327,13 @@ class _MyHomePageState extends State<MyHomePage> {
     //     .showNotification(title: 'Sample title', body: 'It works!');
   }
 
+  @override
+  void dispose() {
+    session.close();
+    super.dispose();
+  }
+
+
   getProfile() async {
     Map<String, String> values = await getValuesFromSharedPreferences();
     name = values['name']!;
@@ -417,6 +424,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // print(StustActivitiesList);
     // final random = Random();
     // StustActivitiesList.shuffle(random); // randomize the order of the list
+
 
     return StustActivitiesList;
   }

@@ -56,7 +56,12 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
 
     _tabController = TabController(length: 3, vsync: this);
   }
-
+  @override
+  void dispose() {
+    http.Client().close();
+    super.dispose();
+  }
+  
   _getlocal_UserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     _account = prefs.getString('account')!;

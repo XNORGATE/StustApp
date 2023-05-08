@@ -39,6 +39,8 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
     });
   }
 
+
+
   _getlocal_UserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     _account = prefs.getString('account')!;
@@ -275,6 +277,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
     absentEvent = filteredAbsentEvent;
     // Print the updated absentEvent list
     // print(absentEvent);
+
     return absentEvent;
   }
 
@@ -500,6 +503,12 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
     // });
     // _showDialog('此操作未達成，請重試');
     // MaterialPageRoute(builder: (context) => const LeaveRequestPage());
+  }
+
+  @override
+  void dispose() {
+    http.Client().close();
+    super.dispose();
   }
 
   @override

@@ -38,7 +38,12 @@ class _AbsentPageState extends State<AbsentPage> {
       setState(() {});
     });
   }
-
+  @override
+  void dispose() {
+    http.Client().close();
+    super.dispose();
+  }
+  
   void _showAlertDialog(dynamic soup) {
     showDialog(
       context: context,
