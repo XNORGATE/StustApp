@@ -248,192 +248,181 @@ class _HomeworkPageState extends State<HomeworkPage> with WidgetsBindingObserver
           ? const Center(
               child: CircularProgressIndicator(),
             )
-          : Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: _responseData.length,
-                      // separatorBuilder: (context, index) => const Divider(
-                      //   height: 5,
-                      //   indent: 8,
-                      //   endIndent: 8,
-                      // ),
-                      itemBuilder: (context, index) {
-                        final data = _responseData[index];
-                        // bool isStringTooLong = data['topic']!.length > 13;
+          : ListView.builder(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            itemCount: _responseData.length,
+            // separatorBuilder: (context, index) => const Divider(
+            //   height: 5,
+            //   indent: 8,
+            //   endIndent: 8,
+            // ),
+            itemBuilder: (context, index) {
+              final data = _responseData[index];
+              // bool isStringTooLong = data['topic']!.length > 13;
 
-                        return InkWell(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const HomeWorkDetailPage(),
-                                settings: RouteSettings(arguments: {
-                                  'topic': data['topic'],
-                                  'src': data['src'],
-                                  'href': data['href'],
-                                  'account': _account,
-                                  'password': _password,
-                                }),
-                              ),
-                            );
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 1.5, horizontal: 8),
-                            child: Card(
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                                  child: Column(
-                                    children: [
-                                      Row(
-                                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                        children: [
-                                          // Text(
-                                          //   extractMonthAndDay(data['date']!),
-                                          //   style: const TextStyle(
-                                          //     fontSize: 18.0,
-                                          //     fontWeight: FontWeight.bold,
-                                          //   ),
-                                          // ),
-                                          // const SizedBox(
-                                          //   width: 20,
-                                          // ),
-
-                                          data['isDone'] == '未繳交'
-                                              ? const Icon(
-                                                  Icons.assignment,
-                                                  size: 18,
-                                                  color: Color.fromARGB(255, 243, 29, 29),
-                                                )
-                                              : const Icon(
-                                                  Icons.done,
-                                                  size: 18,
-                                                  color: Color.fromARGB(255, 11, 167, 245),
-                                                ),
-                                          const SizedBox(
-                                            width: 3,
-                                          ),
-                                          Text(
-                                            data['isDone']?.replaceAll("交", "") ?? "",
-                                            strutStyle: const StrutStyle(
-                                              forceStrutHeight: true,
-                                              leading: 0.5,
-                                            ),
-                                          ),
-
-                                          Container(
-                                            width: 3,
-                                            height: 3,
-                                            margin: const EdgeInsets.all(6),
-                                            decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(99)),
-                                            child: const SizedBox.shrink(),
-                                          ),
-                                          Text(
-                                            data['src']!,
-                                            strutStyle: const StrutStyle(
-                                              forceStrutHeight: true,
-                                              leading: 0.5,
-                                            ),
-                                          )
-                                          // Text(
-                                          //   "${extractMonthAndDay(data['date']!)} 前",
-                                          //   strutStyle: const StrutStyle(
-                                          //     forceStrutHeight: true,
-                                          //     leading: 0.5,
-                                          //   ),
-                                          // ),
-                                          // Container(
-                                          //   width: 3,
-                                          //   height: 3,
-                                          //   margin: const EdgeInsets.all(8),
-                                          //   decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(99)),
-                                          //   child: const SizedBox.shrink(),
-                                          // ),
-                                          // if (data['isDone'] == '未繳交')
-                                          //   Text(
-                                          //     '剩下${data['remain']}',
-                                          //     strutStyle: const StrutStyle(
-                                          //       forceStrutHeight: true,
-                                          //       leading: 0.5,
-                                          //     ),
-                                          //   ),
-                                        ],
-                                      ),
-                                      // Text(
-                                      //   data['src']!,
-                                      //   style: const TextStyle(
-                                      //     fontSize: 15.0,
-                                      //     // fontWeight: FontWeight.bold,
-                                      //   ),
-                                      // ),
-                                      Text(
-                                        data['topic']!,
-                                        style: const TextStyle(
-                                          // overflow: TextOverflow.ellipsis,
-                                          fontSize: 18.0,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                      const SizedBox(
-                                        height: 5,
-                                      ),
-                                      Row(
-                                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Expanded(
-                                            flex: 3,
-                                            child: Text(
-                                              '期限: ${data['submissionDeadline']}',
-                                              style: const TextStyle(
-                                                color: Colors.grey,
-                                                fontSize: 13.0,
-                                                fontWeight: FontWeight.w400,
-                                              ),
-                                            ),
-                                          ),
-                                          Expanded(
-                                            flex: 2,
-                                            child: Text(
-                                              '已交: ${data['numberOfSubmissions']}',
-                                              style: const TextStyle(
-                                                color: Colors.grey,
-                                                fontSize: 13.0,
-                                                fontWeight: FontWeight.w400,
-                                              ),
-                                            ),
-                                          ),
-                                          Expanded(
-                                            flex: 2,
-                                            child: Text(
-                                              '剩餘: ${data['remain']}',
-                                              style: const TextStyle(
-                                                color: Colors.grey,
-                                                fontSize: 13.0,
-                                                fontWeight: FontWeight.w400,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                )),
-                          ),
-                        );
-                      },
+              return InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const HomeWorkDetailPage(),
+                      settings: RouteSettings(arguments: {
+                        'topic': data['topic'],
+                        'src': data['src'],
+                        'href': data['href'],
+                        'account': _account,
+                        'password': _password,
+                      }),
                     ),
-                  )
-                ],
-              ),
-            ),
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 1.5, horizontal: 8),
+                  child: Card(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                        child: Column(
+                          children: [
+                            Row(
+                              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                // Text(
+                                //   extractMonthAndDay(data['date']!),
+                                //   style: const TextStyle(
+                                //     fontSize: 18.0,
+                                //     fontWeight: FontWeight.bold,
+                                //   ),
+                                // ),
+                                // const SizedBox(
+                                //   width: 20,
+                                // ),
+
+                                data['isDone'] == '未繳交'
+                                    ? const Icon(
+                                        Icons.assignment,
+                                        size: 18,
+                                        color: Color.fromARGB(255, 243, 29, 29),
+                                      )
+                                    : const Icon(
+                                        Icons.done,
+                                        size: 18,
+                                        color: Color.fromARGB(255, 11, 167, 245),
+                                      ),
+                                const SizedBox(
+                                  width: 3,
+                                ),
+                                Text(
+                                  data['isDone']?.replaceAll("交", "") ?? "",
+                                  strutStyle: const StrutStyle(
+                                    forceStrutHeight: true,
+                                    leading: 0.5,
+                                  ),
+                                ),
+
+                                Container(
+                                  width: 3,
+                                  height: 3,
+                                  margin: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(99)),
+                                  child: const SizedBox.shrink(),
+                                ),
+                                Text(
+                                  data['src']!,
+                                  strutStyle: const StrutStyle(
+                                    forceStrutHeight: true,
+                                    leading: 0.5,
+                                  ),
+                                )
+                                // Text(
+                                //   "${extractMonthAndDay(data['date']!)} 前",
+                                //   strutStyle: const StrutStyle(
+                                //     forceStrutHeight: true,
+                                //     leading: 0.5,
+                                //   ),
+                                // ),
+                                // Container(
+                                //   width: 3,
+                                //   height: 3,
+                                //   margin: const EdgeInsets.all(8),
+                                //   decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(99)),
+                                //   child: const SizedBox.shrink(),
+                                // ),
+                                // if (data['isDone'] == '未繳交')
+                                //   Text(
+                                //     '剩下${data['remain']}',
+                                //     strutStyle: const StrutStyle(
+                                //       forceStrutHeight: true,
+                                //       leading: 0.5,
+                                //     ),
+                                //   ),
+                              ],
+                            ),
+                            // Text(
+                            //   data['src']!,
+                            //   style: const TextStyle(
+                            //     fontSize: 15.0,
+                            //     // fontWeight: FontWeight.bold,
+                            //   ),
+                            // ),
+                            Text(
+                              data['topic']!,
+                              style: const TextStyle(
+                                // overflow: TextOverflow.ellipsis,
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(
+                              height: 5,
+                            ),
+                            Row(
+                              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  flex: 3,
+                                  child: Text(
+                                    '期限: ${data['submissionDeadline']}',
+                                    style: const TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 13.0,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 2,
+                                  child: Text(
+                                    '已交: ${data['numberOfSubmissions']}',
+                                    style: const TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 13.0,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 2,
+                                  child: Text(
+                                    '剩餘: ${data['remain']}',
+                                    style: const TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 13.0,
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      )),
+                ),
+              );
+            },
+          ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.green[200],
         type: BottomNavigationBarType.shifting,

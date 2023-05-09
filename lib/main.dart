@@ -475,302 +475,297 @@ class _MyHomePageState extends State<MyHomePage> {
         //   ),
         // ),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: InkWell(
-                  onTap: () async {
-                    Navigator.push(
-                        context,
-                        PageTransition(
-                            type: PageTransitionType.leftToRightWithFade,
-                            child: const HomeworkPage()));
-                    // await NotificationService().showNotification(
-                    //     title: 'Sample title', body: 'It works!');
-                    // Navigator.of(context).pushReplacementNamed('/homework');
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: InkWell(
+                onTap: () async {
+                  Navigator.push(
+                      context,
+                      PageTransition(
+                          type: PageTransitionType.leftToRightWithFade,
+                          child: const HomeworkPage()));
+                  // await NotificationService().showNotification(
+                  //     title: 'Sample title', body: 'It works!');
+                  // Navigator.of(context).pushReplacementNamed('/homework');
 
-                    // Navigator.push(
-                    //     context,
-                    //     MaterialPageRoute(
-                    //         builder: (context) => const HomeworkPage()));
-                  },
-                  child: Container(
-                    height: MediaQuery.of(context).size.height * .18,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 5, 5, 5),
-                        borderRadius: BorderRadius.circular(10)),
-                    child: Stack(
-                      alignment: Alignment.bottomLeft,
-                      children: [
-                        // const Image(
-                        //     fit: BoxFit.fitWidth,
-                        //     width: double.infinity,
-                        //     image: NetworkImage(
-                        //         'https://cdn.pixabay.com/photo/2021/01/16/09/05/meal-5921491_960_720.jpg')),
-                        Padding(
-                          padding: const EdgeInsets.all(6.0),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: const [
-                                Text(
-                                  'Flipclass',
+                  // Navigator.push(
+                  //     context,
+                  //     MaterialPageRoute(
+                  //         builder: (context) => const HomeworkPage()));
+                },
+                child: Container(
+                  height: MediaQuery.of(context).size.height * .18,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 5, 5, 5),
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Stack(
+                    alignment: Alignment.bottomLeft,
+                    children: [
+                      // const Image(
+                      //     fit: BoxFit.fitWidth,
+                      //     width: double.infinity,
+                      //     image: NetworkImage(
+                      //         'https://cdn.pixabay.com/photo/2021/01/16/09/05/meal-5921491_960_720.jpg')),
+                      Padding(
+                        padding: const EdgeInsets.all(6.0),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: const [
+                              Text(
+                                'Flipclass',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: Bold,
+                                    fontSize: 18),
+                              ),
+                              Text('最新公告及最近事件(作業)',
                                   style: TextStyle(
                                       color: Colors.white,
-                                      fontFamily: Bold,
-                                      fontSize: 18),
-                                ),
-                                Text('最新公告及最近事件(作業)',
+                                      fontWeight: FontWeight.w500,
+                                      height: 1,
+                                      fontFamily: Medium,
+                                      fontSize: 14)),
+                            ],
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    const LeaveRequestPage()));
+                      },
+                      child: Container(
+                        height: MediaQuery.of(context).size.height * .25,
+                        decoration: BoxDecoration(
+                            color: const Color(0xfffed271),
+                            borderRadius: BorderRadius.circular(10)),
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: const [
+                              CircleAvatar(
+                                radius: 50,
+                                // backgroundImage:
+                                //     AssetImage('assets/pandamart.jpg'),
+                              ),
+                              Positioned(
+                                  bottom: 15,
+                                  left: 0,
+                                  child: Text(
+                                    '請假系統',
                                     style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w500,
-                                        height: 1,
-                                        fontFamily: Medium,
-                                        fontSize: 14)),
-                              ],
+                                        color: blackColor,
+                                        fontFamily: Bold,
+                                        fontSize: 18),
+                                  )),
+                              Positioned(
+                                  bottom: 0,
+                                  left: 0,
+                                  child: Text('查詢缺曠及請假',
+                                      style: TextStyle(
+                                          color: blackColor,
+                                          fontWeight: FontWeight.w500,
+                                          height: 1,
+                                          fontFamily: Medium,
+                                          fontSize: 14))),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 8,
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Column(
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            // Do something when this widget is tapped
+                            Navigator.push(
+                                context,
+                                PageTransition(
+                                    type: PageTransitionType
+                                        .leftToRightWithFade,
+                                    child: const StudentPortfolioPage()));
+                          },
+                          child: Container(
+                            height: MediaQuery.of(context).size.height * .15,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: const Color(0xffef9fc4),
+                              borderRadius: BorderRadius.circular(10),
+                              // image: const DecorationImage(
+                              //     image: AssetImage('assets/food.jpg'))
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: const [
+                                  Text(
+                                    '課程事項',
+                                    style: TextStyle(
+                                        color: blackColor,
+                                        fontFamily: Bold,
+                                        fontSize: 18),
+                                  ),
+                                  Text('成績與課表',
+                                      style: TextStyle(
+                                          color: blackColor,
+                                          fontWeight: FontWeight.w500,
+                                          height: 1,
+                                          fontFamily: Medium,
+                                          fontSize: 14)),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        InkWell(
+                          onTap: () {
+                            // Do something when this widget is tapped
+                            Navigator.push(
+                                context,
+                                PageTransition(
+                                    type: PageTransitionType
+                                        .leftToRightWithFade,
+                                    child: const StudentMiscPage()));
+                          },
+                          child: Container(
+                            height: MediaQuery.of(context).size.height * .1,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                                color: const Color(0xff85bfff),
+                                borderRadius: BorderRadius.circular(10)),
+                            child: Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: const [
+                                  Text(
+                                    '學生其他事項',
+                                    style: TextStyle(
+                                        color: blackColor,
+                                        fontFamily: Bold,
+                                        fontSize: 18),
+                                  ),
+                                  Text('各式事項',
+                                      style: TextStyle(
+                                          color: blackColor,
+                                          fontWeight: FontWeight.w500,
+                                          height: 1,
+                                          fontFamily: Medium,
+                                          fontSize: 14)),
+                                ],
+                              ),
                             ),
                           ),
                         )
                       ],
                     ),
                   ),
-                ),
+                ],
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const LeaveRequestPage()));
-                        },
-                        child: Container(
-                          height: MediaQuery.of(context).size.height * .25,
-                          decoration: BoxDecoration(
-                              color: const Color(0xfffed271),
-                              borderRadius: BorderRadius.circular(10)),
-                          child: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: const [
-                                CircleAvatar(
-                                  radius: 50,
-                                  // backgroundImage:
-                                  //     AssetImage('assets/pandamart.jpg'),
-                                ),
-                                Positioned(
-                                    bottom: 15,
-                                    left: 0,
-                                    child: Text(
-                                      '請假系統',
-                                      style: TextStyle(
-                                          color: blackColor,
-                                          fontFamily: Bold,
-                                          fontSize: 18),
-                                    )),
-                                Positioned(
-                                    bottom: 0,
-                                    left: 0,
-                                    child: Text('查詢缺曠及請假',
-                                        style: TextStyle(
-                                            color: blackColor,
-                                            fontWeight: FontWeight.w500,
-                                            height: 1,
-                                            fontFamily: Medium,
-                                            fontSize: 14))),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 8,
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: Column(
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              // Do something when this widget is tapped
-                              Navigator.push(
-                                  context,
-                                  PageTransition(
-                                      type: PageTransitionType
-                                          .leftToRightWithFade,
-                                      child: const StudentPortfolioPage()));
-                            },
-                            child: Container(
-                              height: MediaQuery.of(context).size.height * .15,
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                color: const Color(0xffef9fc4),
-                                borderRadius: BorderRadius.circular(10),
-                                // image: const DecorationImage(
-                                //     image: AssetImage('assets/food.jpg'))
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: const [
-                                    Text(
-                                      '課程事項',
-                                      style: TextStyle(
-                                          color: blackColor,
-                                          fontFamily: Bold,
-                                          fontSize: 18),
-                                    ),
-                                    Text('成績與課表',
-                                        style: TextStyle(
-                                            color: blackColor,
-                                            fontWeight: FontWeight.w500,
-                                            height: 1,
-                                            fontFamily: Medium,
-                                            fontSize: 14)),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          InkWell(
-                            onTap: () {
-                              // Do something when this widget is tapped
-                              Navigator.push(
-                                  context,
-                                  PageTransition(
-                                      type: PageTransitionType
-                                          .leftToRightWithFade,
-                                      child: const StudentMiscPage()));
-                            },
-                            child: Container(
-                              height: MediaQuery.of(context).size.height * .1,
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                  color: const Color(0xff85bfff),
-                                  borderRadius: BorderRadius.circular(10)),
-                              child: Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: const [
-                                    Text(
-                                      '學生其他事項',
-                                      style: TextStyle(
-                                          color: blackColor,
-                                          fontFamily: Bold,
-                                          fontSize: 18),
-                                    ),
-                                    Text('各式事項',
-                                        style: TextStyle(
-                                            color: blackColor,
-                                            fontWeight: FontWeight.w500,
-                                            height: 1,
-                                            fontFamily: Medium,
-                                            fontSize: 14)),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 10),
+              child: Text(
+                '美食地圖',
+                style: TextStyle(
+                    color: Color.fromARGB(255, 18, 18, 18),
+                    fontSize: 17.5,
+                    fontFamily: Bold),
               ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 10),
-                child: Text(
-                  '美食地圖',
-                  style: TextStyle(
-                      color: Color.fromARGB(255, 18, 18, 18),
-                      fontSize: 17.5,
-                      fontFamily: Bold),
-                ),
+            ),
+            SizedBox(
+              height: 170,
+              child:
+                  // const Center(child: CircularProgressIndicator())
+                  _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : ListView.builder(
+                          itemCount: StustAppFoodList.length,
+                          scrollDirection: Axis.horizontal,
+                          itemBuilder: (context, index) {
+                            // PandaPickItemModel model =
+                            final data = StustAppFoodList[index];
+                            return RestuarentScreen(
+                              name: data['name'] ?? '',
+                              image: data['image'] ?? '',
+                              time: data['time'] ?? '',
+                              totalRating: data['totalRating'] ?? '',
+                              foodType: data['foodType'] ?? '',
+                              rating: data['ratting'] ?? '',
+                              link: data['link'] ?? '',
+                              price: data['price'] ?? '',
+                            );
+                          }),
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 10),
+              child: Text(
+                '校園活動',
+                style: TextStyle(
+                    color: Color(0xff323232),
+                    fontSize: 17.5,
+                    fontFamily: Bold),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 0),
-                child: SizedBox(
-                  height: MediaQuery.of(context).size.height * .2,
-                  child:
-                      // const Center(child: CircularProgressIndicator())
-                      _isLoading
-                          ? const Center(child: CircularProgressIndicator())
-                          : ListView.builder(
-                              itemCount: StustAppFoodList.length,
-                              scrollDirection: Axis.horizontal,
-                              itemBuilder: (context, index) {
-                                // PandaPickItemModel model =
-                                final data = StustAppFoodList[index];
-                                return RestuarentScreen(
-                                  name: data['name'] ?? '',
-                                  image: data['image'] ?? '',
-                                  time: data['time'] ?? '',
-                                  totalRating: data['totalRating'] ?? '',
-                                  foodType: data['foodType'] ?? '',
-                                  rating: data['ratting'] ?? '',
-                                  link: data['link'] ?? '',
-                                  price: data['price'] ?? '',
-                                );
-                              }),
-                ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 1),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height * .25,
+                child:
+                    // const Center(child: CircularProgressIndicator())
+                    _isActivitesLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : ListView.builder(
+                            itemCount: StustActivitiesList.length,
+                            scrollDirection: Axis.horizontal,
+                            itemBuilder: (context, index) {
+                              // PandaPickItemModel model =
+                              final data = StustActivitiesList[index];
+                              // print(data);
+                              return ActivitiesScreen(
+                                href: data['href'] ?? '',
+                                image: data['image'] ?? '',
+                                topic: data['topic'] ?? '',
+                              );
+                            }),
               ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 10),
-                child: Text(
-                  '校園活動',
-                  style: TextStyle(
-                      color: Color(0xff323232),
-                      fontSize: 17.5,
-                      fontFamily: Bold),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 1),
-                child: SizedBox(
-                  height: MediaQuery.of(context).size.height * .25,
-                  child:
-                      // const Center(child: CircularProgressIndicator())
-                      _isActivitesLoading
-                          ? const Center(child: CircularProgressIndicator())
-                          : ListView.builder(
-                              itemCount: StustActivitiesList.length,
-                              scrollDirection: Axis.horizontal,
-                              itemBuilder: (context, index) {
-                                // PandaPickItemModel model =
-                                final data = StustActivitiesList[index];
-                                // print(data);
-                                return ActivitiesScreen(
-                                  href: data['href'] ?? '',
-                                  image: data['image'] ?? '',
-                                  topic: data['topic'] ?? '',
-                                );
-                              }),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
 //       drawer: Drawer(
