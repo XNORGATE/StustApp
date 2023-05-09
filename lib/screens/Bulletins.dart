@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:url_launcher/url_launcher.dart';
 
-import '../main.dart';
 import 'package:flutter_neumorphic_null_safety/flutter_neumorphic.dart';
 
 class BulletinsPage extends StatefulWidget {
@@ -477,7 +476,8 @@ class _BulletinsPageState extends State<BulletinsPage>
                                           ),
                                         ),
                                         Padding(
-                                          padding: const EdgeInsets.fromLTRB(16.0,16,16,8),
+                                          padding: const EdgeInsets.fromLTRB(
+                                              16.0, 16, 16, 8),
                                           child: Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
@@ -535,61 +535,61 @@ class _BulletinsPageState extends State<BulletinsPage>
             ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: const Color.fromARGB(181, 65, 218, 190),
-        type: BottomNavigationBarType.shifting,
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
-        items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.assignment),
-              label: '最新作業',
-              backgroundColor: Color.fromARGB(181, 65, 218, 190)),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.format_list_bulleted),
-              label: '最新公告',
-              backgroundColor: Color.fromARGB(181, 65, 218, 190)),
-        ],
-        onTap: (int index) {
-          switch (index) {
-            case 0:
-              if (ModalRoute.of(context)?.settings.name == '/homework') {
-                return;
-              }
-              // Navigator.of(context).pushNamedAndRemoveUntil('/homework',ModalRoute.withName('/home'));
-              Navigator.pushNamedAndRemoveUntil(
-                  context, '/homework', (route) => false);
-              break;
-            case 1:
-              if (ModalRoute.of(context)?.settings.name == '/bulletins') {
-                return;
-              }
-              // Navigator.of(context).pushNamedAndRemoveUntil('/bulletins',ModalRoute.withName('/home'));
-              Navigator.pushNamedAndRemoveUntil(
-                  context, '/bulletins', (route) => false);
-              break;
-          }
-        },
-      ),
+      // bottomNavigationBar: BottomNavigationBar(
+      //   backgroundColor: const Color.fromARGB(181, 65, 218, 190),
+      //   type: BottomNavigationBarType.shifting,
+      //   showSelectedLabels: true,
+      //   showUnselectedLabels: true,
+      //   items: const [
+      //     BottomNavigationBarItem(
+      //         icon: Icon(Icons.assignment),
+      //         label: '最新作業',
+      //         backgroundColor: Color.fromARGB(181, 65, 218, 190)),
+      //     BottomNavigationBarItem(
+      //         icon: Icon(Icons.format_list_bulleted),
+      //         label: '最新公告',
+      //         backgroundColor: Color.fromARGB(181, 65, 218, 190)),
+      //   ],
+      //   onTap: (int index) {
+      //     switch (index) {
+      //       case 0:
+      //         if (ModalRoute.of(context)?.settings.name == '/homework') {
+      //           return;
+      //         }
+      //         // Navigator.of(context).pushNamedAndRemoveUntil('/homework',ModalRoute.withName('/home'));
+      //         Navigator.pushNamedAndRemoveUntil(
+      //             context, '/homework', (route) => false);
+      //         break;
+      //       case 1:
+      //         if (ModalRoute.of(context)?.settings.name == '/bulletins') {
+      //           return;
+      //         }
+      //         // // Navigator.of(context).pushNamedAndRemoveUntil('/bulletins',ModalRoute.withName('/home'));
+      //         // Navigator.pushNamedAndRemoveUntil(
+      //         //     context, '/bulletins', (route) => false);
+      //         break;
+      //     }
+      //   },
+      // ),
       appBar: AppBar(
-        backgroundColor: Colors.green[200],
-        automaticallyImplyLeading: false,
+        backgroundColor: const Color.fromARGB(181, 65, 218, 190),
+        // automaticallyImplyLeading: false,
         centerTitle: true,
         title: const Text('查詢最近公告(flipclass)'),
-        actions: [
-          IconButton(
-              iconSize: 35,
-              padding: const EdgeInsets.only(right: 20),
-              onPressed: () async {
-                Navigator.pushNamedAndRemoveUntil(
-                    context, MyHomePage.routeName, (route) => false);
-              },
-              icon: const Icon(IconData(0xe328, fontFamily: 'MaterialIcons')))
+        actions: const [
+          // IconButton(
+          //     iconSize: 35,
+          //     padding: const EdgeInsets.only(right: 20),
+          //     onPressed: () async {
+          //       Navigator.pushNamedAndRemoveUntil(
+          //           context, MyHomePage.routeName, (route) => false);
+          //     },
+          //     icon: const Icon(IconData(0xe328, fontFamily: 'MaterialIcons')))
         ],
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.pushNamedAndRemoveUntil(
+                context, '/homework', (route) => false)),
       ),
     );
   }
