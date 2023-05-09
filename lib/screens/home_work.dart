@@ -18,8 +18,7 @@ class HomeworkPage extends StatefulWidget {
   _HomeworkPageState createState() => _HomeworkPageState();
 }
 
-class _HomeworkPageState extends State<HomeworkPage>
-    with WidgetsBindingObserver {
+class _HomeworkPageState extends State<HomeworkPage> with WidgetsBindingObserver {
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _cancelToken = false;
@@ -55,8 +54,7 @@ class _HomeworkPageState extends State<HomeworkPage>
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.resumed) {
       // Enable controls when the page is resumed
-    } else if (state == AppLifecycleState.inactive ||
-        state == AppLifecycleState.paused) {
+    } else if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
       // Disable controls when the page is inactive or paused
     }
   }
@@ -77,8 +75,7 @@ class _HomeworkPageState extends State<HomeworkPage>
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
           title: Text(text),
           content: Html(
             data: '<a href="$href">查看作業</a>',
@@ -108,8 +105,7 @@ class _HomeworkPageState extends State<HomeworkPage>
   //   return segments.last;
   // }
   String calculateRemainingTime(String dateString) {
-    DateTime targetDate = DateTime.parse(dateString)
-        .add(const Duration(seconds: 86399)); // Add one day
+    DateTime targetDate = DateTime.parse(dateString).add(const Duration(seconds: 86399)); // Add one day
     DateTime now = DateTime.now();
     Duration difference = targetDate.difference(now);
     if (difference.inSeconds < 0) {
@@ -119,6 +115,20 @@ class _HomeworkPageState extends State<HomeworkPage>
       return '${difference.inHours}小時';
     } else {
       return '${difference.inDays}天';
+    }
+  }
+
+  String calculateRemainingTimeWithSpace(String dateString) {
+    DateTime targetDate = DateTime.parse(dateString).add(const Duration(seconds: 86399)); // Add one day
+    DateTime now = DateTime.now();
+    Duration difference = targetDate.difference(now);
+    if (difference.inSeconds < 0) {
+      print('targetDate :$targetDate now :$now difference :$difference');
+      return '已過期';
+    } else if (difference.inDays < 1) {
+      return '${difference.inHours} 小時';
+    } else {
+      return '${difference.inDays} 天';
     }
   }
 
@@ -137,11 +147,9 @@ class _HomeworkPageState extends State<HomeworkPage>
     print(response.statusCode);
     var soup = parse(response.body);
 
-    var hiddenInput =
-        soup.querySelector('input[name="csrf-t"]')?.attributes['value'];
+    var hiddenInput = soup.querySelector('input[name="csrf-t"]')?.attributes['value'];
 
-    response = await session.get(Uri.parse(
-        '$loginUrl?_fmSubmit=yes&formVer=3.0&formId=login_form&next=/&act=keep&account=$_account&password=$_password&rememberMe=&csrf-t=$hiddenInput'));
+    response = await session.get(Uri.parse('$loginUrl?_fmSubmit=yes&formVer=3.0&formId=login_form&next=/&act=keep&account=$_account&password=$_password&rememberMe=&csrf-t=$hiddenInput'));
     if (response.headers['set-cookie'] == null) {
       return [
         {'error': 'Authenticate error(帳號密碼錯誤)'}
@@ -150,76 +158,42 @@ class _HomeworkPageState extends State<HomeworkPage>
 
     String cookies = response.headers['set-cookie']!;
 
-    var headers = {
-      'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
-    };
+    var headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'};
     var url = 'https://flipclass.stust.edu.tw/dashboard/latestEvent?&page=';
 
     void genHomework(int homeworkPage) async {
-      response = await session.get(Uri.parse('$url${homeworkPage.toString()}'),
-          headers: {...headers, 'cookie': cookies});
+      response = await session.get(Uri.parse('$url${homeworkPage.toString()}'), headers: {...headers, 'cookie': cookies});
       soup = parse(response.body);
 
       if (soup.querySelector('#noData > td') == null) {
         var hrefArr = soup.querySelectorAll('div.sm-text-overflow > a');
         var works = soup.querySelectorAll('tbody > tr');
 
-        var newData = List<Map<String, String>>.from(
-            _responseData); // Create new list object
+        var newData = List<Map<String, String>>.from(_responseData); // Create new list object
 
         for (int i = 0; i < works.length; i++) {
-          var topic =
-              works[i].querySelector('div.sm-text-overflow')?.text.trim();
-          var src = works[i]
-              .querySelector('div.text-overflow > a > span')
-              ?.text
-              .trim();
+          var topic = works[i].querySelector('div.sm-text-overflow')?.text.trim();
+          var src = works[i].querySelector('div.text-overflow > a > span')?.text.trim();
           var href = hrefArr[i].attributes['href'];
-          var dateDiv = works[i]
-              .querySelector('td.text-center.col-date > div.text-overflow');
+          var dateDiv = works[i].querySelector('td.text-center.col-date > div.text-overflow');
           var date = dateDiv?.attributes['title'];
-          var isDoneresponse = await session.get(
-              Uri.parse('https://flipclass.stust.edu.tw$href'),
-              headers: {...headers, 'cookie': cookies});
+          var isDoneresponse = await session.get(Uri.parse('https://flipclass.stust.edu.tw$href'), headers: {...headers, 'cookie': cookies});
           var isDonesoup = parse(isDoneresponse.body);
 
           String isDone = '未繳交';
           // print(soup.outerHtml);
-          var doneButtonText = isDonesoup
-              .querySelector('div.text-center.fs-margin-default > a > span')
-              ?.text
-              .trim();
+          var doneButtonText = isDonesoup.querySelector('div.text-center.fs-margin-default > a > span')?.text.trim();
 
-          var numberOfSubmissions = isDonesoup
-              .querySelectorAll('dt')
-              .firstWhere((element) => element.text == '已繳交')
-              .nextElementSibling
-              ?.text
-              .trim();
-          var submissionDeadline = isDonesoup
-              .querySelectorAll('dt')
-              .firstWhere((element) => element.text == '繳交期限')
-              .nextElementSibling
-              ?.querySelector('span')
-              ?.text
-              .trim();
+          var numberOfSubmissions = isDonesoup.querySelectorAll('dt').firstWhere((element) => element.text == '已繳交').nextElementSibling?.text.trim();
+          var submissionDeadline = isDonesoup.querySelectorAll('dt').firstWhere((element) => element.text == '繳交期限').nextElementSibling?.querySelector('span')?.text.trim();
           var remain = calculateRemainingTime(submissionDeadline!);
+          var remainWithSpace = calculateRemainingTimeWithSpace(submissionDeadline);
           // print(doneButtonText);
           if (doneButtonText!.contains('檢視')) {
             isDone = '已繳交';
           }
 
-          newData.add({
-            'topic': topic ?? '',
-            'src': src ?? '',
-            'href': 'https://flipclass.stust.edu.tw$href',
-            'date': date ?? '',
-            'isDone': isDone,
-            'numberOfSubmissions': numberOfSubmissions ?? '',
-            'submissionDeadline': submissionDeadline,
-            'remain': remain
-          });
+          newData.add({'topic': topic ?? '', 'src': src ?? '', 'href': 'https://flipclass.stust.edu.tw$href', 'date': date ?? '', 'isDone': isDone, 'numberOfSubmissions': numberOfSubmissions ?? '', 'submissionDeadline': submissionDeadline, 'remain': remain, 'remainWithSpace': remainWithSpace});
         }
 
         if (mounted && !_cancelToken) {
@@ -270,33 +244,35 @@ class _HomeworkPageState extends State<HomeworkPage>
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      body: Stack(
-        children: [
-          Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                const SizedBox(
-                  height: 30,
-                ),
-                if (_responseData != null) // Add this check here
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  const SizedBox(
+                    height: 10,
+                  ),
                   Expanded(
-                    child: ListView.separated(
+                    child: ListView.builder(
                       itemCount: _responseData.length,
-                      separatorBuilder: (context, index) => const Divider(
-                        height: 5,
-                      ),
+                      // separatorBuilder: (context, index) => const Divider(
+                      //   height: 5,
+                      //   indent: 8,
+                      //   endIndent: 8,
+                      // ),
                       itemBuilder: (context, index) {
                         final data = _responseData[index];
-                        bool isStringTooLong = data['topic']!.length > 13;
+                        // bool isStringTooLong = data['topic']!.length > 13;
 
                         return InkWell(
                           onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    const HomeWorkDetailPage(),
+                                builder: (context) => const HomeWorkDetailPage(),
                                 settings: RouteSettings(arguments: {
                                   'topic': data['topic'],
                                   'src': data['src'],
@@ -307,175 +283,165 @@ class _HomeworkPageState extends State<HomeworkPage>
                               ),
                             );
                           },
-                          child: Card(
-                              child: Padding(
-                            padding: const EdgeInsets.all(5),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                    left: 10,
-                                  ),
-                                  child: Text(
-                                    data['src']!,
-                                    style: const TextStyle(
-                                      fontSize: 15.0,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(20, 15, 15, 5),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 1.5, horizontal: 8),
+                            child: Card(
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
                                   child: Column(
                                     children: [
                                       Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
+                                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
                                         children: [
-                                          // Expanded(
-                                          Text(
-                                            extractMonthAndDay(data['date']!),
-                                            style: const TextStyle(
-                                              fontSize: 18.0,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            width: 20,
-                                          ),
+                                          // Text(
+                                          //   extractMonthAndDay(data['date']!),
+                                          //   style: const TextStyle(
+                                          //     fontSize: 18.0,
+                                          //     fontWeight: FontWeight.bold,
+                                          //   ),
+                                          // ),
+                                          // const SizedBox(
+                                          //   width: 20,
+                                          // ),
+
                                           data['isDone'] == '未繳交'
                                               ? const Icon(
                                                   Icons.assignment,
-                                                  color: Color.fromARGB(
-                                                      255, 243, 29, 29),
+                                                  size: 18,
+                                                  color: Color.fromARGB(255, 243, 29, 29),
                                                 )
                                               : const Icon(
                                                   Icons.done,
-                                                  color: Color.fromARGB(
-                                                      255, 11, 167, 245),
+                                                  size: 18,
+                                                  color: Color.fromARGB(255, 11, 167, 245),
                                                 ),
                                           const SizedBox(
-                                            width: 20,
+                                            width: 3,
+                                          ),
+                                          Text(
+                                            data['isDone']?.replaceAll("交", "") ?? "",
+                                            strutStyle: const StrutStyle(
+                                              forceStrutHeight: true,
+                                              leading: 0.5,
+                                            ),
                                           ),
 
-                                          isStringTooLong
-                                              ? Expanded(
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            left: 15.0),
-                                                    child: Text(
-                                                      data['topic']!,
-                                                      style: const TextStyle(
-                                                        fontSize: 18.0,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                )
-                                              : Expanded(
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .only(
-                                                                left: 15.0),
-                                                        child: Text(
-                                                          data['topic']!,
-                                                          style:
-                                                              const TextStyle(
-                                                            fontSize: 18.0,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                )
-
+                                          Container(
+                                            width: 3,
+                                            height: 3,
+                                            margin: const EdgeInsets.all(6),
+                                            decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(99)),
+                                            child: const SizedBox.shrink(),
+                                          ),
+                                          Text(
+                                            data['src']!,
+                                            strutStyle: const StrutStyle(
+                                              forceStrutHeight: true,
+                                              leading: 0.5,
+                                            ),
+                                          )
+                                          // Text(
+                                          //   "${extractMonthAndDay(data['date']!)} 前",
+                                          //   strutStyle: const StrutStyle(
+                                          //     forceStrutHeight: true,
+                                          //     leading: 0.5,
+                                          //   ),
                                           // ),
+                                          // Container(
+                                          //   width: 3,
+                                          //   height: 3,
+                                          //   margin: const EdgeInsets.all(8),
+                                          //   decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(99)),
+                                          //   child: const SizedBox.shrink(),
+                                          // ),
+                                          // if (data['isDone'] == '未繳交')
+                                          //   Text(
+                                          //     '剩下${data['remain']}',
+                                          //     strutStyle: const StrutStyle(
+                                          //       forceStrutHeight: true,
+                                          //       leading: 0.5,
+                                          //     ),
+                                          //   ),
                                         ],
+                                      ),
+                                      // Text(
+                                      //   data['src']!,
+                                      //   style: const TextStyle(
+                                      //     fontSize: 15.0,
+                                      //     // fontWeight: FontWeight.bold,
+                                      //   ),
+                                      // ),
+                                      Text(
+                                        data['topic']!,
+                                        style: const TextStyle(
+                                          // overflow: TextOverflow.ellipsis,
+                                          fontSize: 18.0,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        textAlign: TextAlign.center,
                                       ),
                                       const SizedBox(
                                         height: 5,
                                       ),
                                       Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
+                                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text(
-                                            '期限: ${data['submissionDeadline']}',
-                                            style: const TextStyle(
-                                              color: Colors.grey,
-                                              fontSize: 13.0,
-                                              fontWeight: FontWeight.w400,
+                                          Expanded(
+                                            flex: 3,
+                                            child: Text(
+                                              '期限: ${data['submissionDeadline']}',
+                                              style: const TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 13.0,
+                                                fontWeight: FontWeight.w400,
+                                              ),
                                             ),
                                           ),
-                                          const SizedBox(
-                                            width: 5,
-                                          ),
-                                          Text(
-                                            '已交: ${data['numberOfSubmissions']}',
-                                            style: const TextStyle(
-                                              color: Colors.grey,
-                                              fontSize: 13.0,
-                                              fontWeight: FontWeight.w400,
+                                          Expanded(
+                                            flex: 2,
+                                            child: Text(
+                                              '已交: ${data['numberOfSubmissions']}',
+                                              style: const TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 13.0,
+                                                fontWeight: FontWeight.w400,
+                                              ),
                                             ),
                                           ),
-                                          const SizedBox(
-                                            width: 5,
-                                          ),
-                                          Text(
-                                            '剩餘: ${data['remain']}',
-                                            style: const TextStyle(
-                                              color: Colors.grey,
-                                              fontSize: 13.0,
-                                              fontWeight: FontWeight.w400,
+                                          Expanded(
+                                            flex: 2,
+                                            child: Text(
+                                              '剩餘: ${data['remain']}',
+                                              style: const TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 13.0,
+                                                fontWeight: FontWeight.w400,
+                                              ),
                                             ),
                                           ),
                                         ],
                                       ),
                                     ],
                                   ),
-                                ),
-                              ],
-                            ),
-                          )),
+                                )),
+                          ),
                         );
                       },
                     ),
                   )
-              ],
+                ],
+              ),
             ),
-          ),
-          if (_isLoading)
-            const Center(
-              child: CircularProgressIndicator(),
-            ),
-        ],
-      ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.green[200],
         type: BottomNavigationBarType.shifting,
         showSelectedLabels: true,
         showUnselectedLabels: true,
         items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.assignment),
-              label: '最新作業',
-              backgroundColor: Color.fromARGB(181, 65, 218, 190)),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.format_list_bulleted),
-              label: '最新公告',
-              backgroundColor: Color.fromARGB(181, 65, 218, 190)),
+          BottomNavigationBarItem(icon: Icon(Icons.assignment), label: '最新作業', backgroundColor: Color.fromARGB(181, 65, 218, 190)),
+          BottomNavigationBarItem(icon: Icon(Icons.format_list_bulleted), label: '最新公告', backgroundColor: Color.fromARGB(181, 65, 218, 190)),
         ],
         onTap: (int index) {
           switch (index) {
@@ -509,8 +475,7 @@ class _HomeworkPageState extends State<HomeworkPage>
               iconSize: 35,
               padding: const EdgeInsets.only(right: 20),
               onPressed: () async {
-                Navigator.pushNamedAndRemoveUntil(
-                    context, MyHomePage.routeName, (route) => false);
+                Navigator.pushNamedAndRemoveUntil(context, MyHomePage.routeName, (route) => false);
               },
               icon: const Icon(IconData(0xe328, fontFamily: 'MaterialIcons')))
         ],
