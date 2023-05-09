@@ -70,6 +70,13 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
     return thumbnail;
   }
 
+  String? ThumbnailtoVideo(String Url) {
+    List<String> parts = Url.split('/');
+        // print(parts[parts.length - 2]);
+
+    return parts.length >= 2 ? 'https://youtu.be/${parts[parts.length - 2]}' : null;
+  }
+
   Future<void> sendHomework() async {
     // var homeworkCode = '';
     var session = http.Client();
@@ -507,15 +514,23 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
 
                                                   children.add(WidgetSpan(
                                                     child: Padding(
-                                                      padding: const EdgeInsets
-                                                              .symmetric(
-                                                          vertical: 8.0),
-                                                      child: Image.network(
-                                                        EmbedYTList[
-                                                            thumbnailCounter]!,
-                                                        fit: BoxFit.cover,
-                                                      ),
-                                                    ),
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .symmetric(
+                                                                vertical: 8.0),
+                                                        child: InkWell(
+                                                          onTap: () => launchUrl(
+                                                              Uri.parse(ThumbnailtoVideo(
+                                                                  EmbedYTList[
+                                                                      thumbnailCounter])!),
+                                                              mode: LaunchMode
+                                                                  .externalNonBrowserApplication),
+                                                          child: Image.network(
+                                                            EmbedYTList[
+                                                                thumbnailCounter]!,
+                                                            fit: BoxFit.cover,
+                                                          ),
+                                                        )),
                                                   ));
                                                   thumbnailCounter++;
 
@@ -525,6 +540,9 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                                                   textContent = textContent
                                                       .substring(endIndex)
                                                       .trim();
+                                                  children.add(const TextSpan(
+                                                    text: "\n",
+                                                  ));
                                                 } else {
                                                   children.add(TextSpan(
                                                     text: textContent,
@@ -537,6 +555,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                                               text: "\n",
                                             ));
                                           }
+                                          thumbnailCounter = 0;
                                           return children;
                                         }(),
                                       ),
