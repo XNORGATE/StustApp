@@ -430,6 +430,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                                               forceStrutHeight: true,
                                               leading: 0.5,
                                             ),
+                                            style: const TextStyle(overflow: TextOverflow.ellipsis),
                                           ),
                                         ],
                                       ),
