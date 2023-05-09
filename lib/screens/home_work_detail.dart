@@ -49,7 +49,8 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    final args =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     topic = args['topic'];
     src = args['src'];
     href = args['href'];
@@ -81,10 +82,12 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
   Future<void> sendHomework() async {
     // var homeworkCode = '';
     var session = http.Client();
-    var response = await session.get(Uri.parse('https://flipclass.stust.edu.tw/index/login'));
+    var response = await session
+        .get(Uri.parse('https://flipclass.stust.edu.tw/index/login'));
     var soup = html.parse(response.body);
 
-    var hiddenInput = soup.querySelector('input[name="csrf-t"]')!.attributes['value']!;
+    var hiddenInput =
+        soup.querySelector('input[name="csrf-t"]')!.attributes['value']!;
 
     var queryParameters = {
       '_fmSubmit': 'yes',
@@ -98,7 +101,8 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
       'csrf-t': hiddenInput,
     };
 
-    final uri = Uri.https('flipclass.stust.edu.tw', '/index/login', queryParameters);
+    final uri =
+        Uri.https('flipclass.stust.edu.tw', '/index/login', queryParameters);
 
     response = await session.get(uri);
 
@@ -110,7 +114,8 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
     var cookies = response.headers['set-cookie']!;
 
     var headers = {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+      'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
       'cookie': cookies,
     };
 
@@ -121,21 +126,62 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
     // print(src);
 
 // extract the desired data
-    typeOfHomework = soup.querySelectorAll('dt').firstWhere((element) => element.text == '類型').nextElementSibling!.text.trim();
+    typeOfHomework = soup
+        .querySelectorAll('dt')
+        .firstWhere((element) => element.text == '類型')
+        .nextElementSibling!
+        .text
+        .trim();
     // print(typeOfHomework);
-    openForSubmission = soup.querySelectorAll('dt').firstWhere((element) => element.text == '開放繳交').nextElementSibling!.text.trim();
+    openForSubmission = soup
+        .querySelectorAll('dt')
+        .firstWhere((element) => element.text == '開放繳交')
+        .nextElementSibling!
+        .text
+        .trim();
 
-    submissionDeadline = soup.querySelectorAll('dt').firstWhere((element) => element.text == '繳交期限').nextElementSibling?.querySelector('span')?.text.trim();
+    submissionDeadline = soup
+        .querySelectorAll('dt')
+        .firstWhere((element) => element.text == '繳交期限')
+        .nextElementSibling
+        ?.querySelector('span')
+        ?.text
+        .trim();
 
-    numberOfSubmissions = soup.querySelectorAll('dt').firstWhere((element) => element.text == '已繳交').nextElementSibling?.text.trim();
-    allowLateSubmission = soup.querySelectorAll('dt').firstWhere((element) => element.text == '允許遲交').nextElementSibling?.text.trim();
+    numberOfSubmissions = soup
+        .querySelectorAll('dt')
+        .firstWhere((element) => element.text == '已繳交')
+        .nextElementSibling
+        ?.text
+        .trim();
+    allowLateSubmission = soup
+        .querySelectorAll('dt')
+        .firstWhere((element) => element.text == '允許遲交')
+        .nextElementSibling
+        ?.text
+        .trim();
 
-    gradeWeight = soup.querySelectorAll('dt').firstWhere((element) => element.text == '成績比重').nextElementSibling?.text.trim();
+    gradeWeight = soup
+        .querySelectorAll('dt')
+        .firstWhere((element) => element.text == '成績比重')
+        .nextElementSibling
+        ?.text
+        .trim();
 
-    gradingMethod = soup.querySelectorAll('dt').firstWhere((element) => element.text == '評分方式').nextElementSibling?.text.trim();
+    gradingMethod = soup
+        .querySelectorAll('dt')
+        .firstWhere((element) => element.text == '評分方式')
+        .nextElementSibling
+        ?.text
+        .trim();
 
     try {
-      detail = soup.querySelectorAll('dt').firstWhere((element) => element.text == '說明').nextElementSibling?.text.trim();
+      detail = soup
+          .querySelectorAll('dt')
+          .firstWhere((element) => element.text == '說明')
+          .nextElementSibling
+          ?.text
+          .trim();
     } catch (e) {
       // Handle the error here
     }
@@ -153,19 +199,35 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
     } catch (e) {}
 
     try {
-      videoUrl = soup.querySelectorAll('dt').firstWhere((element) => element.text == '說明').nextElementSibling?.querySelector('a')?.attributes['href'];
+      videoUrl = soup
+          .querySelectorAll('dt')
+          .firstWhere((element) => element.text == '說明')
+          .nextElementSibling
+          ?.querySelector('a')
+          ?.attributes['href'];
     } catch (e) {
       // Handle the error here
     }
 
     try {
-      attachmentName = soup.querySelectorAll('dt').firstWhere((element) => element.text == '附件').nextElementSibling?.querySelector('a')?.text.trim();
+      attachmentName = soup
+          .querySelectorAll('dt')
+          .firstWhere((element) => element.text == '附件')
+          .nextElementSibling
+          ?.querySelector('a')
+          ?.text
+          .trim();
     } catch (e) {
       // Handle the error here
     }
 
     try {
-      attachmentUrl = soup.querySelectorAll('dt').firstWhere((element) => element.text == '附件').nextElementSibling?.querySelector('a')?.attributes['href'];
+      attachmentUrl = soup
+          .querySelectorAll('dt')
+          .firstWhere((element) => element.text == '附件')
+          .nextElementSibling
+          ?.querySelector('a')
+          ?.attributes['href'];
       // print(attachmentUrl);
     } catch (e) {
       // Handle the error here
@@ -179,8 +241,8 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    // final height = MediaQuery.of(context).size.height;
-    // final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
+    final width = MediaQuery.of(context).size.width;
     // print(detail);
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 236, 236, 236),
@@ -218,7 +280,9 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5.0),
                           ),
-                          child: Padding(padding: const EdgeInsets.all(7), child: Text(src)))
+                          child: Padding(
+                              padding: const EdgeInsets.all(7),
+                              child: Text(src)))
                     ],
                   ),
                   Padding(
@@ -236,11 +300,13 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                                     Expanded(
                                       flex: 2,
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           const Text(
                                             '開放繳交',
-                                            style: TextStyle(fontWeight: FontWeight.bold),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
                                             strutStyle: StrutStyle(
                                               forceStrutHeight: true,
                                               leading: 0.5,
@@ -258,11 +324,13 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                                     ),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           const Text(
                                             '繳交期限',
-                                            style: TextStyle(fontWeight: FontWeight.bold),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
                                             strutStyle: StrutStyle(
                                               forceStrutHeight: true,
                                               leading: 0.5,
@@ -288,11 +356,13 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                                     Expanded(
                                       flex: 2,
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           const Text(
                                             '功課類型',
-                                            style: TextStyle(fontWeight: FontWeight.bold),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
                                             strutStyle: StrutStyle(
                                               forceStrutHeight: true,
                                               leading: 0.5,
@@ -310,18 +380,21 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                                     ),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           const Text(
                                             '評分方式',
-                                            style: TextStyle(fontWeight: FontWeight.bold),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
                                             strutStyle: StrutStyle(
                                               forceStrutHeight: true,
                                               leading: 0.5,
                                             ),
                                           ),
                                           Text(
-                                            '$gradingMethod'.replaceAll("直接打分數", "直接評分"),
+                                            '$gradingMethod'
+                                                .replaceAll("直接打分數", "直接評分"),
                                             strutStyle: const StrutStyle(
                                               forceStrutHeight: true,
                                               leading: 0.5,
@@ -339,11 +412,13 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                                   children: [
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           const Text(
                                             '允許遲交',
-                                            style: TextStyle(fontWeight: FontWeight.bold),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
                                             strutStyle: StrutStyle(
                                               forceStrutHeight: true,
                                               leading: 0.5,
@@ -361,11 +436,13 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                                     ),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           const Text(
                                             '已交人數',
-                                            style: TextStyle(fontWeight: FontWeight.bold),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
                                             strutStyle: StrutStyle(
                                               forceStrutHeight: true,
                                               leading: 0.5,
@@ -383,11 +460,13 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                                     ),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           const Text(
                                             '成績比重',
-                                            style: TextStyle(fontWeight: FontWeight.bold),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
                                             strutStyle: StrutStyle(
                                               forceStrutHeight: true,
                                               leading: 0.5,
@@ -424,14 +503,17 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                               children: const [
                                 Text(
                                   '說明',
-                                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold),
                                 ),
                               ],
                             ),
                             RichText(
                               // overflow: TextOverflow.clip,
                               text: TextSpan(
-                                style: const TextStyle(fontSize: 16.0, color: Colors.black),
+                                style: const TextStyle(
+                                    fontSize: 16.0, color: Colors.black),
                                 children: () {
                                   final RegExp regex = RegExp(
                                     r"(?:(?:https?|ftp):\/\/|www\.)[^\s/$.?#].[^\s]*|[\s\S]+?(?=(?:(?:https?|ftp):\/\/|www\.)[^\s/$.?#].[^\s]*|$)",
@@ -440,33 +522,49 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                                   final RegExp urlSeparatorRegex = RegExp(
                                     r'(?<=[^/])(?=https?://)',
                                   );
-                                  final RegExp breaklineRegex = RegExp(r'\n|\r\n');
+                                  final RegExp breaklineRegex =
+                                      RegExp(r'\n|\r\n');
 
-                                  final Iterable<Match> matches = regex.allMatches(detail!);
+                                  final Iterable<Match> matches =
+                                      regex.allMatches(detail!);
                                   List<InlineSpan> children = [];
                                   int breaklinecounter = 0;
                                   int thumbnailCounter = 0;
                                   for (Match match in matches) {
-                                    if (match.group(0)!.startsWith('http') || match.group(0)!.startsWith('www') || match.group(0)!.startsWith('ftp')) {
-                                      Iterable<Match> separatedUrlMatches = urlSeparatorRegex.allMatches(match.group(0)!);
+                                    if (match.group(0)!.startsWith('http') ||
+                                        match.group(0)!.startsWith('www') ||
+                                        match.group(0)!.startsWith('ftp')) {
+                                      Iterable<Match> separatedUrlMatches =
+                                          urlSeparatorRegex
+                                              .allMatches(match.group(0)!);
                                       int previousUrlEnd = 0;
-                                      for (Match separatedUrlMatch in separatedUrlMatches) {
-                                        String url = match.group(0)!.substring(previousUrlEnd, separatedUrlMatch.start);
+                                      for (Match separatedUrlMatch
+                                          in separatedUrlMatches) {
+                                        String url = match.group(0)!.substring(
+                                            previousUrlEnd,
+                                            separatedUrlMatch.start);
                                         children.add(TextSpan(
                                           text: url,
                                           style: const TextStyle(
-                                            decoration: TextDecoration.underline,
+                                            decoration:
+                                                TextDecoration.underline,
                                             color: Colors.blue,
                                           ),
                                           recognizer: TapGestureRecognizer()
                                             ..onTap = () async {
-                                              launchUrl(Uri.parse(url), mode: LaunchMode.externalNonBrowserApplication);
+                                              launchUrl(Uri.parse(url),
+                                                  mode: LaunchMode
+                                                      .externalNonBrowserApplication);
                                             },
                                         ));
-                                        children.add(const TextSpan(text: '\n'));
-                                        previousUrlEnd = separatedUrlMatch.start;
+                                        children
+                                            .add(const TextSpan(text: '\n'));
+                                        previousUrlEnd =
+                                            separatedUrlMatch.start;
                                       }
-                                      String lastUrl = match.group(0)!.substring(previousUrlEnd);
+                                      String lastUrl = match
+                                          .group(0)!
+                                          .substring(previousUrlEnd);
                                       children.add(TextSpan(
                                         text: lastUrl,
                                         style: const TextStyle(
@@ -475,34 +573,64 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                                         ),
                                         recognizer: TapGestureRecognizer()
                                           ..onTap = () async {
-                                            launchUrl(Uri.parse(lastUrl), mode: LaunchMode.externalNonBrowserApplication);
+                                            launchUrl(Uri.parse(lastUrl),
+                                                mode: LaunchMode
+                                                    .externalNonBrowserApplication);
                                           },
                                       ));
                                     } else {
                                       String textContent = match.group(0)!;
                                       while (textContent.isNotEmpty) {
-                                        int breaklineCount = breaklineRegex.allMatches(textContent).length;
-                                        if (breaklineCount > 2 && thumbnailCounter < EmbedYTList.length) {
-                                          int endIndex = textContent.indexOf('\n\n\n');
-                                          String textBeforeImage = endIndex == -1 ? textContent : textContent.substring(0, endIndex + 3);
-                                          children.add(TextSpan(text: textBeforeImage));
-
+                                        int breaklineCount = breaklineRegex
+                                            .allMatches(textContent)
+                                            .length;
+                                        if (breaklineCount > 2 &&
+                                            thumbnailCounter <
+                                                EmbedYTList.length) {
+                                          int endIndex =
+                                              textContent.indexOf('\n\n\n');
+                                          String textBeforeImage =
+                                              endIndex == -1
+                                                  ? textContent
+                                                  : textContent.substring(
+                                                      0, endIndex + 3);
+                                          children.add(
+                                              TextSpan(text: textBeforeImage));
+                                          var ImageUrl =
+                                              EmbedYTList[thumbnailCounter]!;
                                           children.add(WidgetSpan(
                                             child: Padding(
-                                              padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                              child: Image.network(
-                                                EmbedYTList[thumbnailCounter]!,
-                                                fit: BoxFit.cover,
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 8.0),
+                                              child: InkWell(
+                                                onTap: () {
+                                                  launchUrl(
+                                                      Uri.parse(
+                                                          ThumbnailtoVideo(
+                                                              ImageUrl)!),
+                                                      mode: LaunchMode
+                                                          .externalNonBrowserApplication);
+                                                },
+                                                child: Image.network(
+                                                  ImageUrl,
+                                                  fit: BoxFit.fitWidth,
+                                                  width: double.infinity,
+                                                ),
                                               ),
                                             ),
                                           ));
                                           thumbnailCounter++;
 
-                                          endIndex = endIndex == -1 ? endIndex : endIndex + 3;
-                                          textContent = textContent.substring(endIndex).trim();
-                                                  children.add(const TextSpan(
-                                                    text: "\n",
-                                                  ));
+                                          endIndex = endIndex == -1
+                                              ? endIndex
+                                              : endIndex + 3;
+                                          textContent = textContent
+                                              .substring(endIndex)
+                                              .trim();
+                                          children.add(const TextSpan(
+                                            text: "\n",
+                                          ));
                                         } else {
                                           children.add(TextSpan(
                                             text: textContent,
@@ -515,7 +643,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                                       text: "\n",
                                     ));
                                   }
-                                          thumbnailCounter = 0;
+                                  thumbnailCounter = 0;
                                   // 移除多餘的 TextSpan (text=\n)
                                   print(children.removeLast());
                                   return children;
@@ -566,19 +694,30 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                                 children: const [
                                   Text(
                                     '附件',
-                                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                                    style: TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 10,),
+                              const SizedBox(
+                                height: 10,
+                              ),
                               InkWell(
-                                onTap: () => launchUrl(Uri.parse('https://flipclass.stust.edu.tw$attachmentUrl'), mode: LaunchMode.externalNonBrowserApplication),
+                                onTap: () => launchUrl(
+                                    Uri.parse(
+                                        'https://flipclass.stust.edu.tw$attachmentUrl'),
+                                    mode: LaunchMode
+                                        .externalNonBrowserApplication),
                                 child: Row(
                                   children: [
                                     const Icon(Icons.file_present),
                                     Text(
                                       '$attachmentName',
-                                      style: const TextStyle(color: Colors.blue, fontSize: 15, fontWeight: FontWeight.bold),
+                                      style: const TextStyle(
+                                          color: Colors.blue,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold),
                                     ),
                                   ],
                                 ),
@@ -588,6 +727,22 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                         ),
                       ),
                     ),
+                  Padding(
+                      padding:
+                          EdgeInsets.fromLTRB(width * .35, 5, width * .35, 5),
+                      child: InkWell(
+                        onTap: () {},
+                        child: Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.send,
+                            ),
+                          ),
+                        ),
+                      ))
                 ],
               )
             : const Center(child: CircularProgressIndicator()),
