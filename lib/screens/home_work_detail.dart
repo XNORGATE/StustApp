@@ -39,6 +39,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
   String? attachmentUrl = '';
   String? embedYTvideoUrl = '';
   List EmbedYTList = [];
+  int thumbnailCounter = 0;
 
   @override
   void initState() {
@@ -72,9 +73,11 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
 
   String? ThumbnailtoVideo(String Url) {
     List<String> parts = Url.split('/');
-        // print(parts[parts.length - 2]);
+    // print(parts[parts.length - 2]);
 
-    return parts.length >= 2 ? 'https://youtu.be/${parts[parts.length - 2]}' : null;
+    return parts.length >= 2
+        ? 'https://youtu.be/${parts[parts.length - 2]}'
+        : null;
   }
 
   Future<void> sendHomework() async {
@@ -426,7 +429,6 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                                               regex.allMatches(detail!);
                                           List<InlineSpan> children = [];
                                           int breaklinecounter = 0;
-                                          int thumbnailCounter = 0;
                                           for (Match match in matches) {
                                             if (match
                                                     .group(0)!
@@ -519,12 +521,18 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                                                                     .symmetric(
                                                                 vertical: 8.0),
                                                         child: InkWell(
-                                                          onTap: () => launchUrl(
-                                                              Uri.parse(ThumbnailtoVideo(
-                                                                  EmbedYTList[
-                                                                      thumbnailCounter])!),
-                                                              mode: LaunchMode
-                                                                  .externalNonBrowserApplication),
+                                                          onTap: () {
+                                                            // print('video Url:  ${EmbedYTList[
+                                                            //     thumbnailCounter]!}');
+                                                            launchUrl(
+                                                                Uri.parse(ThumbnailtoVideo(
+                                                                    EmbedYTList[
+                                                                        thumbnailCounter])!),
+                                                                mode: LaunchMode
+                                                                    .externalNonBrowserApplication);
+                                                            print(
+                                                                'thumbnailCounter $thumbnailCounter');
+                                                          },
                                                           child: Image.network(
                                                             EmbedYTList[
                                                                 thumbnailCounter]!,
