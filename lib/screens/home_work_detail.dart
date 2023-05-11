@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as html;
 
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 
 class HomeWorkDetailPage extends StatefulWidget {
   const HomeWorkDetailPage({Key? key}) : super(key: key);
