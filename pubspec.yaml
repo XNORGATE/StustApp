@@ -39,7 +39,7 @@ dependencies:
   flutter_rating_bar: ^4.0.0
   scrollable_list_tabview: ^0.2.0-nullsafety
   http: ^0.13.5
-  flutter_html: ^2.2.1
+  flutter_html: any
   shared_preferences: ^2.0.15
   flutter_neumorphic_null_safety: ^3.2.4
   url_launcher: ^6.1.10
@@ -47,6 +47,8 @@ dependencies:
   intl: ^0.18.0
   page_transition: ^2.0.9
   flutter_widget_from_html: ^0.9.1
+  flutter_widget_from_html_core: any
+  fwfh_webview: ^0.7.0
   dio: ^5.1.1
   photo_view: ^0.14.0
   workmanager: any

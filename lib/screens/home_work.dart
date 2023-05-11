@@ -479,6 +479,7 @@ class _HomeworkPageState extends State<HomeworkPage>
             },
           ),
       bottomNavigationBar: BottomNavigationBar(
+        selectedFontSize: 12.0,
         backgroundColor: Colors.green[200],
         type: BottomNavigationBarType.shifting,
         showSelectedLabels: true,
