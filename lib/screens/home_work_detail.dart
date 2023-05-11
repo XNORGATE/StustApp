@@ -7,7 +7,8 @@ import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as html;
 
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
+// import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 
 class HomeWorkDetailPage extends StatefulWidget {
   const HomeWorkDetailPage({Key? key}) : super(key: key);
@@ -294,7 +295,9 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
         .attributes['data-url']!;
 
     ///取得iframe的網址
-    iframeUrl = "https://flipclass.stust.edu.tw$iframeUrl&fs_no_foot_js=1";
+    // iframeUrl = "https://flipclass.stust.edu.tw$iframeUrl&fs_no_foot_js=1";
+    // iframeUrl = iframeUrl;
+
     print(iframeUrl);
 
     // print(soup.outerHtml);
@@ -314,7 +317,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
             content: SizedBox(
               width: MediaQuery.of(context).size.width * 0.8,
               height: MediaQuery.of(context).size.height * 0.8,
-              child: const HtmlWidget('<iframe src="https://www.youtube.com/embed/jNQXAC9IVRw"></iframe>')
+              child:  HtmlWidget('<iframe class="fs-modal-iframe" src="$iframe" frameborder="0" border="0" style="display: inline; height: 517px;"></iframe>')
             ),
             actions: [
               TextButton(
