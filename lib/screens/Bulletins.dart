@@ -1,4 +1,6 @@
 import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -6,6 +8,8 @@ import 'package:html/parser.dart' show parse;
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:flutter_neumorphic_null_safety/flutter_neumorphic.dart';
+
+import '../utils/check_connecion.dart';
 
 class BulletinsPage extends StatefulWidget {
   static const routeName = '/bulletins';
@@ -30,17 +34,41 @@ class _BulletinsPageState extends State<BulletinsPage>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
-    List<Map<String, String?>> responseData = [];
-    _getlocal_UserData().then((data) {
-      _account = data[0];
-      _password = data[1];
-      //print(_account);
-      //print(_password);
+    checkNetwork().then((isConnected) {
+      if (isConnected == false) {
+        return showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              title: const Text('偵測不到網路連線，請檢查網路連線後再試一次'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    // Navigator.of(context).pop();
+                    // SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                    FlutterExitApp.exitApp();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+      List<Map<String, String?>> responseData = [];
+      _getlocal_UserData().then((data) {
+        _account = data[0];
+        _password = data[1];
+        //print(_account);
+        //print(_password);
 
-      setState(() {});
+        setState(() {});
+      });
+
+      _submitForm();
     });
-
-    _submitForm();
   }
 
   @override

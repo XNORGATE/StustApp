@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
 import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/check_connecion.dart';
 import './my_button.dart';
 import './my_textfield.dart';
 import '../utils/dialog_utils.dart';
@@ -25,6 +28,30 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    checkNetwork().then((isConnected) {
+      if (isConnected == false) {
+        return showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              title: const Text('偵測不到網路連線，請檢查網路連線後再試一次'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    // Navigator.of(context).pop();
+                    // SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                    FlutterExitApp.exitApp();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    });
   }
 
   @override
@@ -42,6 +69,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
       final prefs = await SharedPreferences.getInstance();
       if (!prefs.containsKey('account') || !prefs.containsKey('password')) {
         // If not, show the login page
+        if (!mounted) return;
         Navigator.of(context).pushReplacementNamed(LoginPage.routeName);
       }
     }
@@ -226,12 +254,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
           backgroundColor: Colors.grey[300],
           body: SafeArea(
             child: _isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(
-
-
-                    )
-                  )
+                ? const Center(child: CircularProgressIndicator())
                 : Center(
                     child: SingleChildScrollView(
                       child: Column(

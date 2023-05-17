@@ -1,9 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:http/http.dart' as http;
 // ignore: depend_on_referenced_packages
 import 'package:html/parser.dart' as html_parser;
 import 'package:photo_view/photo_view.dart';
+import '../utils/check_connecion.dart';
 import '../utils/html_utils.dart';
 import 'package:stust_app/utils/dialog_utils.dart';
 
@@ -53,23 +55,49 @@ class _StudentMiscPageState extends State<StudentMiscPage>
   void initState() {
     super.initState();
 
-    _getlocal_UserData().then((data) {
-      _account = data[0];
-      _password = data[1];
-      //print(_account);
-      //print(_password);
-      setState(() {});
-      _submit();
-    });
+    checkNetwork().then((isConnected) {
+      if (isConnected == false) {
+        return showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              title: const Text('偵測不到網路連線，請檢查網路連線後再試一次'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    // Navigator.of(context).pop();
+                    // SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                    FlutterExitApp.exitApp();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
 
-    _tabController = TabController(length: 4, vsync: this);
+      _getlocal_UserData().then((data) {
+        _account = data[0];
+        _password = data[1];
+        //print(_account);
+        //print(_password);
+        setState(() {});
+        _submit();
+      });
+
+      _tabController = TabController(length: 4, vsync: this);
+    });
   }
-  
+
   @override
   void dispose() {
     http.Client().close();
     super.dispose();
   }
+
   _getlocal_UserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     _account = prefs.getString('account')!;
@@ -398,8 +426,8 @@ class _StudentMiscPageState extends State<StudentMiscPage>
   // }
 
   Widget _foreignTestData(BuildContext context) {
-        final width = MediaQuery.of(context).size.width;
-        final height = MediaQuery.of(context).size.height;
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 75, 75, 0),
       child: Row(
@@ -414,14 +442,17 @@ class _StudentMiscPageState extends State<StudentMiscPage>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: height *.08,),
+                    SizedBox(
+                      height: height * .08,
+                    ),
                     FittedBox(
-              fit: BoxFit.contain,
+                      fit: BoxFit.contain,
                       child: HtmlWidget(
                         extractHtmlContent(foreignTestData.outerHtml, 'div',
                             className: 'conplace', index: 0),
                         // onTapUrl: (url) => launchUrl(Uri.parse(url)),
-                      textStyle: const TextStyle(fontSize: 15.1),),
+                        textStyle: const TextStyle(fontSize: 15.1),
+                      ),
                     ),
                   ],
                 ),
@@ -435,7 +466,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
 
   Widget _graduateData(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-        final height = MediaQuery.of(context).size.height;
+    final height = MediaQuery.of(context).size.height;
 
     return Padding(
       padding: const EdgeInsets.all(10.0),
@@ -448,17 +479,19 @@ class _StudentMiscPageState extends State<StudentMiscPage>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: height*.2,),
+                SizedBox(
+                  height: height * .2,
+                ),
                 FittedBox(
                   fit: BoxFit.none,
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
                         HtmlWidget(
-                          extractHtmlContent(graduateData.outerHtml, 'div',
-                              // id: 'ctl00_ContentPlaceHolder1_ctl00_GridView2',
-                              index: 19),
-                        textStyle: const TextStyle(fontSize: 25)),
+                            extractHtmlContent(graduateData.outerHtml, 'div',
+                                // id: 'ctl00_ContentPlaceHolder1_ctl00_GridView2',
+                                index: 19),
+                            textStyle: const TextStyle(fontSize: 25)),
                         const SizedBox(
                           height: 10,
                         ),
@@ -480,8 +513,8 @@ class _StudentMiscPageState extends State<StudentMiscPage>
                                   )
                                 : const Text(
                                     '  尚未修滿畢業學分(128)',
-                                    style:
-                                        TextStyle(fontSize: 18, color: Colors.red),
+                                    style: TextStyle(
+                                        fontSize: 18, color: Colors.red),
                                   ),
                           ],
                         )
@@ -585,7 +618,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
 
   Widget _departmentOfficeData(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-        final height = MediaQuery.of(context).size.height;
+    final height = MediaQuery.of(context).size.height;
 
     return Padding(
       padding: const EdgeInsets.all(10.0),
@@ -598,17 +631,18 @@ class _StudentMiscPageState extends State<StudentMiscPage>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                                          SizedBox(height: height* .2,),
-
+                SizedBox(
+                  height: height * .2,
+                ),
                 FittedBox(
                   fit: BoxFit.none,
                   child: HtmlWidget(
                     extractHtmlContent(departmentOfficeData.outerHtml, 'div',
                         className: 'conplace', index: 0),
                     // textStyle: const TextStyle(fontSize: 50),
-                  textStyle: const TextStyle(fontSize: 7),),
+                    textStyle: const TextStyle(fontSize: 7),
+                  ),
                 ),
-
               ],
             ),
           ),
@@ -635,7 +669,7 @@ Widget _infoRow(BuildContext context, int index) {
     children: [
       Center(
         child: Text(
-          '第${index+1}頁',
+          '第${index + 1}頁',
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
       ),

@@ -1,8 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:http/http.dart' as http;
 // ignore: depend_on_referenced_packages
 import 'package:html/parser.dart' as html_parser;
+import 'package:stust_app/utils/check_connecion.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../utils/html_utils.dart';
 import 'package:stust_app/utils/dialog_utils.dart';
@@ -45,23 +47,49 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
   void initState() {
     super.initState();
 
-    _getlocal_UserData().then((data) {
-      _account = data[0];
-      _password = data[1];
-      //print(_account);
-      //print(_password);
-      setState(() {});
-      _submit();
-    });
+    checkNetwork().then((isConnected) {
+      if (isConnected == false) {
+        return showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              title: const Text('偵測不到網路連線，請檢查網路連線後再試一次'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    // Navigator.of(context).pop();
+                    // SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                    FlutterExitApp.exitApp();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
 
-    _tabController = TabController(length: 3, vsync: this);
+      _getlocal_UserData().then((data) {
+        _account = data[0];
+        _password = data[1];
+        //print(_account);
+        //print(_password);
+        setState(() {});
+        _submit();
+      });
+
+      _tabController = TabController(length: 3, vsync: this);
+    });
   }
+
   @override
   void dispose() {
     http.Client().close();
     super.dispose();
   }
-  
+
   _getlocal_UserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     _account = prefs.getString('account')!;
@@ -328,8 +356,10 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
               child: HtmlWidget(
                 extractHtmlContent(pressentScore.outerHtml, 'table',
                     className: 'style8', index: 0),
-                onTapUrl: (url) => launchUrl(Uri.parse(url),mode: LaunchMode.externalNonBrowserApplication),
-              textStyle: const TextStyle(fontSize: 50),),
+                onTapUrl: (url) => launchUrl(Uri.parse(url),
+                    mode: LaunchMode.externalNonBrowserApplication),
+                textStyle: const TextStyle(fontSize: 50),
+              ),
             ),
           ),
         ],
@@ -351,8 +381,10 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
               child: HtmlWidget(
                 extractHtmlContent(pastScore.outerHtml, 'table',
                     className: 'style8', index: 0),
-                onTapUrl: (url) => launchUrl(Uri.parse(url),mode: LaunchMode.externalNonBrowserApplication),
-              textStyle: const TextStyle(fontSize: 50),),
+                onTapUrl: (url) => launchUrl(Uri.parse(url),
+                    mode: LaunchMode.externalNonBrowserApplication),
+                textStyle: const TextStyle(fontSize: 50),
+              ),
             ),
           ),
         ],
@@ -374,8 +406,10 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
               child: HtmlWidget(
                 extractHtmlContent(timeTable.outerHtml, 'table',
                     className: 'style8', index: 0),
-                onTapUrl: (url) => launchUrl(Uri.parse(url),mode: LaunchMode.externalNonBrowserApplication),
-              textStyle: const TextStyle(fontSize: 20),),
+                onTapUrl: (url) => launchUrl(Uri.parse(url),
+                    mode: LaunchMode.externalNonBrowserApplication),
+                textStyle: const TextStyle(fontSize: 20),
+              ),
             ),
           ),
         ],

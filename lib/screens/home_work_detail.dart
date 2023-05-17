@@ -1,14 +1,22 @@
-import 'dart:typed_data';
+import 'dart:io';
+import 'package:flutter/services.dart';
+import 'package:flutter_exit_app/flutter_exit_app.dart';
 
+import '../main.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 // ignore: depend_on_referenced_packages
 import 'package:html/parser.dart' as html;
-
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:url_launcher/url_launcher.dart';
 // import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
-import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:intl/intl.dart';
+
+import '../utils/check_connecion.dart';
+
 class HomeWorkDetailPage extends StatefulWidget {
   const HomeWorkDetailPage({Key? key}) : super(key: key);
 
@@ -43,16 +51,44 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
   List EmbedYTList = [];
   int thumbnailCounter = 0;
   bool isLoaded = false;
+  String isDone = '交作業';
 
   @override
   void initState() {
     super.initState();
-    _homeworkFuture = getHomework();
+    checkNetwork().then((isConnected) {
+      if (isConnected == false) {
+        return showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              title: const Text('偵測不到網路連線，請檢查網路連線後再試一次'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    // Navigator.of(context).pop();
+                    // SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                    FlutterExitApp.exitApp();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+
+      _homeworkFuture = getHomework();
+    });
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+
+    if (!mounted) return;
     final args =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     topic = args['topic'];
@@ -179,6 +215,17 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
         ?.text
         .trim();
 
+    var doneButtonText = soup
+        .querySelector('div.text-center.fs-margin-default > a > span')
+        ?.text
+        .trim();
+
+    if (doneButtonText!.contains('檢視')) {
+      isDone = '收回並刪除作業';
+    } else {
+      isDone = '交作業';
+    }
+    print('isDone: $isDone');
     try {
       detail = soup
           .querySelectorAll('dt')
@@ -250,14 +297,16 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
     });
   }
 
-  Future<String> sendHomework(String href) async {
+  Future<dynamic> sendHomeworkWithFiles(
+      String href, String content, List finalFiles) async {
     // var homeworkCode = '';
     var session = http.Client();
+
     var response = await session
         .get(Uri.parse('https://flipclass.stust.edu.tw/index/login'));
     var soup = html.parse(response.body);
 
-    var hiddenInput =
+    String? hiddenInput =
         soup.querySelector('input[name="csrf-t"]')!.attributes['value']!;
 
     var queryParameters = {
@@ -285,7 +334,10 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
       'cookie': cookies,
     };
 
-    response = await session.get(Uri.parse(href), headers: headers);
+    response = await session.get(
+      Uri.parse(href),
+      headers: {...headers},
+    );
     soup = html.parse(response.body);
 
     ///進到作業頁面
@@ -294,38 +346,717 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
         .attributes['data-url']!;
 
     ///取得iframe的網址
-    // iframeUrl = "https://flipclass.stust.edu.tw$iframeUrl&fs_no_foot_js=1";
+    iframeUrl = "https://flipclass.stust.edu.tw$iframeUrl&fs_no_foot_js=1";
     // iframeUrl = iframeUrl;
 
-    print(iframeUrl);
+    // print(iframeUrl);
 
+    response = await session.get(
+      Uri.parse(iframeUrl),
+      headers: {...headers},
+    );
+    soup = html.parse(response.body); // 進到iframe
+    hiddenInput =
+        soup.querySelector('input[name="csrf-t"]')?.attributes['value'];
+    var titleInput =
+        soup.querySelector('input[name="title"]')?.attributes['value'];
+    print('hiddenInput: $hiddenInput');
+    print('title_input: $titleInput');
+
+    var finalUrl =
+        soup.querySelector('form[id="media-edit-form"]')!.attributes['action'];
+
+    print('finalUrl: $finalUrl');
+    // print('soup: ${soup.outerHtml}');
+
+    List scripts = soup.getElementsByTagName('script');
+    // String firstUrlPath = '';
+    String secondUrlPath = '';
+    // // Define a regular expression pattern for the strings.
+    // RegExp regExp1 = RegExp(r'"fetchUrl":"(.*?)"');
+
+    // // Iterate over the script tags.
+    // for (var script in scripts) {
+    //   // Get the JavaScript code.
+    //   String jsCode = script.innerHtml;
+    //   // print('jsCode: $jsCode');
+    //   // Use the allMatches method to get all matches.
+    //   Iterable<RegExpMatch> matches = regExp1.allMatches(jsCode);
+
+    //   // Extract the strings from the matches.
+    //   for (RegExpMatch match in matches) {
+    //     String string = match.group(0)!;
+    //     firstUrlPath = string;
+    //     // print('firstUrlPath: $firstUrlPath');
+    //   }
+    // }
+    // print('firstUrlPath: $firstUrlPath');
+
+    RegExp regExp = RegExp(
+        r'uploadUrl\":\"\\/ajax\\/sys.modules.mod_fileUpload2\\/upload\\/\?([^"]*)');
+
+    // Iterate over the script tags.
+    for (var script in scripts) {
+      // Get the JavaScript code.
+      String jsCode = script.innerHtml;
+
+      // Use the allMatches method to get all matches.
+      Iterable<RegExpMatch> matches = regExp.allMatches(jsCode);
+
+      // Extract the strings from the matches.
+      for (RegExpMatch match in matches) {
+        String string = match.group(0)!;
+        // Split the string by the question mark '?'
+        List<String> splitString = string.split('?');
+
+        // Check if the split produced two parts
+        if (splitString.length == 2) {
+          String result = splitString[1];
+          secondUrlPath = result;
+        }
+
+        // print('secondUrlPath: $secondUrlPath');
+      }
+    }
+    print('secondUrlPath: $secondUrlPath');
+
+    // var firstUrl =
+    //     'https://flipclass.stust.edu.tw/ajax/sys.pages.attach_get/tempItems/?$firstUrlPath';
+    // print(firstUrl);
+    // response = await session.get(
+    //   // first request (after click and loading iframe)
+    //   Uri.parse(firstUrl),
+    //   headers: {...headers},
+    // );
+
+    var secondUrl =
+        'https://flipclass.stust.edu.tw/ajax/sys.modules.mod_fileUpload2/upload/?$secondUrlPath';
+
+    for (var file in finalFiles) {
+      String fname = file.name;
+      FormData data = FormData.fromMap({
+        'action': 'submit',
+        'title': titleInput,
+        'content': '',
+        'csrf-t': hiddenInput,
+        "files[]": await MultipartFile.fromFile(
+          file.path,
+          filename: fname,
+        ),
+      });
+
+      Dio dio = Dio();
+
+      print('Image File Name: $fname');
+      var response = await dio.post(
+        secondUrl,
+        data: data,
+        options: Options(
+          // contentType: 'multipart/form-data',
+          followRedirects: false,
+          headers: {...headers},
+        ),
+      );
+
+      print('response.statusCode: ${response.statusCode}');
+      print('response.data: ${response.data}');
+    }
+
+    var formData = {
+      '_fmSubmit': 'yes',
+      'formVer': '3.0',
+      'formId': 'media-edit-form',
+      'action': 'submit',
+      'title': titleInput,
+      'content': '<div>$content</div>',
+      'csrf-t': hiddenInput
+    };
+
+    response = await session.post(
+        Uri.parse('https://flipclass.stust.edu.tw$finalUrl'),
+        headers: {...headers},
+        body: formData);
+
+    ///最終繳交
+
+    var isDoneresponse = await session.get(
+        //確認繳交
+        Uri.parse(href),
+        headers: {...headers, 'cookie': cookies});
+    var isDonesoup = html.parse(isDoneresponse.body);
+
+    // bool isDone = false;
     // print(soup.outerHtml);
-    // print(href);
-    // print(src);
-    return iframeUrl;
+    var doneButtonText = isDonesoup
+        .querySelector('div.text-center.fs-margin-default > a > span')
+        ?.text
+        .trim();
+    if (doneButtonText!.contains('檢視')) {
+      // isDone = true;
+      return true;
+    } else {
+      return false;
+    }
   }
 
-  dynamic _showIframe (String iframe) async{
+  Future<dynamic> sendHomeworkOnlyText(String href, String content) async {
+    // var homeworkCode = '';
+    var session = http.Client();
+    var response = await session
+        .get(Uri.parse('https://flipclass.stust.edu.tw/index/login'));
+    var soup = html.parse(response.body);
+
+    String? hiddenInput =
+        soup.querySelector('input[name="csrf-t"]')!.attributes['value']!;
+
+    var queryParameters = {
+      '_fmSubmit': 'yes',
+      'formVer': '3.0',
+      'formId': 'login_form',
+      'next': '/',
+      'act': 'kick',
+      'account': account,
+      'password': password,
+      'rememberMe': '',
+      'csrf-t': hiddenInput,
+    };
+
+    final uri =
+        Uri.https('flipclass.stust.edu.tw', '/index/login', queryParameters);
+
+    response = await session.get(uri);
+
+    var cookies = response.headers['set-cookie']!;
+
+    var headers = {
+      'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+      'cookie': cookies,
+    };
+
+    response = await session.get(
+      Uri.parse(href),
+      headers: {...headers},
+    );
+    soup = html.parse(response.body);
+
+    ///進到作業頁面
+    var iframeUrl = soup
+        .querySelector("a[data-modal-title='交作業' ]")!
+        .attributes['data-url']!;
+
+    ///取得iframe的網址
+    iframeUrl = "https://flipclass.stust.edu.tw$iframeUrl&fs_no_foot_js=1";
+    // iframeUrl = iframeUrl;
+
+    // print(iframeUrl);
+
+    response = await session.get(
+      Uri.parse(iframeUrl),
+      headers: {...headers},
+    );
+    soup = html.parse(response.body); // 進到iframe
+    hiddenInput =
+        soup.querySelector('input[name="csrf-t"]')?.attributes['value'];
+    var titleInput =
+        soup.querySelector('input[name="title"]')?.attributes['value'];
+    print('hiddenInput: $hiddenInput');
+    print('title_input: $titleInput');
+
+    var finalUrl =
+        soup.querySelector('form[id="media-edit-form"]')!.attributes['action'];
+    // .replaceAll('https://flipclass.stust.edu.tw', '');
+
+    print('finalUrl: $finalUrl');
+
+    var formData = {
+      '_fmSubmit': 'yes',
+      'formVer': '3.0',
+      'formId': 'media-edit-form',
+      'action': 'submit',
+      'title': titleInput,
+      'content': '<div>$content</div>',
+      'csrf-t': hiddenInput
+    };
+
+    response = await session.post(
+        Uri.parse('https://flipclass.stust.edu.tw$finalUrl'),
+        headers: {...headers},
+        body: formData);
+
+    ///最終繳交
+
+    var isDoneresponse = await session.get(
+        //確認繳交
+        Uri.parse(href),
+        headers: {...headers, 'cookie': cookies});
+    var isDonesoup = html.parse(isDoneresponse.body);
+
+    // print(soup.outerHtml);
+    var doneButtonText = isDonesoup
+        .querySelector('div.text-center.fs-margin-default > a > span')
+        ?.text
+        .trim();
+    if (doneButtonText!.contains('檢視')) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<bool> deleteHomework() async {
+    // var homeworkCode = '';
+    var session = http.Client();
+    var response = await session
+        .get(Uri.parse('https://flipclass.stust.edu.tw/index/login'));
+    var soup = html.parse(response.body);
+
+    String? hiddenInput =
+        soup.querySelector('input[name="csrf-t"]')!.attributes['value']!;
+
+    var queryParameters = {
+      '_fmSubmit': 'yes',
+      'formVer': '3.0',
+      'formId': 'login_form',
+      'next': '/',
+      'act': 'kick',
+      'account': account,
+      'password': password,
+      'rememberMe': '',
+      'csrf-t': hiddenInput,
+    };
+
+    final uri =
+        Uri.https('flipclass.stust.edu.tw', '/index/login', queryParameters);
+
+    response = await session.get(uri);
+
+    var cookies = response.headers['set-cookie']!;
+
+    var headers = {
+      'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+      'cookie': cookies,
+    };
+
+    response = await session.get(
+      Uri.parse(href),
+      headers: {...headers},
+    );
+    soup = html.parse(response.body);
+
+    // print(soup.outerHtml);
+    var editUrl = soup
+        .querySelector('div.text-center.fs-margin-default > a')!
+        .attributes['href']!;
+
+    response = await session.get(
+      Uri.parse('https://flipclass.stust.edu.tw$editUrl'),
+      headers: {...headers},
+    );
+    soup = html.parse(response.body);
+
+    String extractURL(String htmlString) {
+      RegExp regExp = RegExp(r"fs\.post\('(.*?)',");
+      Match? match = regExp.firstMatch(htmlString);
+      return match?.group(1) ?? '';
+    }
+    // List scripts = soup.getElementsByTagName('script');
+
+    String url = extractURL(soup.outerHtml); //收回的URL
+    print('retrieve_url: $url');
+
+    Dio dio = Dio();
+
+    var Dioresponse = await dio.post(
+      'https://flipclass.stust.edu.tw$url',
+      options: Options(
+        // contentType: 'multipart/form-data',
+        followRedirects: true,
+        headers: {...headers},
+      ),
+    );
+
+    // RegExp regExp = RegExp(r'reportId=(\d+)&');
+    // Match? match = regExp.firstMatch(url);
+    // String? reportID = '';
+    // if (match != null) {
+    //   reportID = match.group(1);
+    //   print(reportID);
+    // } else {
+    //   print('No match found');
+    // }
+
+    response = await session.get(
+      Uri.parse('https://flipclass.stust.edu.tw$editUrl'),
+      headers: {...headers},
+    );
+
+    soup = html.parse(response.body);
+
+    // print(Dioresponse.data.toString());
+    // print(Dioresponse.data);
+    // print('soup: $soup');
+    // print('soup.outerHtml ${soup.outerHtml}');
+    List scripts = soup.getElementsByTagName('script');
+    print('scripts: $scripts');
+    String UrlPath = '';
+
+    var regExp = RegExp(
+        r'"/ajax/sys\.pages\.homework_report/deleteReport/\?id=\d+&_lock=id&ajaxAuth=\w+"');
+    // Match match = regExp.firstMatch(soup.outerHtml) as Match;
+
+    for (var script in scripts) {
+      // Get the JavaScript code.
+      String jsCode = script.innerHtml;
+      print('jsCode: $jsCode');
+      // Use the allMatches method to get all matches.
+
+      String? matchedString = regExp.stringMatch(jsCode);
+
+      // Remove the double quotes around the matched string.
+      if (matchedString != null) {
+        matchedString = matchedString.substring(1, matchedString.length - 1);
+        UrlPath = matchedString;
+      }
+
+      // print('UrlPath: $UrlPath');
+
+      // Iterable<RegExpMatch> matches = regExp.allMatches(jsCode);
+
+      // Extract the strings from the matches.
+      // for (RegExpMatch match in matches) {
+      //   String string = match.group(0)!;
+      //   // Split the string by the question mark '?'
+      //   List<String> splitString = string.split('?');
+
+      //   // Check if the split produced two parts
+      //   if (splitString.length == 2) {
+      //     String result = splitString[1];
+      //     UrlPath = result;
+      //   }
+
+      //   // print('secondUrlPath: $secondUrlPath');
+      // }
+    }
+    print('UrlPath: $UrlPath');
+
+    Dioresponse = await dio.post(
+      'https://flipclass.stust.edu.tw$UrlPath',
+      options: Options(
+        // contentType: 'multipart/form-data',
+        followRedirects: true,
+        headers: {...headers},
+      ),
+    ); // 刪除作業
+
+    // response = await session.post(
+    //   Uri.parse('https://flipclass.stust.edu.tw$UrlPath'),
+    //   headers: {...headers},
+    // );
+
+    var isDoneresponse = await session.get(
+        //確認繳交
+        Uri.parse(href),
+        headers: {...headers, 'cookie': cookies});
+    var isDonesoup = html.parse(isDoneresponse.body);
+
+    // bool isDone = false;
+    // print(soup.outerHtml);
+    var doneButtonText = isDonesoup
+        .querySelector('div.text-center.fs-margin-default > a > span')
+        ?.text
+        .trim();
+    if (!doneButtonText!.contains('檢視')) {
+      return true;
+    }
+    return false;
+  }
+
+  // void _showSendingDialog(context) {
+  //   showDialog(
+  //     context: context,
+  //     // barrierDismissible: false,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         shape:
+  //             RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+  //         content: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: const <Widget>[
+  //             CircularProgressIndicator(),
+  //             SizedBox(height: 16.0),
+  //             Text('正在送出...'),
+  //           ],
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
+
+  List<PlatformFile> filteredFiles = [];
+  // void openFiles(List<PlatformFile> files) {
+  //   show(files: files);
+  // }
+
+  Widget show({
+    List<PlatformFile>? filteredFiles,
+  }) {
+    return Scaffold(
+      body: ListView.builder(
+          itemCount: filteredFiles!.length,
+          itemBuilder: (context, index) {
+            final file = filteredFiles[index];
+            return SingleChildScrollView(child: buildFile(file));
+          }),
+    );
+  }
+
+  Widget buildFile(PlatformFile file) {
+    final kb = file.size / 1024;
+    final mb = kb / 1024;
+    final size = (mb >= 1)
+        ? '${mb.toStringAsFixed(2)} MB'
+        : '${kb.toStringAsFixed(2)} KB';
+    return InkWell(
+      onTap: () => null,
+      child: ListTile(
+        leading: (file.extension == 'jpg' || file.extension == 'png')
+            ? Image.file(
+                File(file.path.toString()),
+                width: 80,
+                height: 80,
+              )
+            : const SizedBox(
+                width: 80,
+                height: 80,
+              ),
+        title: Text(file.name),
+        subtitle: Text('${file.extension}'),
+        trailing: Text(
+          size,
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+      ),
+    );
+  }
+
+  dynamic _showSendBox() async {
+    TextEditingController controller = TextEditingController();
+    // controller.text = '輸入作業內容';
+    FilePickerResult? result;
+    bool isSent = false;
     showDialog(
         context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            insetPadding: const EdgeInsets.all(5),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-            content: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.8,
-              height: MediaQuery.of(context).size.height * 0.8,
-              child:  HtmlWidget('<iframe class="fs-modal-iframe" src="$iframe" frameborder="0" border="0" style="display: inline; height: 517px;"></iframe>')
-            ),
-            actions: [
-              TextButton(
-                child: const Text('關閉'),
-                onPressed: () => Navigator.of(context).pop(),
+        builder: (
+          BuildContext context,
+        ) {
+          return StatefulBuilder(// Add this
+              builder: (BuildContext context, StateSetter setState) {
+            // Modify this line
+            return AlertDialog(
+              insetPadding: const EdgeInsets.all(5),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              content: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.8,
+                height: MediaQuery.of(context).size.height * 0.95,
+                child: Column(
+                  children: <Widget>[
+                    SizedBox(
+                        height: 200,
+                        child: Expanded(
+                          child: TextFormField(
+                            textAlignVertical: TextAlignVertical.bottom,
+                            // style: TextStyle(
+                            //   color: Theme.of(context)
+                            //       .textTheme
+                            //       .bodySmall
+                            //       ?.color,
+                            //   fontSize: 20,
+                            //   height: 0.0,
+                            // ),
+                            cursorHeight: 24,
+                            enableInteractiveSelection: true,
+                            controller: controller,
+                            cursorColor: Colors.grey,
+                            // initialValue: 'Input text',
+                            expands: true,
+                            maxLines: null,
+                            // cursorHeight: 30,
+                            // expands: true,
+                            // maxLines: 5000,
+                            decoration: const InputDecoration(
+                              contentPadding: EdgeInsets.zero,
+                              floatingLabelAlignment:
+                                  FloatingLabelAlignment.center,
+                              // contentPadding:
+                              //     EdgeInsets.fromLTRB(10, 25, 10, 25),
+                              // icon: Icon(Icons.favorite),
+                              labelText: '作業內容',
+
+                              labelStyle: TextStyle(
+                                  color: Color(0xFF6200EE), fontSize: 24),
+                              // helperText: '輸入文字',
+                              // suffixIcon: Icon(
+                              //   Icons.check_circle,
+                              // ),
+                              enabledBorder: UnderlineInputBorder(
+                                borderSide:
+                                    BorderSide(color: Color(0xFF6200EE)),
+                              ),
+                            ),
+                          ),
+                        )),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    ElevatedButton(
+                      child: const Text('選取檔案(單個最大30MB 可多選)'),
+                      onPressed: () async {
+                        // result = await FilePicker.platform.pickFiles(
+                        //   type: FileType.any,
+                        //   // allowedExtensions: [
+                        //   //   'txt',
+                        //   //   'pdf',
+                        //   //   'jpg'
+                        //   // ], // adjust these as needed
+                        // );
+                        // print(result!.files);
+
+                        // if (result
+                        // != null) {
+                        //   PlatformFile file = result!.files.first;
+
+                        //   print(file.name);
+                        //   print(file.bytes);
+                        //   print(file.readStream);
+                        //   print(file.size);
+                        //   print(file.extension);
+                        //   print(file.path);
+                        // } else {
+                        //   // User canceled the picker
+                        // }
+                        result = await FilePicker.platform
+                            .pickFiles(allowMultiple: true);
+                        if (result == null) return;
+
+                        setState(() {
+                          // This will now rebuild the AlertDialog
+                          filteredFiles = result!.files
+                              .where((file) => file.size / 1024 / 1024 <= 30)
+                              .toList();
+
+                          // files = result.files;
+                        });
+                      },
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Expanded(child: show(filteredFiles: filteredFiles)),
+                  ],
+                ),
               ),
-            ],
-          );
+              actions: [
+                TextButton(
+                  child: const Text('Close'),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+                TextButton(
+                  child: const Text('送出'),
+                  onPressed: () async {
+                    // setState(() {
+                    //   isSending = true;
+                    // });
+                    showDialog(
+                      context: context,
+                      // barrierDismissible: false,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15)),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: const <Widget>[
+                              CircularProgressIndicator(),
+                              SizedBox(height: 16.0),
+                              Text('正在送出...'),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+
+                    if (result != null) {
+                      var finalFiles = filteredFiles;
+                      isSent = await sendHomeworkWithFiles(
+                          href, controller.text, finalFiles);
+                    } else {
+                      isSent =
+                          await sendHomeworkOnlyText(href, controller.text);
+                    }
+
+                    if (isSent) {
+                      Fluttertoast.showToast(
+                          msg: "繳交成功",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor:
+                              const Color.fromARGB(255, 81, 82, 81),
+                          textColor: const Color.fromARGB(255, 59, 154, 88),
+                          fontSize: 25.0);
+                    } else {
+                      Fluttertoast.showToast(
+                          msg: "繳交失敗",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.CENTER,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor:
+                              const Color.fromARGB(255, 81, 82, 81),
+                          textColor: const Color.fromARGB(255, 59, 154, 88),
+                          fontSize: 25.0);
+                    }
+                    if (!mounted) return;
+
+                    Navigator.pop(context);
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                const MyHomePage()));
+
+                    //   isSending = false;
+                    // });
+                  },
+                ),
+              ],
+            );
+          });
         });
+  }
+
+  String calculateRemainingTime(String dateString) {
+    if (dateString.isEmpty) {
+      return 'Invalid date';
+    }
+
+    DateFormat format = DateFormat("yyyy-MM-dd");
+    DateTime targetDate = format
+        .parse(dateString)
+        .add(const Duration(seconds: 86399)); // Add one day
+    DateTime now = DateTime.now();
+    Duration difference = targetDate.difference(now);
+    print(difference);
+    if (difference.inSeconds < 0) {
+      print('targetDate :$targetDate now :$now difference :$difference');
+      return '已過期';
+    } else if (difference.inDays < 1) {
+      return '${difference.inHours}小時';
+    } else {
+      return '${difference.inDays}天';
+    }
   }
 
   @override
@@ -742,6 +1473,147 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                                 }(),
                               ),
                             ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            if (attachmentName == "無")
+                              Padding(
+                                  padding: EdgeInsets.fromLTRB(
+                                      width * .3, 5, width * .3, 0),
+                                  child: InkWell(
+                                      onTap: () async {
+                                        if (calculateRemainingTime(
+                                                submissionDeadline!) ==
+                                            '已過期') {
+                                          return showDialog(
+                                            context: context,
+                                            // barrierDismissible: false,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            15)),
+                                                content: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: const <Widget>[
+                                                    CircularProgressIndicator(),
+                                                    SizedBox(height: 16.0),
+                                                    Text('功課已過期無法繳交'),
+                                                  ],
+                                                ),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                    },
+                                                    child: const Text('OK'),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+                                        }
+                                        if (isDone == '交作業') {
+                                          await _showSendBox();
+                                        } else {
+                                          if (!mounted) return;
+
+                                          showDialog(
+                                            context: context,
+                                            // barrierDismissible: false,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            15)),
+                                                content: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: const <Widget>[
+                                                    CircularProgressIndicator(),
+                                                    SizedBox(height: 16.0),
+                                                    Text('正在送出...'),
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                          );
+                                          final isDeleted =
+                                              await deleteHomework();
+
+                                          if (isDeleted) {
+                                            Fluttertoast.showToast(
+                                                msg: "刪除成功",
+                                                toastLength: Toast.LENGTH_SHORT,
+                                                gravity: ToastGravity.CENTER,
+                                                timeInSecForIosWeb: 1,
+                                                backgroundColor:
+                                                    const Color.fromARGB(
+                                                        255, 81, 82, 81),
+                                                textColor: const Color.fromARGB(
+                                                    255, 59, 154, 88),
+                                                fontSize: 16.0);
+                                          } else {
+                                            Fluttertoast.showToast(
+                                                msg: "刪除失敗",
+                                                toastLength: Toast.LENGTH_SHORT,
+                                                gravity: ToastGravity.CENTER,
+                                                timeInSecForIosWeb: 1,
+                                                backgroundColor:
+                                                    const Color.fromARGB(
+                                                        255, 81, 82, 81),
+                                                textColor: const Color.fromARGB(
+                                                    255, 59, 154, 88),
+                                                fontSize: 16.0);
+                                          }
+                                          if (!mounted) return;
+
+                                          Navigator.pop(context);
+                                          Navigator.pushReplacement(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder:
+                                                      (BuildContext context) =>
+                                                          const MyHomePage()));
+                                        } // var iframe = await sendHomework(href);
+
+                                        // iframe = '<iframe src="$iframe" frameborder="0" border="0" style="display: inline;"></iframe>';
+                                      },
+                                      child: SizedBox(
+                                          height: 45,
+                                          width: 150,
+                                          child: Card(
+                                            color: const Color.fromARGB(
+                                                255, 114, 142, 204),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                            ),
+                                            child: Center(
+                                              child: (isDone == '交作業')
+                                                  ? Text(
+                                                      isDone,
+                                                      style: const TextStyle(
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.w400),
+                                                    )
+                                                  : FittedBox(
+                                                      fit: BoxFit.cover,
+                                                      child: Text(isDone,
+                                                          style: const TextStyle(
+                                                              color:
+                                                                  Colors.white,
+                                                              fontSize: 13,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w400))),
+                                            ),
+                                          ))))
                             // if (attachmentName != "無")
                             //   const SizedBox(
                             //     height: 10,
@@ -815,33 +1687,152 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                                 ),
                               ),
                               if (attachmentBytes != null)
-                                Image.memory(attachmentBytes!)
+                                Image.memory(attachmentBytes!),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Padding(
+                                  padding: EdgeInsets.fromLTRB(
+                                      width * .3, 5, width * .3, 5),
+                                  child: InkWell(
+                                      onTap: () async {
+                                        if (calculateRemainingTime(
+                                                submissionDeadline!) ==
+                                            '已過期') {
+                                          return showDialog(
+                                            context: context,
+                                            // barrierDismissible: false,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            15)),
+                                                content: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: const <Widget>[
+                                                    CircularProgressIndicator(),
+                                                    SizedBox(height: 16.0),
+                                                    Text('功課已過期無法繳交'),
+                                                  ],
+                                                ),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                    },
+                                                    child: const Text('OK'),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+                                        }
+                                        if (isDone == '交作業') {
+                                          await _showSendBox();
+                                        } else {
+                                          if (!mounted) return;
+
+                                          showDialog(
+                                            context: context,
+                                            // barrierDismissible: false,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            15)),
+                                                content: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: const <Widget>[
+                                                    CircularProgressIndicator(),
+                                                    SizedBox(height: 16.0),
+                                                    Text('正在送出...'),
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                          );
+                                          final isDeleted =
+                                              await deleteHomework();
+                                          if (isDeleted) {
+                                            Fluttertoast.showToast(
+                                                msg: "刪除成功",
+                                                toastLength: Toast.LENGTH_SHORT,
+                                                gravity: ToastGravity.CENTER,
+                                                timeInSecForIosWeb: 1,
+                                                backgroundColor:
+                                                    const Color.fromARGB(
+                                                        255, 81, 82, 81),
+                                                textColor: const Color.fromARGB(
+                                                    255, 59, 154, 88),
+                                                fontSize: 16.0);
+                                          } else {
+                                            Fluttertoast.showToast(
+                                                msg: "刪除失敗",
+                                                toastLength: Toast.LENGTH_SHORT,
+                                                gravity: ToastGravity.CENTER,
+                                                timeInSecForIosWeb: 1,
+                                                backgroundColor:
+                                                    const Color.fromARGB(
+                                                        255, 81, 82, 81),
+                                                textColor: const Color.fromARGB(
+                                                    255, 59, 154, 88),
+                                                fontSize: 16.0);
+                                          }
+                                          if (!mounted) return;
+
+                                          Navigator.pop(context);
+                                          Navigator.pushReplacement(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder:
+                                                      (BuildContext context) =>
+                                                          const MyHomePage()));
+                                        }
+                                        // var iframe = await sendHomework(href);
+
+                                        // iframe = '<iframe src="$iframe" frameborder="0" border="0" style="display: inline;"></iframe>';
+                                      },
+                                      child: SizedBox(
+                                          height: 50,
+                                          width: 150,
+                                          child: Card(
+                                            color: const Color.fromARGB(
+                                                255, 114, 142, 204),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                            ),
+                                            child: Center(
+                                              child: (isDone == '交作業')
+                                                  ? Text(
+                                                      isDone,
+                                                      style: const TextStyle(
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.w400),
+                                                    )
+                                                  : FittedBox(
+                                                      fit: BoxFit.cover,
+                                                      child: Text(isDone,
+                                                          style: const TextStyle(
+                                                              color:
+                                                                  Colors.white,
+                                                              fontSize: 13,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w400))),
+                                            ),
+                                          ))))
                             ],
                           ),
                         ),
                       ),
                     ),
-                  Padding(
-                      padding:
-                          EdgeInsets.fromLTRB(width * .35, 5, width * .35, 5),
-                      child: InkWell(
-                        onTap: () async {
-                          var iframe = await sendHomework(href);
-                          
-                          iframe = '<iframe src="$iframe" frameborder="0" border="0" style="display: inline;"></iframe>';
-                          await _showIframe(iframe);
-                        },
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.send,
-                            ),
-                          ),
-                        ),
-                      ))
                 ],
               )
             : const Center(child: CircularProgressIndicator()),

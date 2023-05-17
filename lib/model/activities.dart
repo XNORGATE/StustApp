@@ -27,7 +27,8 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
     // print(widget.topic);
     return InkWell(
       onTap: () {
-        launchUrl(Uri.parse(widget.href),mode: LaunchMode.externalNonBrowserApplication);
+        launchUrl(Uri.parse(widget.href),
+            mode: LaunchMode.externalNonBrowserApplication);
       },
       child: Padding(
           padding: const EdgeInsets.only(right: 10),

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
 
 import 'package:shared_preferences/shared_preferences.dart';
 // ignore: depend_on_referenced_packages
+import '../utils/check_connecion.dart';
 import './home_work_detail.dart';
 // import 'package:html/dom.dart';
 
@@ -29,16 +32,41 @@ class _HomeworkPageState extends State<HomeworkPage>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    List<Map<String, String?>> responseData = [];
-    _getlocal_UserData().then((data) {
-      _account = data[0];
-      _password = data[1];
 
-      setState(() {});
+    checkNetwork().then((isConnected) {
+      if (isConnected == false) {
+        return showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              title: const Text('偵測不到網路連線，請檢查網路連線後再試一次'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    // Navigator.of(context).pop();
+                    // SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                    FlutterExitApp.exitApp();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+      WidgetsBinding.instance.addObserver(this);
+      List<Map<String, String?>> responseData = [];
+      _getlocal_UserData().then((data) {
+        _account = data[0];
+        _password = data[1];
+
+        setState(() {});
+      });
+
+      _submitForm();
     });
-
-    _submitForm();
   }
 
   @override
@@ -292,192 +320,188 @@ class _HomeworkPageState extends State<HomeworkPage>
               child: CircularProgressIndicator(),
             )
           : ListView.builder(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            itemCount: _responseData.length,
-            // separatorBuilder: (context, index) => const Divider(
-            //   height: 5,
-            //   indent: 8,
-            //   endIndent: 8,
-            // ),
-            itemBuilder: (context, index) {
-              final data = _responseData[index];
-              // bool isStringTooLong = data['topic']!.length > 13;
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              itemCount: _responseData.length,
+              // separatorBuilder: (context, index) => const Divider(
+              //   height: 5,
+              //   indent: 8,
+              //   endIndent: 8,
+              // ),
+              itemBuilder: (context, index) {
+                final data = _responseData[index];
+                // bool isStringTooLong = data['topic']!.length > 13;
 
-              return InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                                    const HomeWorkDetailPage(),
-                      settings: RouteSettings(arguments: {
-                        'topic': data['topic'],
-                        'src': data['src'],
-                        'href': data['href'],
-                        'account': _account,
-                        'password': _password,
-                      }),
-                    ),
-                  );
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                                vertical: 1.5, horizontal: 8),
-                  child: Card(
-                      shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8)),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                                      vertical: 8, horizontal: 8),
-                        child: Column(
-                          children: [
-                            Row(
-                              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                              children: [
-                                // Text(
-                                //   extractMonthAndDay(data['date']!),
-                                //   style: const TextStyle(
-                                //     fontSize: 18.0,
-                                //     fontWeight: FontWeight.bold,
-                                //   ),
-                                // ),
-                                // const SizedBox(
-                                //   width: 20,
-                                // ),
+                return InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HomeWorkDetailPage(),
+                        settings: RouteSettings(arguments: {
+                          'topic': data['topic'],
+                          'src': data['src'],
+                          'href': data['href'],
+                          'account': _account,
+                          'password': _password,
+                        }),
+                      ),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 1.5, horizontal: 8),
+                    child: Card(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 8, horizontal: 8),
+                          child: Column(
+                            children: [
+                              Row(
+                                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  // Text(
+                                  //   extractMonthAndDay(data['date']!),
+                                  //   style: const TextStyle(
+                                  //     fontSize: 18.0,
+                                  //     fontWeight: FontWeight.bold,
+                                  //   ),
+                                  // ),
+                                  // const SizedBox(
+                                  //   width: 20,
+                                  // ),
 
-                                data['isDone'] == '未繳交'
-                                    ? const Icon(
-                                        Icons.assignment,
-                                        size: 18,
-                                        color: Color.fromARGB(
-                                                      255, 243, 29, 29),
-                                      )
-                                    : const Icon(
-                                        Icons.done,
-                                        size: 18,
-                                        color: Color.fromARGB(
-                                                      255, 11, 167, 245),
-                                      ),
-                                const SizedBox(
-                                  width: 3,
-                                ),
-                                Text(
-                                  data['isDone']
-                                                    ?.replaceAll("交", "") ??
-                                                "",
-                                  strutStyle: const StrutStyle(
-                                    forceStrutHeight: true,
-                                    leading: 0.5,
+                                  data['isDone'] == '未繳交'
+                                      ? const Icon(
+                                          Icons.assignment,
+                                          size: 18,
+                                          color:
+                                              Color.fromARGB(255, 243, 29, 29),
+                                        )
+                                      : const Icon(
+                                          Icons.done,
+                                          size: 18,
+                                          color:
+                                              Color.fromARGB(255, 11, 167, 245),
+                                        ),
+                                  const SizedBox(
+                                    width: 3,
                                   ),
-                                ),
-
-                                Container(
-                                  width: 3,
-                                  height: 3,
-                                  margin: const EdgeInsets.all(6),
-                                  decoration: BoxDecoration(
-                                                color: Colors.black,
-                                                borderRadius:
-                                                    BorderRadius.circular(99)),
-                                  child: const SizedBox.shrink(),
-                                ),
-                                Text(
-                                  data['src']!,
-                                  strutStyle: const StrutStyle(
-                                    forceStrutHeight: true,
-                                    leading: 0.5,
+                                  Text(
+                                    data['isDone']?.replaceAll("交", "") ?? "",
+                                    strutStyle: const StrutStyle(
+                                      forceStrutHeight: true,
+                                      leading: 0.5,
+                                    ),
                                   ),
-                                )
-                                // Text(
-                                //   "${extractMonthAndDay(data['date']!)} 前",
-                                //   strutStyle: const StrutStyle(
-                                //     forceStrutHeight: true,
-                                //     leading: 0.5,
-                                //   ),
-                                // ),
-                                // Container(
-                                //   width: 3,
-                                //   height: 3,
-                                //   margin: const EdgeInsets.all(8),
-                                //   decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(99)),
-                                //   child: const SizedBox.shrink(),
-                                // ),
-                                // if (data['isDone'] == '未繳交')
-                                //   Text(
-                                //     '剩下${data['remain']}',
-                                //     strutStyle: const StrutStyle(
-                                //       forceStrutHeight: true,
-                                //       leading: 0.5,
-                                //     ),
-                                //   ),
-                              ],
-                            ),
-                            // Text(
-                            //   data['src']!,
-                            //   style: const TextStyle(
-                            //     fontSize: 15.0,
-                            //     // fontWeight: FontWeight.bold,
-                            //   ),
-                            // ),
-                            Text(
-                              data['topic']!,
-                              style: const TextStyle(
-                                // overflow: TextOverflow.ellipsis,
-                                fontSize: 18.0,
-                                fontWeight: FontWeight.bold,
+
+                                  Container(
+                                    width: 3,
+                                    height: 3,
+                                    margin: const EdgeInsets.all(6),
+                                    decoration: BoxDecoration(
+                                        color: Colors.black,
+                                        borderRadius:
+                                            BorderRadius.circular(99)),
+                                    child: const SizedBox.shrink(),
+                                  ),
+                                  Text(
+                                    data['src']!,
+                                    strutStyle: const StrutStyle(
+                                      forceStrutHeight: true,
+                                      leading: 0.5,
+                                    ),
+                                  )
+                                  // Text(
+                                  //   "${extractMonthAndDay(data['date']!)} 前",
+                                  //   strutStyle: const StrutStyle(
+                                  //     forceStrutHeight: true,
+                                  //     leading: 0.5,
+                                  //   ),
+                                  // ),
+                                  // Container(
+                                  //   width: 3,
+                                  //   height: 3,
+                                  //   margin: const EdgeInsets.all(8),
+                                  //   decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(99)),
+                                  //   child: const SizedBox.shrink(),
+                                  // ),
+                                  // if (data['isDone'] == '未繳交')
+                                  //   Text(
+                                  //     '剩下${data['remain']}',
+                                  //     strutStyle: const StrutStyle(
+                                  //       forceStrutHeight: true,
+                                  //       leading: 0.5,
+                                  //     ),
+                                  //   ),
+                                ],
                               ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Row(
-                              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  flex: 3,
-                                  child: Text(
-                                    '期限: ${data['submissionDeadline']}',
-                                    style: const TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 13.0,
-                                      fontWeight: FontWeight.w400,
+                              // Text(
+                              //   data['src']!,
+                              //   style: const TextStyle(
+                              //     fontSize: 15.0,
+                              //     // fontWeight: FontWeight.bold,
+                              //   ),
+                              // ),
+                              Text(
+                                data['topic']!,
+                                style: const TextStyle(
+                                  // overflow: TextOverflow.ellipsis,
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              Row(
+                                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    flex: 3,
+                                    child: Text(
+                                      '期限: ${data['submissionDeadline']}',
+                                      style: const TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 13.0,
+                                        fontWeight: FontWeight.w400,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                Expanded(
-                                  flex: 2,
-                                  child: Text(
-                                    '已交: ${data['numberOfSubmissions']}',
-                                    style: const TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 13.0,
-                                      fontWeight: FontWeight.w400,
+                                  Expanded(
+                                    flex: 2,
+                                    child: Text(
+                                      '已交: ${data['numberOfSubmissions']}',
+                                      style: const TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 13.0,
+                                        fontWeight: FontWeight.w400,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                Expanded(
-                                  flex: 2,
-                                  child: Text(
-                                    '剩餘: ${data['remain']}',
-                                    style: const TextStyle(
-                                      color: Colors.grey,
-                                      fontSize: 13.0,
-                                      fontWeight: FontWeight.w400,
+                                  Expanded(
+                                    flex: 2,
+                                    child: Text(
+                                      '剩餘: ${data['remain']}',
+                                      style: const TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 13.0,
+                                        fontWeight: FontWeight.w400,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      )),
-                ),
-              );
-            },
-          ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        )),
+                  ),
+                );
+              },
+            ),
       bottomNavigationBar: BottomNavigationBar(
         selectedFontSize: 12.0,
         backgroundColor: Colors.green[200],
@@ -510,8 +534,7 @@ class _HomeworkPageState extends State<HomeworkPage>
                 return;
               }
               // Navigator.of(context).pushNamedAndRemoveUntil('/bulletins',ModalRoute.withName('/home'));
-              Navigator.pushNamed(
-                  context, '/bulletins');
+              Navigator.pushNamed(context, '/bulletins');
               break;
           }
         },
@@ -532,10 +555,9 @@ class _HomeworkPageState extends State<HomeworkPage>
           //     icon: const Icon(IconData(0xe328, fontFamily: 'MaterialIcons')))
         ],
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () =>               Navigator.pushNamedAndRemoveUntil(
-                  context, '/', (route) => false)
-        ),
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.pushNamedAndRemoveUntil(
+                context, '/', (route) => false)),
       ),
     );
   }

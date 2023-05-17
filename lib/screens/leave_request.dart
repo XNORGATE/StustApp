@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as html_parser;
 import 'dart:convert';
@@ -7,6 +8,7 @@ import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stust_app/utils/dialog_utils.dart';
 import '../main.dart';
+import '../utils/check_connecion.dart';
 
 class AbsentPage extends StatefulWidget {
   static const routeName = '/absent';
@@ -28,22 +30,49 @@ class _AbsentPageState extends State<AbsentPage> {
   @override
   void initState() {
     super.initState();
-    _responseData = [];
-    _getlocal_UserData().then((data) {
-      _account = data[0];
-      _password = data[1];
-      //print(_account);
-      //print(_password);
 
-      setState(() {});
+    checkNetwork().then((isConnected) {
+      if (isConnected == false) {
+        return showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              title: const Text('偵測不到網路連線，請檢查網路連線後再試一次'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    // Navigator.of(context).pop();
+                    // SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                    FlutterExitApp.exitApp();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+
+      _responseData = [];
+      _getlocal_UserData().then((data) {
+        _account = data[0];
+        _password = data[1];
+        //print(_account);
+        //print(_password);
+
+        setState(() {});
+      });
     });
   }
+
   @override
   void dispose() {
     http.Client().close();
     super.dispose();
   }
-  
+
   void _showAlertDialog(dynamic soup) {
     showDialog(
       context: context,
@@ -268,9 +297,6 @@ class _AbsentPageState extends State<AbsentPage> {
             key: _formKey,
             child: Column(
               children: [
-                const SizedBox(
-                  height: 50,
-                ),
                 // TextButton(
                 //   onPressed: _submitForm,
                 //   child: const Text(

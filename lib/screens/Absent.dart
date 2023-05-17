@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as html_parser;
 import 'dart:convert';
@@ -10,6 +12,7 @@ import 'package:stust_app/utils/dialog_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';
+import '../utils/check_connecion.dart';
 
 class LeaveRequestPage extends StatefulWidget {
   static const routeName = '/leave_request';
@@ -25,21 +28,46 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  bool isSending = false;
+
   late String _account = '0'; // Set account and password to 0 by default
   late String _password = '0';
 
   @override
   void initState() {
     super.initState();
-    _getlocal_UserData().then((data) {
-      _account = data[0];
-      _password = data[1];
+    checkNetwork().then((isConnected) {
+      if (isConnected == false) {
+        return showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              title: const Text('偵測不到網路連線，請檢查網路連線後再試一次'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    // Navigator.of(context).pop();
+                    // SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                    FlutterExitApp.exitApp();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
 
-      setState(() {});
+      _getlocal_UserData().then((data) {
+        _account = data[0];
+        _password = data[1];
+
+        setState(() {});
+      });
     });
   }
-
-
 
   _getlocal_UserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -77,7 +105,10 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                       height: MediaQuery.of(context).size.height * 0.8,
                       child: FittedBox(
                         fit: BoxFit.scaleDown,
-                        child: HtmlWidget(soup.outerHtml,textStyle: const TextStyle(fontSize: 50),),
+                        child: HtmlWidget(
+                          soup.outerHtml,
+                          textStyle: const TextStyle(fontSize: 50),
+                        ),
                       ),
                     ),
                     actions: [
@@ -98,6 +129,10 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (BuildContext context) => super.widget));
               },
               child: const Text('OK'),
             ),
@@ -128,9 +163,9 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
     );
   }
 
-  void _hideSendingDialog() {
-    Navigator.popUntil(context, ModalRoute.withName('leave_request'));
-  }
+  // void _hideSendingDialog() {
+  //   Navigator.popUntil(context, ModalRoute.withName('leave_request'));
+  // }
 
   int dateToWeekDay(String dateText) {
     String formattedDateText = dateText.replaceAll(RegExp(r'[^\d/]'), '');
@@ -323,8 +358,8 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
     // print(section);
     // print(day);
 
-    setState(() {});
-    _showSendingDialog();
+    // setState(() {});
+    // _showSendingDialog();
 
     try {
       // // Make POST request to the API
@@ -460,7 +495,9 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                     weekElement?.text.trim() == week &&
                     (i - 1).toString() == section) {
                   // print('成功');
-                  setState(() {});
+                  setState(() {
+                    isSending = false;
+                  });
                   // _hideSendingDialog();
 
                   _showAlertDialog('請假成功', link, soup);
@@ -470,16 +507,16 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                     (i - 1).toString() == section) {
                   // print('成功 假單: $link');
                   setState(() {
-                    // Navigator.of(context).pop();
+                    isSending = false;
                   });
                   // _hideSendingDialog();
                   _showAlertDialog('請假成功', link, soup);
                 } else {
                   // print('失敗');
                   setState(() {
-                    // Navigator.of(context).pop();
+                    isSending = false;
                   });
-                  _hideSendingDialog();
+                  // _hideSendingDialog();
                   // Navigator.of(context).pop();
                   showDialogBox(context, '此操作未達成，請重試');
                 }
@@ -596,7 +633,8 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                                     padding: const EdgeInsets.all(8.0),
                                     child: Text(
                                       data['reason']!,
-                                      style: const TextStyle(fontSize: 16),
+                                      style: const TextStyle(
+                                          fontSize: 16, color: Colors.red),
                                     ),
                                   ),
                                 ),
@@ -605,7 +643,8 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                               TableCell(
                                 child: IconButton(
                                   icon: const Icon(Icons.assignment,
-                                      color: Colors.black, size: 30),
+                                      color: Color.fromARGB(255, 92, 90, 90),
+                                      size: 30),
                                   onPressed: () {
                                     if (_responseData.indexOf(data) == 0) {
                                       showDialogBox(context,
@@ -678,24 +717,31 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                                                         },
                                                         child: const Text('取消'),
                                                       ),
-                                                      ElevatedButton(
-                                                        onPressed: () async {
-                                                          Navigator.of(context)
-                                                              .pop();
-                                                          // Handle the form submission
-                                                          await _sendleave_request(
-                                                              data['week']
-                                                                  .toString(),
-                                                              absentType,
-                                                              absentReason,
-                                                              data['section']
-                                                                  .toString(),
-                                                              dateToWeekDay(data[
-                                                                      'date']!)
-                                                                  .toString());
-                                                        },
-                                                        child: const Text('送出'),
-                                                      ),
+                                                      isSending
+                                                          ? const CircularProgressIndicator()
+                                                          : ElevatedButton(
+                                                              onPressed:
+                                                                  () async {
+                                                                isSending =
+                                                                    true;
+                                                                // Handle the form submission
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop();
+                                                                await _sendleave_request(
+                                                                    data['week']
+                                                                        .toString(),
+                                                                    absentType,
+                                                                    absentReason,
+                                                                    data['section']
+                                                                        .toString(),
+                                                                    dateToWeekDay(
+                                                                            data['date']!)
+                                                                        .toString());
+                                                              },
+                                                              child: const Text(
+                                                                  '送出'),
+                                                            ),
                                                     ],
                                                   ),
                                                 ],
@@ -913,7 +959,6 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
         },
       ),
       appBar: AppBar(
-        
         backgroundColor: const Color.fromARGB(181, 65, 218, 190),
         automaticallyImplyLeading: false,
         centerTitle: true,

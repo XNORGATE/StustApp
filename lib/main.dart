@@ -1,3 +1,4 @@
+import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:flutter_neumorphic_null_safety/flutter_neumorphic.dart';
 import 'package:stust_app/screens/home_work.dart';
 import 'package:stust_app/screens/leave_request.dart';
@@ -5,6 +6,7 @@ import 'package:stust_app/screens/Bulletins.dart';
 import 'package:stust_app/screens/Absent.dart';
 import 'package:stust_app/screens/Reflection.dart';
 import 'package:stust_app/screens/Send_homework.dart';
+import 'package:stust_app/utils/check_connecion.dart';
 import './login/login_page.dart';
 import 'package:stust_app/constats/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,7 +22,7 @@ import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as html_parser;
 import 'dart:math';
 import './model/restuarent.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+// import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 // const homeworkTask = "flipclass_homework";
@@ -92,7 +94,7 @@ Future<void> main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  NotificationService().initNotification();
+  // NotificationService().initNotification();
   // var notistatus = await Permission.notification.status;
   var mediaLibrarystatus = await Permission.mediaLibrary.status;
   var photosstatus = await Permission.photos.status;
@@ -158,8 +160,8 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: '南台通Beta v1.0',
       themeMode: ThemeMode.light,
-      theme:  const NeumorphicThemeData(
-        baseColor: Color.fromARGB(255, 236,236,236),
+      theme: const NeumorphicThemeData(
+        baseColor: Color.fromARGB(255, 236, 236, 236),
         lightSource: LightSource.topLeft,
         depth: 10,
       ),
@@ -291,38 +293,64 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
 
-    getFoodList().then((data) {
-      setState(() {
-        StustAppFoodList = data;
-        // print(StustAppFoodList);
-        _isLoading = false;
+    checkNetwork().then((isConnected) {
+      if (isConnected == false) {
+        return showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              title: const Text('偵測不到網路連線，請檢查網路連線後再試一次'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    // Navigator.of(context).pop();
+                    // SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                    FlutterExitApp.exitApp();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+
+      getFoodList().then((data) {
+        setState(() {
+          StustAppFoodList = data;
+          // print(StustAppFoodList);
+          _isLoading = false;
+        });
       });
+
+      getActivitiesList().then((data) {
+        setState(() {
+          StustActivitiesList = data;
+          // print(StustActivitiesList);
+          _isActivitesLoading = false;
+        });
+      });
+      // );
+      // try {
+      //   final res = getFoodList();
+
+      //   setState(() {
+      //     StustAppFoodList = res as List<Map<String, String>>;
+      //     print(StustAppFoodList);
+
+      //     _isLoading = false;
+      //   });
+      // } catch (e) {
+      //   setState(() {
+      //     _isLoading = false;
+      //     showDialogBox(context, e.toString());
+      //   });
+      // }
+      getProfile();
     });
 
-    getActivitiesList().then((data) {
-      setState(() {
-        StustActivitiesList = data;
-        // print(StustActivitiesList);
-        _isActivitesLoading = false;
-      });
-    });
-    // );
-    // try {
-    //   final res = getFoodList();
-
-    //   setState(() {
-    //     StustAppFoodList = res as List<Map<String, String>>;
-    //     print(StustAppFoodList);
-
-    //     _isLoading = false;
-    //   });
-    // } catch (e) {
-    //   setState(() {
-    //     _isLoading = false;
-    //     showDialogBox(context, e.toString());
-    //   });
-    // }
-    getProfile();
     // NotificationService()
     //     .showNotification(title: 'Sample title', body: 'It works!');
   }
@@ -332,7 +360,6 @@ class _MyHomePageState extends State<MyHomePage> {
     session.close();
     super.dispose();
   }
-
 
   getProfile() async {
     Map<String, String> values = await getValuesFromSharedPreferences();
@@ -425,7 +452,6 @@ class _MyHomePageState extends State<MyHomePage> {
     // final random = Random();
     // StustActivitiesList.shuffle(random); // randomize the order of the list
 
-
     return StustActivitiesList;
   }
 
@@ -438,8 +464,11 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         centerTitle: true,
 
-        backgroundColor:  Colors.green[200],
-        title: const Text('南台通首頁',style: TextStyle(fontSize: 20,fontWeight: FontWeight.normal),),
+        backgroundColor: Colors.green[200],
+        title: const Text(
+          '南台通首頁',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal),
+        ),
         // actions: const[
         //   Icon(Icons.shopping_bag_outlined),
         //   SizedBox(width: 10,)
@@ -612,8 +641,8 @@ class _MyHomePageState extends State<MyHomePage> {
                             Navigator.push(
                                 context,
                                 PageTransition(
-                                    type: PageTransitionType
-                                        .leftToRightWithFade,
+                                    type:
+                                        PageTransitionType.leftToRightWithFade,
                                     child: const StudentPortfolioPage()));
                           },
                           child: Container(
@@ -657,8 +686,8 @@ class _MyHomePageState extends State<MyHomePage> {
                             Navigator.push(
                                 context,
                                 PageTransition(
-                                    type: PageTransitionType
-                                        .leftToRightWithFade,
+                                    type:
+                                        PageTransitionType.leftToRightWithFade,
                                     child: const StudentMiscPage()));
                           },
                           child: Container(
@@ -737,9 +766,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Text(
                 '校園活動',
                 style: TextStyle(
-                    color: Color(0xff323232),
-                    fontSize: 17.5,
-                    fontFamily: Bold),
+                    color: Color(0xff323232), fontSize: 17.5, fontFamily: Bold),
               ),
             ),
             Padding(
@@ -1525,33 +1552,33 @@ class UserAvatar extends StatelessWidget {
 //     );
 //   }
 // }
-class NotificationService {
-  final FlutterLocalNotificationsPlugin notificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+// class NotificationService {
+//   final FlutterLocalNotificationsPlugin notificationsPlugin =
+//       FlutterLocalNotificationsPlugin();
 
-  Future<void> initNotification() async {
-    AndroidInitializationSettings initializationSettingsAndroid =
-        const AndroidInitializationSettings('@mipmap/ic_launcher');
+//   Future<void> initNotification() async {
+//     AndroidInitializationSettings initializationSettingsAndroid =
+//         const AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    var initializationSettings = InitializationSettings(
-      android: initializationSettingsAndroid,
-    );
-    await notificationsPlugin.initialize(
-      initializationSettings,
-    );
-  }
+//     var initializationSettings = InitializationSettings(
+//       android: initializationSettingsAndroid,
+//     );
+//     await notificationsPlugin.initialize(
+//       initializationSettings,
+//     );
+//   }
 
-  notificationDetails() {
-    return const NotificationDetails(
-      android: AndroidNotificationDetails(
-          'default_notification_channel_id', 'Default',
-          importance: Importance.max),
-    );
-  }
+//   notificationDetails() {
+//     return const NotificationDetails(
+//       android: AndroidNotificationDetails(
+//           'default_notification_channel_id', 'Default',
+//           importance: Importance.max),
+//     );
+//   }
 
-  Future showNotification(
-      {int id = 0, String? title, String? body, String? payLoad}) async {
-    return notificationsPlugin.show(
-        id, title, body, await notificationDetails());
-  }
-}
+//   Future showNotification(
+//       {int id = 0, String? title, String? body, String? payLoad}) async {
+//     return notificationsPlugin.show(
+//         id, title, body, await notificationDetails());
+//   }
+// }
