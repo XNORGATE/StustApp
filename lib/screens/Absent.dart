@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as html_parser;
@@ -7,11 +6,12 @@ import 'dart:convert';
 import 'package:convert/convert.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:page_transition/page_transition.dart';
+import 'package:stust_app/screens/leave_request.dart';
 import 'package:stust_app/utils/dialog_utils.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../main.dart';
 import '../utils/check_connecion.dart';
 
 class LeaveRequestPage extends StatefulWidget {
@@ -25,8 +25,8 @@ class LeaveRequestPage extends StatefulWidget {
 }
 
 class _LeaveRequestPageState extends State<LeaveRequestPage> {
-  final _formKey = GlobalKey<FormState>();
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  // final _formKey = GlobalKey<FormState>();
+  // final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   bool isSending = false;
 
@@ -339,10 +339,10 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
         _isLoading = false;
       });
     } catch (e) {
-      setState(() {
-        _isLoading = false;
-        showDialogBox(context, e.toString());
-      });
+      // setState(() {
+      //   _isLoading = false;
+      //   showDialogBox(context, e.toString());
+      // });
     }
     // }
   }
@@ -551,183 +551,178 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
       body: Stack(
         children: [
-          Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                const SizedBox(
-                  height: 50,
-                ),
-                // TextButton(
-                //   onPressed: _submitForm,
-                //   child: const Text(
-                //     '查詢',
-                //     style: TextStyle(fontSize: 30),
-                //   ),
-                // ),
-                if (_responseData != null)
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Table(
-                        columnWidths: const {
-                          0: FlexColumnWidth(),
-                          1: FlexColumnWidth(),
-                          2: FlexColumnWidth(),
-                          3: FlexColumnWidth(),
-                        },
-                        children: _responseData.map((data) {
-                          return TableRow(
-                            decoration: const BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(
-                                  width: 3,
-                                  color: Colors.grey,
+          Column(
+            children: [
+              const SizedBox(
+                height: 50,
+              ),
+              // TextButton(
+              //   onPressed: _submitForm,
+              //   child: const Text(
+              //     '查詢',
+              //     style: TextStyle(fontSize: 30),
+              //   ),
+              // ),
+              if (_responseData != null)
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Table(
+                      columnWidths: const {
+                        0: FlexColumnWidth(),
+                        1: FlexColumnWidth(),
+                        2: FlexColumnWidth(),
+                        3: FlexColumnWidth(),
+                      },
+                      children: _responseData.map((data) {
+                        return TableRow(
+                          decoration: const BoxDecoration(
+                            border: Border(
+                              bottom: BorderSide(
+                                width: 3,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                          children: [
+                            TableCell(
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  data['date']!,
+                                  style: const TextStyle(fontSize: 16),
                                 ),
                               ),
                             ),
-                            children: [
-                              TableCell(
+                            TableCell(
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  data['week'].toString(),
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                              ),
+                            ),
+                            TableCell(
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  data['section'].toString(),
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                              ),
+                            ),
+                            TableCell(
+                              child: InkWell(
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Text(
-                                    data['date']!,
+                                    data['lesson']!,
                                     style: const TextStyle(fontSize: 16),
                                   ),
                                 ),
                               ),
-                              TableCell(
+                            ),
+                            TableCell(
+                              child: InkWell(
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Text(
-                                    data['week'].toString(),
-                                    style: const TextStyle(fontSize: 16),
+                                    data['reason']!,
+                                    style: const TextStyle(
+                                        fontSize: 16, color: Colors.red),
                                   ),
                                 ),
                               ),
-                              TableCell(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    data['section'].toString(),
-                                    style: const TextStyle(fontSize: 16),
-                                  ),
-                                ),
-                              ),
-                              TableCell(
-                                child: InkWell(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                      data['lesson']!,
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              TableCell(
-                                child: InkWell(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                      data['reason']!,
-                                      style: const TextStyle(
-                                          fontSize: 16, color: Colors.red),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              // if (_responseData.indexOf(data) == 0)
-                              TableCell(
-                                child: IconButton(
-                                  icon: const Icon(Icons.assignment,
-                                      color: Color.fromARGB(255, 92, 90, 90),
-                                      size: 30),
-                                  onPressed: () {
-                                    if (_responseData.indexOf(data) == 0) {
-                                      showDialogBox(context,
-                                          '1.此系統僅提供事假/病假申請\n2.所有請假需在缺課1個月內完成申請\n3.此表格僅會顯示已被紀錄缺席之課堂\n4.若缺課無出現表示已超過請假時限或已完成請假');
-                                    } else {
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return Dialog(
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(16.0),
-                                              child: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  const Text(
-                                                    '送出假單:',
-                                                    style: TextStyle(
-                                                        fontSize: 18.0,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                  ),
-                                                  const SizedBox(height: 16.0),
-                                                  Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      SelectorWidget(
-                                                        labelText: '假別',
-                                                        options: const [
-                                                          '事假',
-                                                          '病假'
-                                                        ],
-                                                        onChanged: (value) {
-                                                          // Handle the value change
-                                                          if (value == '病假') {
-                                                            absentType = '3';
-                                                          } else {
-                                                            absentType = '4';
-                                                          }
-                                                        },
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  const SizedBox(height: 16.0),
-                                                  TextField(
-                                                    decoration:
-                                                        const InputDecoration(
-                                                      hintText: '請假事由',
-                                                      border:
-                                                          OutlineInputBorder(),
+                            ),
+                            // if (_responseData.indexOf(data) == 0)
+                            TableCell(
+                              child: IconButton(
+                                icon: const Icon(Icons.assignment,
+                                    color: Color.fromARGB(255, 92, 90, 90),
+                                    size: 30),
+                                onPressed: () {
+                                  if (_responseData.indexOf(data) == 0) {
+                                    showDialogBox(context,
+                                        '1.此系統僅提供事假/病假申請\n2.所有請假需在缺課1個月內完成申請\n3.此表格僅會顯示已被紀錄缺席之課堂\n4.若缺課無出現表示已超過請假時限或已完成請假');
+                                  } else {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return Dialog(
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(16.0),
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                const Text(
+                                                  '送出假單:',
+                                                  style: TextStyle(
+                                                      fontSize: 18.0,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                                const SizedBox(height: 16.0),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    SelectorWidget(
+                                                      labelText: '假別',
+                                                      options: const [
+                                                        '事假',
+                                                        '病假'
+                                                      ],
+                                                      onChanged: (value) {
+                                                        // Handle the value change
+                                                        if (value == '病假') {
+                                                          absentType = '3';
+                                                        } else {
+                                                          absentType = '4';
+                                                        }
+                                                      },
                                                     ),
-                                                    onChanged: (value) {
-                                                      absentReason = value;
-                                                      // Handle the value change
-                                                    },
+                                                  ],
+                                                ),
+                                                const SizedBox(height: 16.0),
+                                                TextField(
+                                                  decoration:
+                                                      const InputDecoration(
+                                                    hintText: '請假事由',
+                                                    border:
+                                                        OutlineInputBorder(),
                                                   ),
-                                                  const SizedBox(height: 16.0),
-                                                  Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.end,
-                                                    children: [
-                                                      TextButton(
-                                                        onPressed: () {
-                                                          Navigator.of(context)
-                                                              .pop();
-                                                        },
-                                                        child: const Text('取消'),
-                                                      ),
-                                                      isSending
-                                                          ? const CircularProgressIndicator()
-                                                          : ElevatedButton(
-                                                              onPressed:
-                                                                  () async {
-                                                                isSending =
-                                                                    true;
-                                                                // Handle the form submission
-                                                                Navigator.of(
-                                                                        context)
-                                                                    .pop();
+                                                  onChanged: (value) {
+                                                    absentReason = value;
+                                                    // Handle the value change
+                                                  },
+                                                ),
+                                                const SizedBox(height: 16.0),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.end,
+                                                  children: [
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                      },
+                                                      child: const Text('取消'),
+                                                    ),
+                                                    isSending
+                                                        ? const CircularProgressIndicator()
+                                                        : ElevatedButton(
+                                                            onPressed:
+                                                                () async {
+                                                              isSending = true;
+                                                              // Handle the form submission
+                                                              Navigator.of(
+                                                                      context)
+                                                                  .pop();
+                                                              try {
                                                                 await _sendleave_request(
                                                                     data['week']
                                                                         .toString(),
@@ -738,31 +733,31 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                                                                     dateToWeekDay(
                                                                             data['date']!)
                                                                         .toString());
-                                                              },
-                                                              child: const Text(
-                                                                  '送出'),
-                                                            ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
+                                                              } catch (e) {}
+                                                            },
+                                                            child: const Text(
+                                                                '送出'),
+                                                          ),
+                                                  ],
+                                                ),
+                                              ],
                                             ),
-                                          );
-                                        },
-                                      );
-                                    }
-                                    // ...
-                                  },
-                                ),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  }
+                                  // ...
+                                },
                               ),
-                            ],
-                          );
-                        }).toList(),
-                      ),
+                            ),
+                          ],
+                        );
+                      }).toList(),
                     ),
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
           if (_isLoading)
             const Center(
@@ -933,67 +928,132 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
       //         ),
       //       )
       //     ]),
-      bottomNavigationBar: BottomNavigationBar(
+            bottomNavigationBar: BottomNavigationBar(
+        selectedFontSize: 12.0,
+        backgroundColor: const Color.fromARGB(255, 117, 149, 120),
         type: BottomNavigationBarType.shifting,
         showSelectedLabels: true,
         showUnselectedLabels: true,
         items: const [
           BottomNavigationBarItem(
               icon: Icon(Icons.assignment),
-              label: '假單查詢',
-              backgroundColor: Color.fromARGB(181, 65, 218, 190)),
+              label: '請假系統',
+              backgroundColor: Color.fromARGB(255, 117, 149, 120),),
           BottomNavigationBarItem(
               icon: Icon(Icons.format_list_bulleted),
               label: '缺曠紀錄',
-              backgroundColor: Color.fromARGB(181, 65, 218, 190)),
+              backgroundColor: Color.fromARGB(255, 117, 149, 120),),
         ],
         onTap: (int index) {
           switch (index) {
             case 0:
-              Navigator.of(context).pushNamed('/absent');
+              if (ModalRoute.of(context)?.settings.name == '/absent') {
+                return;
+              }
+              // Navigator.of(context).pushReplacementNamed('/homework');
+              // // Navigator.of(context).pushNamedAndRemoveUntil('/homework',ModalRoute.withName('/home'));
+              // // Navigator.pushNamedAndRemoveUntil(
+              // //     context, '/homework', (route) => false);
               break;
+              
             case 1:
-              Navigator.of(context).pushNamed('/leave_request');
-              break;
+              // if (ModalRoute.of(context)?.settings.name == '/leave_request') {
+              //   return;
+              // }
+              // Navigator.of(context).pushNamedAndRemoveUntil('/bulletins',ModalRoute.withName('/home'));
+                  Navigator.push(
+                      context,
+                      PageTransition(
+                          type: PageTransitionType.rightToLeftWithFade,
+                          child: const AbsentPage()));              break;
           }
         },
       ),
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(181, 65, 218, 190),
+        backgroundColor: const Color.fromARGB(255, 117, 149, 120),
         automaticallyImplyLeading: false,
         centerTitle: true,
-        title: const Text('缺曠紀錄及請假(e網通)'),
-        actions: [
-          IconButton(
-              iconSize: 35,
-              padding: const EdgeInsets.only(right: 20),
-              onPressed: () async {
-                Navigator.pushNamedAndRemoveUntil(
-                    context, MyHomePage.routeName, (route) => false);
-              },
-              icon: const Icon(IconData(0xe328, fontFamily: 'MaterialIcons')))
-          // NeumorphicButton(
-          //   child: Icon(Icons.exit_to_app_outlined),
-          //   style: NeumorphicStyle(
-          //       shape: NeumorphicShape.concave,
-          //       boxShape:
-          //           NeumorphicBoxShape.roundRect(BorderRadius.circular(50)),
-          //       depth: 3,
-          //       color: Color.fromARGB(255, 212, 69, 76)),
-          //   drawSurfaceAboveChild: false,
-          //   margin: EdgeInsets.fromLTRB(0.0, 10.0, 15.0, 10.0),
-          //   //padding: EdgeInsets.only(bottom: 1),
-
-          // ),
+        title: const Text('請假'),
+        actions: const [
+          // IconButton(
+          //     iconSize: 35,
+          //     padding: const EdgeInsets.only(right: 20),
+          //     onPressed: () async {
+          //       Navigator.pushNamedAndRemoveUntil(
+          //           context, MyHomePage.routeName, (route) => false);
+          //     },
+          //     icon: const Icon(IconData(0xe328, fontFamily: 'MaterialIcons')))
         ],
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.pushNamedAndRemoveUntil(
+                context, '/', (route) => false)),
       ),
     );
   }
 }
+
+//       bottomNavigationBar: BottomNavigationBar(
+//         type: BottomNavigationBarType.shifting,
+//         showSelectedLabels: true,
+//         showUnselectedLabels: true,
+//         items: const [
+//           BottomNavigationBarItem(
+//               icon: Icon(Icons.assignment),
+//               label: '假單查詢',
+//               backgroundColor: Color.fromARGB(181, 65, 218, 190)),
+//           BottomNavigationBarItem(
+//               icon: Icon(Icons.format_list_bulleted),
+//               label: '缺曠紀錄',
+//               backgroundColor: Color.fromARGB(181, 65, 218, 190)),
+//         ],
+//         onTap: (int index) {
+//           switch (index) {
+//             case 0:
+//               Navigator.of(context).pushNamed('/absent');
+//               break;
+//             case 1:
+//               Navigator.of(context).pushNamed('/leave_request');
+//               break;
+//           }
+//         },
+//       ),
+//       appBar: AppBar(
+//         backgroundColor: const Color.fromARGB(181, 65, 218, 190),
+//         automaticallyImplyLeading: false,
+//         centerTitle: true,
+//         title: const Text('缺曠紀錄及請假(e網通)'),
+//         actions: [
+//           IconButton(
+//               iconSize: 35,
+//               padding: const EdgeInsets.only(right: 20),
+//               onPressed: () async {
+//                 Navigator.pushNamedAndRemoveUntil(
+//                     context, MyHomePage.routeName, (route) => false);
+//               },
+//               icon: const Icon(IconData(0xe328, fontFamily: 'MaterialIcons')))
+//           // NeumorphicButton(
+//           //   child: Icon(Icons.exit_to_app_outlined),
+//           //   style: NeumorphicStyle(
+//           //       shape: NeumorphicShape.concave,
+//           //       boxShape:
+//           //           NeumorphicBoxShape.roundRect(BorderRadius.circular(50)),
+//           //       depth: 3,
+//           //       color: Color.fromARGB(255, 212, 69, 76)),
+//           //   drawSurfaceAboveChild: false,
+//           //   margin: EdgeInsets.fromLTRB(0.0, 10.0, 15.0, 10.0),
+//           //   //padding: EdgeInsets.only(bottom: 1),
+
+//           // ),
+//         ],
+//         leading: IconButton(
+//           icon: const Icon(Icons.arrow_back),
+//           onPressed: () => Navigator.of(context).pop(),
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 /////////////////////////////////////////////////
 

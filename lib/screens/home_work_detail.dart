@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/services.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 
 import '../main.dart';
@@ -80,7 +81,11 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
         );
       }
 
-      _homeworkFuture = getHomework();
+      try {
+        _homeworkFuture = getHomework();
+      } catch (e) {
+        print(e);
+      }
     });
   }
 
@@ -292,9 +297,11 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
     }
 
     // sleep(const Duration(seconds: 1));
-    setState(() {
-      isLoaded = true;
-    });
+    try {
+      setState(() {
+        isLoaded = true;
+      });
+    } catch (e) {}
   }
 
   Future<dynamic> sendHomeworkWithFiles(
@@ -969,6 +976,8 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                     // setState(() {
                     //   isSending = true;
                     // });
+                    EasyLoading.init();
+                    EasyLoading.instance.userInteractions = false;
                     showDialog(
                       context: context,
                       // barrierDismissible: false,
@@ -990,11 +999,19 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
 
                     if (result != null) {
                       var finalFiles = filteredFiles;
-                      isSent = await sendHomeworkWithFiles(
-                          href, controller.text, finalFiles);
+                      try {
+                        isSent = await sendHomeworkWithFiles(
+                            href, controller.text, finalFiles);
+                      } catch (e) {
+                        print(e);
+                      }
                     } else {
-                      isSent =
-                          await sendHomeworkOnlyText(href, controller.text);
+                      try {
+                        isSent =
+                            await sendHomeworkOnlyText(href, controller.text);
+                      } catch (e) {
+                        print(e);
+                      }
                     }
 
                     if (isSent) {
@@ -1007,6 +1024,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                               const Color.fromARGB(255, 81, 82, 81),
                           textColor: const Color.fromARGB(255, 59, 154, 88),
                           fontSize: 25.0);
+                      EasyLoading.instance.userInteractions = true;
                     } else {
                       Fluttertoast.showToast(
                           msg: "繳交失敗",
@@ -1017,6 +1035,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                               const Color.fromARGB(255, 81, 82, 81),
                           textColor: const Color.fromARGB(255, 59, 154, 88),
                           fontSize: 25.0);
+                      EasyLoading.instance.userInteractions = true;
                     }
                     if (!mounted) return;
 
@@ -1520,7 +1539,9 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                                           await _showSendBox();
                                         } else {
                                           if (!mounted) return;
-
+                                          EasyLoading.init();
+                                          EasyLoading.instance
+                                              .userInteractions = false;
                                           showDialog(
                                             context: context,
                                             // barrierDismissible: false,
@@ -1542,43 +1563,53 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                                               );
                                             },
                                           );
-                                          final isDeleted =
-                                              await deleteHomework();
+                                          try {
+                                            final isDeleted =
+                                                await deleteHomework();
 
-                                          if (isDeleted) {
-                                            Fluttertoast.showToast(
-                                                msg: "刪除成功",
-                                                toastLength: Toast.LENGTH_SHORT,
-                                                gravity: ToastGravity.CENTER,
-                                                timeInSecForIosWeb: 1,
-                                                backgroundColor:
-                                                    const Color.fromARGB(
-                                                        255, 81, 82, 81),
-                                                textColor: const Color.fromARGB(
-                                                    255, 59, 154, 88),
-                                                fontSize: 16.0);
-                                          } else {
-                                            Fluttertoast.showToast(
-                                                msg: "刪除失敗",
-                                                toastLength: Toast.LENGTH_SHORT,
-                                                gravity: ToastGravity.CENTER,
-                                                timeInSecForIosWeb: 1,
-                                                backgroundColor:
-                                                    const Color.fromARGB(
-                                                        255, 81, 82, 81),
-                                                textColor: const Color.fromARGB(
-                                                    255, 59, 154, 88),
-                                                fontSize: 16.0);
-                                          }
-                                          if (!mounted) return;
+                                            if (isDeleted) {
+                                              Fluttertoast.showToast(
+                                                  msg: "刪除成功",
+                                                  toastLength:
+                                                      Toast.LENGTH_SHORT,
+                                                  gravity: ToastGravity.CENTER,
+                                                  timeInSecForIosWeb: 1,
+                                                  backgroundColor:
+                                                      const Color.fromARGB(
+                                                          255, 81, 82, 81),
+                                                  textColor:
+                                                      const Color.fromARGB(
+                                                          255, 59, 154, 88),
+                                                  fontSize: 16.0);
+                                              EasyLoading.instance
+                                                  .userInteractions = true;
+                                            } else {
+                                              Fluttertoast.showToast(
+                                                  msg: "刪除失敗",
+                                                  toastLength:
+                                                      Toast.LENGTH_SHORT,
+                                                  gravity: ToastGravity.CENTER,
+                                                  timeInSecForIosWeb: 1,
+                                                  backgroundColor:
+                                                      const Color.fromARGB(
+                                                          255, 81, 82, 81),
+                                                  textColor:
+                                                      const Color.fromARGB(
+                                                          255, 59, 154, 88),
+                                                  fontSize: 16.0);
+                                              EasyLoading.instance
+                                                  .userInteractions = true;
+                                            }
+                                            if (!mounted) return;
 
-                                          Navigator.pop(context);
-                                          Navigator.pushReplacement(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder:
-                                                      (BuildContext context) =>
-                                                          const MyHomePage()));
+                                            Navigator.pop(context);
+                                            Navigator.pushReplacement(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (BuildContext
+                                                            context) =>
+                                                        const MyHomePage()));
+                                          } catch (e) {}
                                         } // var iframe = await sendHomework(href);
 
                                         // iframe = '<iframe src="$iframe" frameborder="0" border="0" style="display: inline;"></iframe>';
@@ -1673,7 +1704,9 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                                         'https://flipclass.stust.edu.tw$attachmentUrl'),
                                     mode: LaunchMode
                                         .externalNonBrowserApplication),
-                                child: Row(
+                                child: FittedBox(
+                                    fit: BoxFit.contain,
+                                    child: Row(
                                   children: [
                                     const Icon(Icons.file_present),
                                     Text(
@@ -1685,6 +1718,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                                     ),
                                   ],
                                 ),
+                                )
                               ),
                               if (attachmentBytes != null)
                                 Image.memory(attachmentBytes!),
@@ -1734,7 +1768,9 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                                           await _showSendBox();
                                         } else {
                                           if (!mounted) return;
-
+                                          EasyLoading.init();
+                                          EasyLoading.instance
+                                              .userInteractions = false;
                                           showDialog(
                                             context: context,
                                             // barrierDismissible: false,
@@ -1756,42 +1792,52 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                                               );
                                             },
                                           );
-                                          final isDeleted =
-                                              await deleteHomework();
-                                          if (isDeleted) {
-                                            Fluttertoast.showToast(
-                                                msg: "刪除成功",
-                                                toastLength: Toast.LENGTH_SHORT,
-                                                gravity: ToastGravity.CENTER,
-                                                timeInSecForIosWeb: 1,
-                                                backgroundColor:
-                                                    const Color.fromARGB(
-                                                        255, 81, 82, 81),
-                                                textColor: const Color.fromARGB(
-                                                    255, 59, 154, 88),
-                                                fontSize: 16.0);
-                                          } else {
-                                            Fluttertoast.showToast(
-                                                msg: "刪除失敗",
-                                                toastLength: Toast.LENGTH_SHORT,
-                                                gravity: ToastGravity.CENTER,
-                                                timeInSecForIosWeb: 1,
-                                                backgroundColor:
-                                                    const Color.fromARGB(
-                                                        255, 81, 82, 81),
-                                                textColor: const Color.fromARGB(
-                                                    255, 59, 154, 88),
-                                                fontSize: 16.0);
-                                          }
-                                          if (!mounted) return;
+                                          try {
+                                            final isDeleted =
+                                                await deleteHomework();
+                                            if (isDeleted) {
+                                              Fluttertoast.showToast(
+                                                  msg: "刪除成功",
+                                                  toastLength:
+                                                      Toast.LENGTH_SHORT,
+                                                  gravity: ToastGravity.CENTER,
+                                                  timeInSecForIosWeb: 1,
+                                                  backgroundColor:
+                                                      const Color.fromARGB(
+                                                          255, 81, 82, 81),
+                                                  textColor:
+                                                      const Color.fromARGB(
+                                                          255, 59, 154, 88),
+                                                  fontSize: 16.0);
+                                              EasyLoading.instance
+                                                  .userInteractions = true;
+                                            } else {
+                                              Fluttertoast.showToast(
+                                                  msg: "刪除失敗",
+                                                  toastLength:
+                                                      Toast.LENGTH_SHORT,
+                                                  gravity: ToastGravity.CENTER,
+                                                  timeInSecForIosWeb: 1,
+                                                  backgroundColor:
+                                                      const Color.fromARGB(
+                                                          255, 81, 82, 81),
+                                                  textColor:
+                                                      const Color.fromARGB(
+                                                          255, 59, 154, 88),
+                                                  fontSize: 16.0);
+                                              EasyLoading.instance
+                                                  .userInteractions = true;
+                                            }
+                                            if (!mounted) return;
 
-                                          Navigator.pop(context);
-                                          Navigator.pushReplacement(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder:
-                                                      (BuildContext context) =>
-                                                          const MyHomePage()));
+                                            Navigator.pop(context);
+                                            Navigator.pushReplacement(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (BuildContext
+                                                            context) =>
+                                                        const MyHomePage()));
+                                          } catch (e) {}
                                         }
                                         // var iframe = await sendHomework(href);
 
@@ -1833,6 +1879,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                         ),
                       ),
                     ),
+
                 ],
               )
             : const Center(child: CircularProgressIndicator()),

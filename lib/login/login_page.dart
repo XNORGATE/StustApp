@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -75,7 +74,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
     }
   }
 
-  final formKey = GlobalKey<FormState>();
+  // final formKey = GlobalKey<FormState>();
   late String _account;
   late String _password;
   bool _isLoading = false;

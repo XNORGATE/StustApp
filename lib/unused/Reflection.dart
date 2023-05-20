@@ -1,31 +1,31 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_html/flutter_html.dart';
+import 'dart:convert';
 import 'package:stust_app/screens/home_work.dart';
 import 'package:stust_app/screens/leave_request.dart';
 import 'package:stust_app/screens/Bulletins.dart';
 import 'package:stust_app/screens/Absent.dart';
-import 'package:stust_app/screens/Reflection.dart';
+// import 'package:stust_app/screens/Send_homework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:stust_app/rwd_module/responsive.dart';
+import 'package:stust_app/utils/check_connecion.dart';
 
 import '../main.dart';
-import '../utils/check_connecion.dart';
 
-class SendHomeworkPage extends StatefulWidget {
-  static const routeName = '/send_homework';
+class ReflectionPage extends StatefulWidget {
+  static const routeName = '/reflection';
 
-  const SendHomeworkPage({super.key});
+  const ReflectionPage({super.key});
   @override
   // ignore: library_private_types_in_public_api
-  _SendHomeworkPageState createState() => _SendHomeworkPageState();
+  _ReflectionPageState createState() => _ReflectionPageState();
 }
 
-class _SendHomeworkPageState extends State<SendHomeworkPage> {
-  final _formKey = GlobalKey<FormState>();
-  late String _content;
-  late String _homeworkCode;
+class _ReflectionPageState extends State<ReflectionPage> {
+  // final _formKey = GlobalKey<FormState>();
+  // final _scaffoldKey = GlobalKey<ScaffoldState>();
+
   late String _account = '0'; // Set account and password to 0 by default
   late String _password = '0';
   @override
@@ -70,12 +70,8 @@ class _SendHomeworkPageState extends State<SendHomeworkPage> {
 
   _getlocal_UserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.getString('account') != null) {
-      _account = prefs.getString('account')!;
-    }
-    if (prefs.getString('password') != null) {
-      _password = prefs.getString('password')!;
-    }
+    _account = prefs.getString('account')!;
+    _password = prefs.getString('password')!;
 
     return [_account, _password];
   }
@@ -84,15 +80,17 @@ class _SendHomeworkPageState extends State<SendHomeworkPage> {
   late bool _isLoading = false; // Flag to indicate if API request is being made
 
   void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      setState(() => _isLoading = true);
+
+
+      setState(() {
+        _isLoading = true;
+      });
 
       // Make POST request to the API
       http
           .get(
         Uri.parse(
-            'http://api.xnor-development.com:70/send_homework?account=$_account&password=$_password&content=$_content&homework_code=$_homeworkCode'),
+            'http://api.xnor-development.com:70/reflection?account=$_account&password=$_password'),
       )
           .then((response) {
         final responseData = json.decode(response.body) as List;
@@ -101,87 +99,122 @@ class _SendHomeworkPageState extends State<SendHomeworkPage> {
           _responseData = responseData;
           _isLoading = false;
         });
-        // Get the first item in the list (there should only be one item)
-        final data = responseData[0];
-        // Display alert dialog with response data
-        _showAlertDialog(data['text'], data['href']);
       });
-    }
+    
   }
 
-  void _showAlertDialog(String text, String href) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          title: Text(text),
-          content: Html(
-            data: '<a href="$href">查看作業</a>',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  // late List _responseData;
+  // late bool _loading = false; // Flag to indicate if API request is being made
+
+  // void _submitForm() {
+  //   if (_formKey.currentState!.validate()) {
+  //     _formKey.currentState!.save();
+
+  //     setState(() {
+  //       _loading = true; // Set loading flag to true
+  //     });
+
+  //     // Make POST request to the API
+  //     http.post(
+  //       Uri.parse('http://api.xnor-development.com:70/reflection'),
+  //       body: {
+  //         'account': _account,
+  //         'password': _password,
+  //       },
+  //     ).then((response) {
+  //       // Parse response body into a list of maps
+  //       final responseData = json.decode(response.body) as List;
+  //       setState(() {
+  //         _responseData = responseData;
+  //         _loading = false; // Set loading flag to false
+  //       });
+  //       // Handle response from the API here
+  //       // Display alert dialog to the user
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                // Content input
-                TextFormField(
-                  onSaved: (value) {
-                    _content = value!;
-                  },
-                  decoration: const InputDecoration(labelText: '作業內容'),
-                  validator: (value) => value!.isEmpty ? '作業內容' : null,
-                ),
-                // Homework code input
-                TextFormField(
-                  onSaved: (value) {
-                    _homeworkCode = value!;
-                  },
-                  decoration:
-                      const InputDecoration(labelText: '作業代碼，可於作業查詢中查到'),
-                  validator: (value) =>
-                      value!.isEmpty ? '作業代碼，可於作業查詢中查到' : null,
-                ),
-                const SizedBox(
-                  height: 50,
-                ),
-                TextButton(
-                  onPressed: _submitForm,
-                  child: const Text(
-                    '送出',
-                    style: TextStyle(fontSize: 30),
-                  ),
-                ),
-              ],
+      body:  Column(
+          children: [
+            const SizedBox(
+              height: 50,
             ),
-          ),
-          Positioned(
-            child: _isLoading ? const CircularProgressIndicator() : Container(),
-          ),
-        ],
-      ),
+            TextButton(
+              onPressed: _submitForm,
+              child: const Text(
+                '查詢',
+                style: TextStyle(fontSize: 30),
+              ),
+            ),
+            if (_isLoading)
+              // Display loading indicator
+              const CircularProgressIndicator(),
+            if (_responseData != null)
+              // Week input
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _responseData.length,
+                  itemBuilder: (context, index) {
+                    final data = _responseData[index];
+                    return Column(
+                      children: [
+                        TextFormField(
+                          initialValue: data['date'],
+                          decoration: const InputDecoration(
+                            labelText: '日期',
+                          ),
+                        ),
+                        TextFormField(
+                          initialValue: data['event_title'],
+                          decoration: const InputDecoration(
+                            labelText: '活動標題',
+                          ),
+                        ),
+                        TextFormField(
+                          initialValue: data['event_type'],
+                          decoration: const InputDecoration(
+                            labelText: '類別',
+                          ),
+                        ),
+                        TextFormField(
+                          initialValue: data['host_td'],
+                          decoration: const InputDecoration(
+                            labelText: '主辦單位',
+                          ),
+                        ),
+                        TextFormField(
+                          initialValue: data['position'],
+                          decoration: const InputDecoration(
+                            labelText: '地點',
+                          ),
+                        ),
+                        TextFormField(
+                          initialValue: data['score'],
+                          decoration: const InputDecoration(
+                            labelText: '獲得分數',
+                          ),
+                        ),
+                        TextFormField(
+                          initialValue: data['semester'],
+                          decoration: const InputDecoration(
+                            labelText: '學期',
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              )
+          ],
+        ),
+      
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.shifting,
-        showSelectedLabels: true,
-        showUnselectedLabels: false,
+        showSelectedLabels: false,
+        showUnselectedLabels: isMobile(context) ? false : true,
         items: const [
           BottomNavigationBarItem(
               icon: Icon(Icons.assignment),
@@ -226,7 +259,7 @@ class _SendHomeworkPageState extends State<SendHomeworkPage> {
               Navigator.of(context).pushNamed(LeaveRequestPage.routeName);
               break;
             case 5:
-              Navigator.of(context).pushNamed(SendHomeworkPage.routeName);
+              // Navigator.of(context).pushNamed(SendHomeworkPage.routeName);
               break;
           }
         },
@@ -235,7 +268,7 @@ class _SendHomeworkPageState extends State<SendHomeworkPage> {
         backgroundColor: const Color.fromARGB(181, 65, 218, 190),
         automaticallyImplyLeading: false,
         centerTitle: true,
-        title: const Text('快速繳交作業(flipclass)'),
+        title: const Text('查詢未繳心得(e網通)'),
         actions: [
           IconButton(
               iconSize: 35,

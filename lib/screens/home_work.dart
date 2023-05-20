@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
+import 'package:page_transition/page_transition.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:stust_app/screens/Bulletins.dart';
 // ignore: depend_on_referenced_packages
 import '../utils/check_connecion.dart';
 import './home_work_detail.dart';
@@ -22,9 +24,9 @@ class HomeworkPage extends StatefulWidget {
 
 class _HomeworkPageState extends State<HomeworkPage>
     with WidgetsBindingObserver {
-  final _formKey = GlobalKey<FormState>();
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
-  bool _cancelToken = false;
+  // final _formKey = GlobalKey<FormState>();
+  // final _scaffoldKey = GlobalKey<ScaffoldState>();
+  // bool _cancelToken = false;
 
   late String _account = '0'; // Set account and password to 0 by default
   late String _password = '0';
@@ -56,8 +58,13 @@ class _HomeworkPageState extends State<HomeworkPage>
           },
         );
       }
-      WidgetsBinding.instance.addObserver(this);
-      List<Map<String, String?>> responseData = [];
+      EZconfigLoading();
+      EasyLoading.init();
+
+      EasyLoading.instance.userInteractions = false;
+
+      // WidgetsBinding.instance.addObserver(this);
+      // List<Map<String, String?>> responseData = [];
       _getlocal_UserData().then((data) {
         _account = data[0];
         _password = data[1];
@@ -71,8 +78,8 @@ class _HomeworkPageState extends State<HomeworkPage>
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    _cancelToken = true;
+    // WidgetsBinding.instance.removeObserver(this);
+    // _cancelToken = true;
     // http.Client().close();
     super.dispose();
   }
@@ -86,6 +93,21 @@ class _HomeworkPageState extends State<HomeworkPage>
         state == AppLifecycleState.paused) {
       // Disable controls when the page is inactive or paused
     }
+  }
+
+  void EZconfigLoading() {
+    EasyLoading.instance
+      ..displayDuration = const Duration(milliseconds: 1500)
+      ..indicatorType = EasyLoadingIndicatorType.rotatingCircle
+      ..loadingStyle = EasyLoadingStyle.dark
+      ..indicatorSize = 45.0
+      ..radius = 10.0
+      ..progressColor = Colors.yellow
+      ..backgroundColor = Colors.green
+      ..indicatorColor = Colors.yellow
+      ..textColor = Colors.yellow
+      ..maskColor = Colors.blue.withOpacity(0.5)
+      ..userInteractions = true;
   }
 
   _getlocal_UserData() async {
@@ -267,17 +289,22 @@ class _HomeworkPageState extends State<HomeworkPage>
           });
         }
 
-        if (mounted && !_cancelToken) {
-          try {
-            setState(() {
-              _responseData = newData;
-            });
-          } catch (e) {
-            setState(() {
-              _responseData = newData;
-            });
-          }
-        }
+        // if (mounted && !_cancelToken) {
+        //   try {
+        //     setState(() {
+        //       _responseData = newData;
+        //     });
+        //   } catch (e) {
+        //     setState(() {
+        //       _responseData = newData;
+        //     });
+        //   }
+        // }
+        try {
+          setState(() {
+            _responseData = newData;
+          });
+        } catch (e) {}
         homeworkPage++;
         genHomework(homeworkPage);
       }
@@ -292,29 +319,21 @@ class _HomeworkPageState extends State<HomeworkPage>
       _isLoading = true;
     });
 
-    _cancelToken = false;
+    // _cancelToken = false;
     try {
       final responseData = await getHomework();
-      if (mounted && !_cancelToken) {
-        setState(() {
-          _responseData = responseData;
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted && !_cancelToken) {
-        setState(() {
-          _isLoading = false;
-          _showAlertDialog(e.toString(), e.toString());
-        });
-      }
-    }
+      setState(() {
+        _responseData = responseData;
+        _isLoading = false;
+        EasyLoading.instance.userInteractions = true;
+      });
+    } catch (e) {}
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
+      // key: _scaffoldKey,
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(),
@@ -504,7 +523,7 @@ class _HomeworkPageState extends State<HomeworkPage>
             ),
       bottomNavigationBar: BottomNavigationBar(
         selectedFontSize: 12.0,
-        backgroundColor: Colors.green[200],
+        backgroundColor: const Color.fromARGB(255, 117, 149, 120),
         type: BottomNavigationBarType.shifting,
         showSelectedLabels: true,
         showUnselectedLabels: true,
@@ -512,11 +531,11 @@ class _HomeworkPageState extends State<HomeworkPage>
           BottomNavigationBarItem(
               icon: Icon(Icons.assignment),
               label: '最新作業',
-              backgroundColor: Color.fromARGB(181, 65, 218, 190)),
+              backgroundColor: Color.fromARGB(255, 117, 149, 120),),
           BottomNavigationBarItem(
               icon: Icon(Icons.format_list_bulleted),
               label: '最新公告',
-              backgroundColor: Color.fromARGB(181, 65, 218, 190)),
+              backgroundColor: Color.fromARGB(255, 117, 149, 120),),
         ],
         onTap: (int index) {
           switch (index) {
@@ -530,17 +549,21 @@ class _HomeworkPageState extends State<HomeworkPage>
               // //     context, '/homework', (route) => false);
               break;
             case 1:
-              if (ModalRoute.of(context)?.settings.name == '/bulletins') {
-                return;
-              }
+              // if (ModalRoute.of(context)?.settings.name == '/bulletins') {
+              //   return;
+              // }
               // Navigator.of(context).pushNamedAndRemoveUntil('/bulletins',ModalRoute.withName('/home'));
-              Navigator.pushNamed(context, '/bulletins');
+              Navigator.push(
+                  context,
+                  PageTransition(
+                      type: PageTransitionType.rightToLeftWithFade,
+                      child: const BulletinsPage()));
               break;
           }
         },
       ),
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(181, 65, 218, 190),
+        backgroundColor:  const Color.fromARGB(255, 117, 149, 120),
         automaticallyImplyLeading: false,
         centerTitle: true,
         title: const Text('查詢最近作業(flipclass)'),

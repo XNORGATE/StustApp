@@ -7,7 +7,6 @@ import 'package:html/parser.dart' as html_parser;
 import 'package:photo_view/photo_view.dart';
 import '../utils/check_connecion.dart';
 import '../utils/html_utils.dart';
-import 'package:stust_app/utils/dialog_utils.dart';
 
 import 'dart:convert';
 import 'package:convert/convert.dart';
@@ -54,6 +53,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
   @override
   void initState() {
     super.initState();
+      _tabController = TabController(length: 4, vsync: this);
 
     checkNetwork().then((isConnected) {
       if (isConnected == false) {
@@ -88,7 +88,6 @@ class _StudentMiscPageState extends State<StudentMiscPage>
         _submit();
       });
 
-      _tabController = TabController(length: 4, vsync: this);
     });
   }
 
@@ -295,10 +294,10 @@ class _StudentMiscPageState extends State<StudentMiscPage>
         totalcredit = res.totalcredit;
       });
     } catch (e) {
-      setState(() {
-        _isLoading = false;
-        showDialogBox(context, e.toString());
-      });
+      // setState(() {
+      //   _isLoading = false;
+      //   showDialogBox(context, e.toString());
+      // });
     }
     // }
   }
@@ -348,10 +347,11 @@ class _StudentMiscPageState extends State<StudentMiscPage>
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(181, 65, 218, 190),
+        backgroundColor: const Color.fromARGB(255, 117, 149, 120),
         title: const Text('學生其他事項'),
         bottom: TabBar(
           controller: _tabController,
+          dividerColor: Colors.white,
           // isScrollable: true,
           tabs: const [
             // Tab(text: '缺曠明細'),
@@ -451,7 +451,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
                         extractHtmlContent(foreignTestData.outerHtml, 'div',
                             className: 'conplace', index: 0),
                         // onTapUrl: (url) => launchUrl(Uri.parse(url)),
-                        textStyle: const TextStyle(fontSize: 15.1),
+                        textStyle: const TextStyle(fontSize: 12.75,fontWeight: FontWeight.w400),
                       ),
                     ),
                   ],
@@ -640,7 +640,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
                     extractHtmlContent(departmentOfficeData.outerHtml, 'div',
                         className: 'conplace', index: 0),
                     // textStyle: const TextStyle(fontSize: 50),
-                    textStyle: const TextStyle(fontSize: 7),
+                    textStyle: const TextStyle(fontSize: 7,fontWeight: FontWeight.w400),
                   ),
                 ),
               ],

@@ -1,17 +1,20 @@
 import 'package:flutter_exit_app/flutter_exit_app.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_neumorphic_null_safety/flutter_neumorphic.dart';
+import 'package:stust_app/screens/create_activities.dart';
 import 'package:stust_app/screens/home_work.dart';
 import 'package:stust_app/screens/leave_request.dart';
 import 'package:stust_app/screens/Bulletins.dart';
 import 'package:stust_app/screens/Absent.dart';
-import 'package:stust_app/screens/Reflection.dart';
-import 'package:stust_app/screens/Send_homework.dart';
+// import 'package:stust_app/unused/Reflection.dart';
+// import 'package:stust_app/unused/Send_homework.dart';
 import 'package:stust_app/utils/check_connecion.dart';
 import './login/login_page.dart';
 import 'package:stust_app/constats/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
 import 'model/activities.dart';
+import 'model/student_activities.dart';
 import 'screens/home_work_detail.dart';
 import 'package:page_transition/page_transition.dart';
 import 'screens/student_portfolio.dart';
@@ -24,6 +27,7 @@ import 'dart:math';
 import './model/restuarent.dart';
 // import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 // const homeworkTask = "flipclass_homework";
 // dynamic oldHomeWorkList;
@@ -133,6 +137,7 @@ Future<void> main() async {
     home: FutureBuilder(
       future: SharedPreferences.getInstance(),
       builder: (context, snapshot) {
+        EasyLoading.init();
         if (snapshot.hasData) {
           final prefs = snapshot.data;
           final account = prefs?.getString('account');
@@ -148,6 +153,15 @@ Future<void> main() async {
         }
       },
     ),
+        localizationsDelegates: const [
+         GlobalMaterialLocalizations.delegate
+       ],
+      supportedLocales: const [
+        //此处
+         Locale('en'),
+         Locale('zh', 'TW')
+      ],
+
   ));
 }
 
@@ -158,7 +172,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return NeumorphicApp(
       debugShowCheckedModeBanner: false,
-      title: '南台通Beta v1.0',
+      title: '南台通',
       themeMode: ThemeMode.light,
       theme: const NeumorphicThemeData(
         baseColor: Color.fromARGB(255, 236, 236, 236),
@@ -171,79 +185,73 @@ class MyApp extends StatelessWidget {
         depth: 6,
       ),
       home: const MyHomePage(),
-      onGenerateRoute: (settings) {
-        switch (settings.name) {
-          case '/homework':
-            return PageTransition(
-              child: const HomeworkPage(),
-              type: PageTransitionType.leftToRightWithFade,
-              settings: settings,
-              reverseDuration: const Duration(seconds: 3),
-            );
-            break;
-          case '/bulletins':
-            return PageTransition(
-              child: const BulletinsPage(),
-              type: PageTransitionType.leftToRightWithFade,
-              settings: settings,
-              reverseDuration: const Duration(seconds: 3),
-            );
-            break;
-          case '/leave_request':
-            return PageTransition(
-              child: const AbsentPage(),
-              type: PageTransitionType.leftToRightWithFade,
-              settings: settings,
-              reverseDuration: const Duration(seconds: 3),
-            );
-            break;
-          case '/reflection':
-            return PageTransition(
-              child: const ReflectionPage(),
-              type: PageTransitionType.leftToRightWithFade,
-              settings: settings,
-              reverseDuration: const Duration(seconds: 3),
-            );
-            break;
-          //         case '/bulletins':
-          // return PageTransition(
-          //   child: BulletinsPage(),
-          //   type: PageTransitionType.leftToRightWithFade,
-          //   settings: settings,
-          //   reverseDuration: Duration(seconds: 3),
-          // );
-          // break;
-          case '/absent':
-            return PageTransition(
-              child: const LeaveRequestPage(),
-              type: PageTransitionType.leftToRightWithFade,
-              settings: settings,
-              reverseDuration: const Duration(seconds: 3),
-            );
-            break;
+      // onGenerateRoute: (settings) {  ///doesn't works as expected
+      //   switch (settings.name) {
+      //     // case '/homework':
+      //     //   return PageTransition(
+      //     //     child: const HomeworkPage(),
+      //     //     type: PageTransitionType.leftToRightWithFade,
+      //     //     settings: settings,
+      //     //     reverseDuration: const Duration(seconds: 3),
+      //     //   );
+      //     case '/bulletins':
+      //       return PageTransition(
+      //         child: const BulletinsPage(),
+      //         type: PageTransitionType.leftToRightWithFade,
+      //         settings: settings,
+      //         reverseDuration: const Duration(seconds: 3),
+      //       );
+      //     case '/leave_request':
+      //       return PageTransition(
+      //         child: const AbsentPage(),
+      //         type: PageTransitionType.leftToRightWithFade,
+      //         settings: settings,
+      //         reverseDuration: const Duration(seconds: 3),
+      //       );
+      //     // case '/reflection':
+      //     //   return PageTransition(
+      //     //     child: const ReflectionPage(),
+      //     //     type: PageTransitionType.leftToRightWithFade,
+      //     //     settings: settings,
+      //     //     reverseDuration: const Duration(seconds: 3),
+      //     //   );
+      //     //         case '/bulletins':
+      //     // return PageTransition(
+      //     //   child: BulletinsPage(),
+      //     //   type: PageTransitionType.leftToRightWithFade,
+      //     //   settings: settings,
+      //     //   reverseDuration: Duration(seconds: 3),
+      //     // );
+      //     // break;
+      //     case '/absent':
+      //       return PageTransition(
+      //         child: const LeaveRequestPage(),
+      //         type: PageTransitionType.leftToRightWithFade,
+      //         settings: settings,
+      //         reverseDuration: const Duration(seconds: 3),
+      //       );
 
-          ////
-          case '/homework-detail':
-            return PageTransition(
-              child: const HomeWorkDetailPage(),
-              type: PageTransitionType.leftToRightWithFade,
-              settings: settings,
-              reverseDuration: const Duration(seconds: 3),
-            );
-            break;
-          default:
-            return null;
-        }
-      },
+      //     ////
+      //     case '/homework-detail':
+      //       return PageTransition(
+      //         child: const HomeWorkDetailPage(),
+      //         type: PageTransitionType.leftToRightWithFade,
+      //         settings: settings,
+      //         reverseDuration: const Duration(seconds: 3),
+      //       );
+      //     default:
+      //       return null;
+      //   }
+      // },
       routes: {
         LoginPage.routeName: (context) => const LoginPage(),
         MyHomePage.routeName: (context) => const MyHomePage(),
         HomeworkPage.routeName: (context) => const HomeworkPage(),
         BulletinsPage.routeName: (context) => const BulletinsPage(),
         AbsentPage.routeName: (context) => const AbsentPage(),
-        ReflectionPage.routeName: (context) => const ReflectionPage(),
+        // ReflectionPage.routeName: (context) => const ReflectionPage(),
         LeaveRequestPage.routeName: (context) => const LeaveRequestPage(),
-        SendHomeworkPage.routeName: (context) => const SendHomeworkPage(),
+        // SendHomeworkPage.routeName: (context) => const SendHomeworkPage(),
         StudentPortfolioPage.routeName: (context) =>
             const StudentPortfolioPage(),
         StudentMiscPage.routeName: (context) => const StudentMiscPage(),
@@ -280,7 +288,9 @@ class _MyHomePageState extends State<MyHomePage> {
   var name = '姓名';
   var account = '學號';
   bool _isLoading = true;
-  bool _isActivitesLoading = true;
+  bool _isActivitiesLoading = true;
+  bool _isStudentActivitiesLoading = true;
+
   final bool _ActivateHomeWorkNoti = false;
   final bool _ActivateBulletinsNoti = false;
 
@@ -288,6 +298,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   late List<Map<String, String>> StustAppFoodList = [];
   late List<Map<String, String>> StustActivitiesList = [];
+  late List<Map<String, String>> StudentActivitiesList = [];
 
   @override
   void initState() {
@@ -316,38 +327,34 @@ class _MyHomePageState extends State<MyHomePage> {
           },
         );
       }
-
-      getFoodList().then((data) {
-        setState(() {
-          StustAppFoodList = data;
-          // print(StustAppFoodList);
-          _isLoading = false;
+      try {
+        getStudentActivitiesList().then((data) {
+          setState(() {
+            StudentActivitiesList = data;
+            // print(StustAppFoodList);
+            _isStudentActivitiesLoading = false;
+          });
         });
-      });
-
-      getActivitiesList().then((data) {
-        setState(() {
-          StustActivitiesList = data;
-          // print(StustActivitiesList);
-          _isActivitesLoading = false;
+      } catch (e) {}
+      try {
+        getFoodList().then((data) {
+          setState(() {
+            StustAppFoodList = data;
+            // print(StustAppFoodList);
+            _isLoading = false;
+          });
         });
-      });
-      // );
-      // try {
-      //   final res = getFoodList();
+      } catch (e) {}
+      try {
+        getActivitiesList().then((data) {
+          setState(() {
+            StustActivitiesList = data;
+            // print(StustActivitiesList);
+            _isActivitiesLoading = false;
+          });
+        });
+      } catch (e) {}
 
-      //   setState(() {
-      //     StustAppFoodList = res as List<Map<String, String>>;
-      //     print(StustAppFoodList);
-
-      //     _isLoading = false;
-      //   });
-      // } catch (e) {
-      //   setState(() {
-      //     _isLoading = false;
-      //     showDialogBox(context, e.toString());
-      //   });
-      // }
       getProfile();
     });
 
@@ -362,10 +369,14 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   getProfile() async {
-    Map<String, String> values = await getValuesFromSharedPreferences();
-    name = values['name']!;
-    account = values['account']!;
-    setState(() {});
+    try {
+      Map<String, String> values = await getValuesFromSharedPreferences();
+      name = values['name']!;
+      account = values['account']!;
+      setState(() {});
+    } catch (e) {
+      print(e);
+    }
   }
 
   final headers = {
@@ -418,6 +429,37 @@ class _MyHomePageState extends State<MyHomePage> {
     return StustAppFoodList;
   }
 
+  Future<List<Map<String, String>>> getStudentActivitiesList() async {
+    var response = await session.get(
+      Uri.parse('http://api.xnor-development.com:70/stust_activities'),
+    );
+
+    // Check that the request was successful
+    if (response.statusCode != 200) {
+      throw Exception("Failed to fetch activities");
+    }
+
+    // Parse the response body into a Map
+    Map<String, dynamic> responseBody = jsonDecode(response.body);
+
+    // Extract the activities into a list
+    // List<Map<String, String>> StudentActivitiesList = [];
+    responseBody.forEach((id, data) {
+      // Add the data directly into the list
+      StudentActivitiesList.add(Map<String, String>.from(data as Map));
+    });
+
+    // Sort the list of activities by date
+    StudentActivitiesList.sort((a, b) {
+      DateTime dateA = DateTime.parse(a['date']!);
+      DateTime dateB = DateTime.parse(b['date']!);
+      // Use 'compareTo' to get the order correct
+      return dateA.compareTo(dateB);
+    });
+    // print(StudentActivitiesList);
+    return StudentActivitiesList;
+  }
+
   Future<List<Map<String, String>>> getActivitiesList() async {
     // const url =
     //     "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWoZnufjinYoSp0lQ9KOLuNRpxxMlOp9K2leRL7bNN4I2_wuvx-h7wWQJg4xOK4pTVv85qs3TbvyOG/pubhtml";
@@ -455,6 +497,16 @@ class _MyHomePageState extends State<MyHomePage> {
     return StustActivitiesList;
   }
 
+  String insertLineBreak(String text) {
+    int midIndex =
+        text.length ~/ 1.6; // Calculate the middle index of the string
+    String firstHalf =
+        text.substring(0, midIndex); // Extract the first half of the string
+    String secondHalf =
+        text.substring(midIndex); // Extract the second half of the string
+    return '$firstHalf\n$secondHalf'; // Concatenate the two halves with a line break in between
+  }
+
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height * 1;
@@ -464,10 +516,13 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         centerTitle: true,
 
-        backgroundColor: Colors.green[200],
+        backgroundColor: const Color.fromARGB(255, 117, 149, 120),
         title: const Text(
           '南台通首頁',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.normal),
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.normal,
+          ),
         ),
         // actions: const[
         //   Icon(Icons.shopping_bag_outlined),
@@ -583,9 +638,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       onTap: () {
                         Navigator.push(
                             context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    const LeaveRequestPage()));
+                            PageTransition(
+                                type: PageTransitionType.leftToRightWithFade,
+                                child: const LeaveRequestPage()));
                       },
                       child: Container(
                         height: MediaQuery.of(context).size.height * .25,
@@ -727,6 +782,56 @@ class _MyHomePageState extends State<MyHomePage> {
                 ],
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    '校園活動',
+                    style: TextStyle(
+                        color: Color.fromARGB(255, 18, 18, 18),
+                        fontSize: 17.5,
+                        fontFamily: Bold),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.push(
+                        context,
+                        PageTransition(
+                            type: PageTransitionType.rightToLeftWithFade,
+                            child: const CreateActivitiesPage())),
+                    icon: const Icon(
+                      Icons.playlist_add,
+                      size: 25,
+                      color: Color.fromARGB(255, 110, 109, 110),
+                    ),
+                  )
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 170,
+              child:
+                  // const Center(child: CircularProgressIndicator())
+                  _isStudentActivitiesLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : ListView.builder(
+                          itemCount: StudentActivitiesList.length,
+                          scrollDirection: Axis.horizontal,
+                          itemBuilder: (context, index) {
+                            // PandaPickItemModel model =
+                            final data = StudentActivitiesList[index];
+                            return StudentActivitiesScreen(
+                              location: data['location'] ?? '',
+                              date: data['date'] ?? '',
+                              topic: data['topic'] ?? '',
+                              link: data['link'] ?? '',
+                              image_link: data['image_link'] ?? '',
+                              student_number: data['student_number'] ?? '',
+                              host: data['host'] ?? '',
+                            );
+                          }),
+            ),
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 10),
               child: Text(
@@ -764,7 +869,7 @@ class _MyHomePageState extends State<MyHomePage> {
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 10),
               child: Text(
-                '校園活動',
+                '校網公告',
                 style: TextStyle(
                     color: Color(0xff323232), fontSize: 17.5, fontFamily: Bold),
               ),
@@ -772,10 +877,10 @@ class _MyHomePageState extends State<MyHomePage> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 1),
               child: SizedBox(
-                height: MediaQuery.of(context).size.height * .25,
+                height: MediaQuery.of(context).size.height * .18,
                 child:
                     // const Center(child: CircularProgressIndicator())
-                    _isActivitesLoading
+                    _isActivitiesLoading
                         ? const Center(child: CircularProgressIndicator())
                         : ListView.builder(
                             itemCount: StustActivitiesList.length,
@@ -787,7 +892,9 @@ class _MyHomePageState extends State<MyHomePage> {
                               return ActivitiesScreen(
                                 href: data['href'] ?? '',
                                 image: data['image'] ?? '',
-                                topic: data['topic'] ?? '',
+                                topic: (data['topic']!).length > 10
+                                    ? insertLineBreak(data['topic']!)
+                                    : data['topic']!,
                               );
                             }),
               ),
@@ -935,11 +1042,12 @@ class _MyHomePageState extends State<MyHomePage> {
 //             ),
 //           ],
 //         ),
+
 //       ),
       drawer: Drawer(
         width: 275,
         elevation: 30,
-        backgroundColor: const Color(0xF3393838),
+        backgroundColor: const Color.fromARGB(255, 236, 236, 236),
         shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.horizontal(right: Radius.circular(40))),
         child: Container(
@@ -961,7 +1069,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         IconButton(
                           onPressed: () => Navigator.pop(context),
                           icon: const Icon(Icons.arrow_back_ios),
-                          color: Colors.white,
+                          color: const Color.fromARGB(255, 29, 33, 52),
                           iconSize: 20,
                         ),
                         const SizedBox(
@@ -969,7 +1077,10 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                         const Text(
                           '南臺通APP',
-                          style: TextStyle(color: Colors.white, fontSize: 16),
+                          style: TextStyle(
+                              color: Color.fromARGB(255, 29, 33, 52),
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -987,7 +1098,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         Text(
                           account,
                           style: const TextStyle(
-                              color: Colors.white, fontSize: 18),
+                              color: Color.fromARGB(255, 29, 33, 52),
+                              fontSize: 18),
                         ),
                         const SizedBox(
                           width: 10,
@@ -995,12 +1107,21 @@ class _MyHomePageState extends State<MyHomePage> {
                         Text(
                           name,
                           style: const TextStyle(
-                              color: Colors.white, fontSize: 18),
+                              color: Color.fromARGB(255, 29, 33, 52),
+                              fontSize: 18),
                         )
                       ],
                     ),
                     const SizedBox(
-                      height: 30,
+                      height: 15,
+                    ),
+                    const Divider(
+                      height: 35,
+                      color: Color.fromARGB(255, 29, 33, 52),
+                      thickness: 1,
+                    ),
+                    const SizedBox(
+                      height: 15,
                     ),
                     // const DrawerItem(
                     //   title: '帳號',
@@ -1149,10 +1270,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       icon: Icons.help,
                       onTap: () {},
                     ),
-                    const Divider(
-                      height: 35,
-                      color: Color.fromARGB(255, 149, 147, 147),
-                    ),
+
                     // const DrawerItem(
                     //     title: 'Invite a friend', icon: Icons.people_outline),
                   ],
@@ -1230,7 +1348,7 @@ class DrawerItem extends StatelessWidget {
           children: [
             Icon(
               icon,
-              color: Colors.white,
+              color: const Color.fromARGB(255, 29, 33, 52),
               size: 20,
             ),
             const SizedBox(
@@ -1238,7 +1356,10 @@ class DrawerItem extends StatelessWidget {
             ),
             Text(
               title,
-              style: const TextStyle(color: Colors.white, fontSize: 16),
+              style: const TextStyle(
+                  color: Color.fromARGB(255, 29, 33, 52),
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold),
             ),
           ],
         ),

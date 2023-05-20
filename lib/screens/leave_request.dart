@@ -6,8 +6,6 @@ import 'dart:convert';
 import 'package:convert/convert.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:stust_app/utils/dialog_utils.dart';
-import '../main.dart';
 import '../utils/check_connecion.dart';
 
 class AbsentPage extends StatefulWidget {
@@ -21,8 +19,8 @@ class AbsentPage extends StatefulWidget {
 }
 
 class _AbsentPageState extends State<AbsentPage> {
-  final _formKey = GlobalKey<FormState>();
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  // final _formKey = GlobalKey<FormState>();
+  // final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   late String _account = '0'; // Set account and password to 0 by default
   late String _password = '0';
@@ -30,7 +28,7 @@ class _AbsentPageState extends State<AbsentPage> {
   @override
   void initState() {
     super.initState();
-
+    _responseData = [];
     checkNetwork().then((isConnected) {
       if (isConnected == false) {
         return showDialog(
@@ -229,10 +227,10 @@ class _AbsentPageState extends State<AbsentPage> {
         _isLoading = false;
       });
     } catch (e) {
-      setState(() {
-        _isLoading = false;
-        showDialogBox(context, e.toString());
-      });
+      // setState(() {
+      //   _isLoading = false;
+      //   showDialogBox(context, e.toString());
+      // });
     }
     // }
   }
@@ -290,268 +288,290 @@ class _AbsentPageState extends State<AbsentPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
+      // key: _scaffoldKey,
       body: Stack(
         children: [
-          Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                // TextButton(
-                //   onPressed: _submitForm,
-                //   child: const Text(
-                //     '查詢',
-                //     style: TextStyle(fontSize: 30),
-                //   ),
-                // ),
-                if (_responseData != null)
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Table(
-                        columnWidths: const {
-                          0: FlexColumnWidth(),
-                          1: FlexColumnWidth(),
-                          2: FlexColumnWidth(),
-                          3: FlexColumnWidth(),
-                        },
-                        children: _responseData.map((data) {
-                          if (data['status'].contains('處理中') == true) {
-                            statusColor = Colors.red;
-                          } else {
-                            statusColor = Colors.green;
-                          }
-                          return TableRow(
-                            decoration: const BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(
-                                  width: 3,
-                                  color: Colors.grey,
+          // Form(
+          // key: _formKey,
+          Column(
+            children: [
+              // TextButton(
+              //   onPressed: _submitForm,
+              //   child: const Text(
+              //     '查詢',
+              //     style: TextStyle(fontSize: 30),
+              //   ),
+              // ),
+              if (_responseData != null)
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Table(
+                      columnWidths: const {
+                        0: FlexColumnWidth(),
+                        1: FlexColumnWidth(),
+                        2: FlexColumnWidth(),
+                        3: FlexColumnWidth(),
+                      },
+                      children: _responseData.map((data) {
+                        if (data['status'].contains('處理中') == true) {
+                          statusColor = Colors.red;
+                        } else {
+                          statusColor = Colors.green;
+                        }
+                        return TableRow(
+                          decoration: const BoxDecoration(
+                            border: Border(
+                              bottom: BorderSide(
+                                width: 3,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                          children: [
+                            TableCell(
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  data['leaveType']!,
+                                  style: const TextStyle(fontSize: 16),
                                 ),
                               ),
                             ),
-                            children: [
-                              TableCell(
+                            TableCell(
+                              child: InkWell(
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Text(
-                                    data['leaveType']!,
-                                    style: const TextStyle(fontSize: 16),
+                                    data['week']!,
+                                    style: const TextStyle(
+                                        color: Colors.blue, fontSize: 16),
                                   ),
                                 ),
-                              ),
-                              TableCell(
-                                child: InkWell(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                      data['week']!,
-                                      style: const TextStyle(
-                                          color: Colors.blue, fontSize: 16),
-                                    ),
-                                  ),
-                                  onTap: () async {
-                                    if (data['week'].contains('週次') != true) {
-                                      print(data['href']);
-                                      var session = http.Client();
-                                      // print(_account);
-                                      // print(_password);
-                                      final queryParameters = {
-                                        'stud_no': _account,
-                                        'passwd': _password,
-                                        'b1': '登入Login'
-                                      };
-                                      // print(_account);
-                                      final uri = Uri.https(
-                                          'portal.stust.edu.tw',
-                                          '/abs_stu/verify.asp',
-                                          queryParameters);
-                                      //authenticate
-                                      var response = await session.post(uri);
-                                      String cookies =
-                                          '${response.headers['set-cookie']!}; 3wave=1';
+                                onTap: () async {
+                                  if (data['week'].contains('週次') != true) {
+                                    print(data['href']);
+                                    var session = http.Client();
+                                    // print(_account);
+                                    // print(_password);
+                                    final queryParameters = {
+                                      'stud_no': _account,
+                                      'passwd': _password,
+                                      'b1': '登入Login'
+                                    };
+                                    // print(_account);
+                                    final uri = Uri.https('portal.stust.edu.tw',
+                                        '/abs_stu/verify.asp', queryParameters);
+                                    //authenticate
+                                    var response = await session.post(uri);
+                                    String cookies =
+                                        '${response.headers['set-cookie']!}; 3wave=1';
 
-                                      final headers = {
-                                        'User-Agent':
-                                            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
-                                      };
-                                      final link = data['href'];
-                                      response = await session.get(
-                                          Uri.parse(
-                                              'https://portal.stust.edu.tw/abs_stu//query/$link'),
-                                          headers: {
-                                            ...headers,
-                                            'cookie': cookies
-                                          });
-                                      var responseBodyHex =
-                                          hex.encode(response.bodyBytes);
-                                      var soup = html_parser.parse(utf8
-                                          .decode(hex.decode(responseBodyHex)));
-                                      _showAlertDialog(soup);
-                                    }
-                                  },
+                                    final headers = {
+                                      'User-Agent':
+                                          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
+                                    };
+                                    final link = data['href'];
+                                    response = await session.get(
+                                        Uri.parse(
+                                            'https://portal.stust.edu.tw/abs_stu//query/$link'),
+                                        headers: {
+                                          ...headers,
+                                          'cookie': cookies
+                                        });
+                                    var responseBodyHex =
+                                        hex.encode(response.bodyBytes);
+                                    var soup = html_parser.parse(utf8
+                                        .decode(hex.decode(responseBodyHex)));
+                                    _showAlertDialog(soup);
+                                  }
+                                },
+                              ),
+                            ),
+                            TableCell(
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  data['date'].toString(),
+                                  style: const TextStyle(fontSize: 16),
                                 ),
                               ),
-                              TableCell(
+                            ),
+                            TableCell(
+                              child: InkWell(
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Text(
-                                    data['date'].toString(),
+                                    data['teacher']!,
                                     style: const TextStyle(fontSize: 16),
                                   ),
                                 ),
                               ),
-                              TableCell(
-                                child: InkWell(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                      data['teacher']!,
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
+                            ),
+                            TableCell(
+                              child: InkWell(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    data['instructor']!,
+                                    style: const TextStyle(fontSize: 16),
                                   ),
                                 ),
                               ),
-                              TableCell(
-                                child: InkWell(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                      data['instructor']!,
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
+                            ),
+                            // if (_responseData.indexOf(data) == 0)
+                            TableCell(
+                              child: InkWell(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    data['chairman']!,
+                                    style: const TextStyle(fontSize: 16),
                                   ),
                                 ),
                               ),
-                              // if (_responseData.indexOf(data) == 0)
-                              TableCell(
-                                child: InkWell(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                      data['chairman']!,
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
+                            ),
+                            TableCell(
+                              child: InkWell(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    data['chief']!,
+                                    style: const TextStyle(fontSize: 16),
                                   ),
                                 ),
                               ),
-                              TableCell(
-                                child: InkWell(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                      data['chief']!,
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
+                            ),
+                            TableCell(
+                              child: InkWell(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    data['dean']!,
+                                    style: const TextStyle(fontSize: 16),
                                   ),
                                 ),
                               ),
-                              TableCell(
-                                child: InkWell(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                      data['dean']!,
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
+                            ),
+                            TableCell(
+                              child: InkWell(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    data['guidance']!,
+                                    style: const TextStyle(fontSize: 16),
                                   ),
                                 ),
                               ),
-                              TableCell(
-                                child: InkWell(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                      data['guidance']!,
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
+                            ),
+                            TableCell(
+                              child: InkWell(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    data['status']!,
+                                    style: TextStyle(
+                                        color: statusColor, fontSize: 16),
                                   ),
                                 ),
                               ),
-                              TableCell(
-                                child: InkWell(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                      data['status']!,
-                                      style: TextStyle(
-                                          color: statusColor, fontSize: 16),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          );
-                        }).toList(),
-                      ),
+                            ),
+                          ],
+                        );
+                      }).toList(),
                     ),
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
+
           if (_isLoading)
             const Center(
               child: CircularProgressIndicator(),
             ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.shifting,
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
-        items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.assignment),
-              label: '假單查詢',
-              backgroundColor: Color.fromARGB(181, 65, 218, 190)),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.format_list_bulleted),
-              label: '缺曠紀錄',
-              backgroundColor: Color.fromARGB(181, 65, 218, 190)),
-        ],
-        onTap: (int index) {
-          switch (index) {
-            case 0:
-              Navigator.of(context).pushNamed('/absent');
-              break;
-            case 1:
-              Navigator.of(context).pushNamed('/leave_request');
-              break;
-          }
-        },
-      ),
-      appBar: AppBar(
-        backgroundColor: const Color.fromARGB(181, 65, 218, 190),
-        automaticallyImplyLeading: false,
+      // bottomNavigationBar: BottomNavigationBar(
+      //   type: BottomNavigationBarType.shifting,
+      //   showSelectedLabels: true,
+      //   showUnselectedLabels: true,
+      //   items: const [
+      //     BottomNavigationBarItem(
+      //         icon: Icon(Icons.assignment),
+      //         label: '假單查詢',
+      //         backgroundColor: Color.fromARGB(181, 65, 218, 190)),
+      //     BottomNavigationBarItem(
+      //         icon: Icon(Icons.format_list_bulleted),
+      //         label: '缺曠紀錄',
+      //         backgroundColor: Color.fromARGB(181, 65, 218, 190)),
+      //   ],
+      //   onTap: (int index) {
+      //     switch (index) {
+      //       case 0:
+      //         Navigator.of(context).pushNamed('/absent');
+      //         break;
+      //       case 1:
+      //         Navigator.of(context).pushNamed('/leave_request');
+      //         break;
+      //     }
+      //   },
+      // ),
+            appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 117, 149, 120),
+        // automaticallyImplyLeading: false,
         centerTitle: true,
-        title: const Text('假單查詢(e網通)'),
-        actions: [
-          IconButton(
-              iconSize: 35,
-              padding: const EdgeInsets.only(right: 20),
-              onPressed: () async {
-                Navigator.pushNamedAndRemoveUntil(
-                    context, MyHomePage.routeName, (route) => false);
-              },
-              icon: const Icon(IconData(0xe328, fontFamily: 'MaterialIcons')))
-          // NeumorphicButton(
-          //   child: Icon(Icons.exit_to_app_outlined),
-          //   style: NeumorphicStyle(
-          //       shape: NeumorphicShape.concave,
-          //       boxShape:
-          //           NeumorphicBoxShape.roundRect(BorderRadius.circular(50)),
-          //       depth: 3,
-          //       color: Color.fromARGB(255, 212, 69, 76)),
-          //   drawSurfaceAboveChild: false,
-          //   margin: EdgeInsets.fromLTRB(0.0, 10.0, 15.0, 10.0),
-          //   //padding: EdgeInsets.only(bottom: 1),
-
-          // ),
+        title: const Text('假單查詢'),
+        actions: const [
+          // IconButton(
+          //     iconSize: 35,
+          //     padding: const EdgeInsets.only(right: 20),
+          //     onPressed: () async {
+          //       Navigator.pushNamedAndRemoveUntil(
+          //           context, MyHomePage.routeName, (route) => false);
+          //     },
+          //     icon: const Icon(IconData(0xe328, fontFamily: 'MaterialIcons')))
         ],
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.pushNamedAndRemoveUntil(
+                context, '/leave_request', (route) => false)),
       ),
     );
   }
 }
+
+//       appBar: AppBar(
+//         backgroundColor: const Color.fromARGB(181, 65, 218, 190),
+//         automaticallyImplyLeading: false,
+//         centerTitle: true,
+//         title: const Text('假單查詢(e網通)'),
+//         actions: [
+//           IconButton(
+//               iconSize: 35,
+//               padding: const EdgeInsets.only(right: 20),
+//               onPressed: () async {
+//                 Navigator.pushNamedAndRemoveUntil(
+//                     context, MyHomePage.routeName, (route) => false);
+//               },
+//               icon: const Icon(IconData(0xe328, fontFamily: 'MaterialIcons')))
+//           // NeumorphicButton(
+//           //   child: Icon(Icons.exit_to_app_outlined),
+//           //   style: NeumorphicStyle(
+//           //       shape: NeumorphicShape.concave,
+//           //       boxShape:
+//           //           NeumorphicBoxShape.roundRect(BorderRadius.circular(50)),
+//           //       depth: 3,
+//           //       color: Color.fromARGB(255, 212, 69, 76)),
+//           //   drawSurfaceAboveChild: false,
+//           //   margin: EdgeInsets.fromLTRB(0.0, 10.0, 15.0, 10.0),
+//           //   //padding: EdgeInsets.only(bottom: 1),
+
+//           // ),
+//         ],
+//         leading: IconButton(
+//           icon: const Icon(Icons.arrow_back),
+//           onPressed: () => Navigator.of(context).pop(),
+//         ),
+//       ),
+//     );
+//   }
+// }

@@ -7,7 +7,6 @@ import 'package:html/parser.dart' as html_parser;
 import 'package:stust_app/utils/check_connecion.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../utils/html_utils.dart';
-import 'package:stust_app/utils/dialog_utils.dart';
 
 import 'dart:convert';
 import 'package:convert/convert.dart';
@@ -46,6 +45,7 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
   @override
   void initState() {
     super.initState();
+      _tabController = TabController(length: 3, vsync: this);
 
     checkNetwork().then((isConnected) {
       if (isConnected == false) {
@@ -80,7 +80,6 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
         _submit();
       });
 
-      _tabController = TabController(length: 3, vsync: this);
     });
   }
 
@@ -245,10 +244,10 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
         timeTable = res.timeTableData;
       });
     } catch (e) {
-      setState(() {
-        _isLoading = false;
-        showDialogBox(context, e.toString());
-      });
+      // setState(() {
+      //   _isLoading = false;
+      //   showDialogBox(context, e.toString());
+      // });
     }
     // }
   }
@@ -298,7 +297,7 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(181, 65, 218, 190),
+        backgroundColor: const Color.fromARGB(255, 117, 149, 120),
         title: const Text('網路選課系統'),
         bottom: TabBar(
           controller: _tabController,
