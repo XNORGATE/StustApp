@@ -329,7 +329,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
           'date': '日期',
           'section': '節數',
           'lesson': '課程',
-          'reason': '曠課/遲到'
+          'reason': '假別'
         };
 
         responseData.insert(0, newItem);
@@ -518,6 +518,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                   });
                   // _hideSendingDialog();
                   // Navigator.of(context).pop();
+                  if (!mounted) return;
                   showDialogBox(context, '此操作未達成，請重試');
                 }
 
@@ -542,6 +543,17 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
     // MaterialPageRoute(builder: (context) => const LeaveRequestPage());
   }
 
+  String splitLesson(lesson) {
+    // String lesson = '社會創新及永續管理Social Innovation and Sustainability';
+    final matches =
+        RegExp(r'[\p{Script=Han}]+', unicode: true).allMatches(lesson);
+    String result = '';
+    for (var match in matches) {
+      result += match.group(0)!;
+    }
+    return result == '' ? lesson : result;
+  }
+
   @override
   void dispose() {
     http.Client().close();
@@ -556,7 +568,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
           Column(
             children: [
               const SizedBox(
-                height: 50,
+                height: 30,
               ),
               // TextButton(
               //   onPressed: _submitForm,
@@ -588,38 +600,62 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                           children: [
                             TableCell(
                               child: Padding(
-                                padding: const EdgeInsets.all(8.0),
+                                padding:
+                                    const EdgeInsets.fromLTRB(7, 10, 7, 10),
                                 child: Text(
                                   data['date']!,
-                                  style: const TextStyle(fontSize: 16),
+                                  style: _responseData.indexOf(data) == 0
+                                      ? const TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color.fromARGB(255, 8, 8, 8))
+                                      : const TextStyle(fontSize: 16),
                                 ),
                               ),
                             ),
                             TableCell(
                               child: Padding(
-                                padding: const EdgeInsets.all(8.0),
+                                padding:
+                                    const EdgeInsets.fromLTRB(7, 10, 7, 10),
                                 child: Text(
                                   data['week'].toString(),
-                                  style: const TextStyle(fontSize: 16),
+                                  style: _responseData.indexOf(data) == 0
+                                      ? const TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color.fromARGB(255, 8, 8, 8))
+                                      : const TextStyle(fontSize: 16),
                                 ),
                               ),
                             ),
                             TableCell(
                               child: Padding(
-                                padding: const EdgeInsets.all(8.0),
+                                padding:
+                                    const EdgeInsets.fromLTRB(7, 10, 7, 10),
                                 child: Text(
                                   data['section'].toString(),
-                                  style: const TextStyle(fontSize: 16),
+                                  style: _responseData.indexOf(data) == 0
+                                      ? const TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color.fromARGB(255, 8, 8, 8))
+                                      : const TextStyle(fontSize: 16),
                                 ),
                               ),
                             ),
                             TableCell(
                               child: InkWell(
                                 child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(7, 10, 7, 10),
                                   child: Text(
-                                    data['lesson']!,
-                                    style: const TextStyle(fontSize: 16),
+                                    splitLesson(data['lesson']!),
+                                    style: _responseData.indexOf(data) == 0
+                                        ? const TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                            color: Color.fromARGB(255, 8, 8, 8))
+                                        : const TextStyle(fontSize: 16),
                                   ),
                                 ),
                               ),
@@ -627,11 +663,17 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                             TableCell(
                               child: InkWell(
                                 child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(7, 10, 7, 10),
                                   child: Text(
                                     data['reason']!,
-                                    style: const TextStyle(
-                                        fontSize: 16, color: Colors.red),
+                                    style: _responseData.indexOf(data) == 0
+                                        ? const TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                            color: Color.fromARGB(255, 8, 8, 8))
+                                        : const TextStyle(
+                                            fontSize: 16, color: Colors.red),
                                   ),
                                 ),
                               ),
@@ -639,9 +681,13 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                             // if (_responseData.indexOf(data) == 0)
                             TableCell(
                               child: IconButton(
-                                icon: const Icon(Icons.assignment,
-                                    color: Color.fromARGB(255, 92, 90, 90),
-                                    size: 30),
+                                icon: _responseData.indexOf(data) == 0
+                                    ? const Icon(Icons.info_outline,
+                                        color: Color.fromARGB(255, 92, 90, 90),
+                                        size: 30)
+                                    : const Icon(Icons.assignment,
+                                        color: Color.fromARGB(255, 92, 90, 90),
+                                        size: 30),
                                 onPressed: () {
                                   if (_responseData.indexOf(data) == 0) {
                                     showDialogBox(context,
@@ -928,7 +974,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
       //         ),
       //       )
       //     ]),
-            bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: BottomNavigationBar(
         selectedFontSize: 12.0,
         backgroundColor: const Color.fromARGB(255, 117, 149, 120),
         type: BottomNavigationBarType.shifting,
@@ -936,13 +982,15 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
         showUnselectedLabels: true,
         items: const [
           BottomNavigationBarItem(
-              icon: Icon(Icons.assignment),
-              label: '請假系統',
-              backgroundColor: Color.fromARGB(255, 117, 149, 120),),
+            icon: Icon(Icons.assignment),
+            label: '請假系統',
+            backgroundColor: Color.fromARGB(255, 117, 149, 120),
+          ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.format_list_bulleted),
-              label: '缺曠紀錄',
-              backgroundColor: Color.fromARGB(255, 117, 149, 120),),
+            icon: Icon(Icons.format_list_bulleted),
+            label: '假單查詢',
+            backgroundColor: Color.fromARGB(255, 117, 149, 120),
+          ),
         ],
         onTap: (int index) {
           switch (index) {
@@ -955,17 +1003,18 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
               // // Navigator.pushNamedAndRemoveUntil(
               // //     context, '/homework', (route) => false);
               break;
-              
+
             case 1:
               // if (ModalRoute.of(context)?.settings.name == '/leave_request') {
               //   return;
               // }
               // Navigator.of(context).pushNamedAndRemoveUntil('/bulletins',ModalRoute.withName('/home'));
-                  Navigator.push(
-                      context,
-                      PageTransition(
-                          type: PageTransitionType.rightToLeftWithFade,
-                          child: const AbsentPage()));              break;
+              Navigator.push(
+                  context,
+                  PageTransition(
+                      type: PageTransitionType.rightToLeftWithFade,
+                      child: const AbsentPage()));
+              break;
           }
         },
       ),
@@ -973,7 +1022,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
         backgroundColor: const Color.fromARGB(255, 117, 149, 120),
         automaticallyImplyLeading: false,
         centerTitle: true,
-        title: const Text('請假'),
+        title: const Text('請假系統'),
         actions: const [
           // IconButton(
           //     iconSize: 35,

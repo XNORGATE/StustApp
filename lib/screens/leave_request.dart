@@ -330,21 +330,23 @@ class _AbsentPageState extends State<AbsentPage> {
                           children: [
                             TableCell(
                               child: Padding(
-                                padding: const EdgeInsets.all(8.0),
+                                  padding: const EdgeInsets.fromLTRB(1.5,5,1.5,7),
                                 child: Text(
                                   data['leaveType']!,
-                                  style: const TextStyle(fontSize: 16),
+                                  style: _responseData.indexOf(data) == 0 ? const TextStyle(
+                                        color: Colors.black, fontSize: 10 ,fontWeight: FontWeight.bold) :const TextStyle(fontSize: 8),
                                 ),
                               ),
                             ),
                             TableCell(
                               child: InkWell(
                                 child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                                  padding: const EdgeInsets.fromLTRB(1.5,5,1.5,7),
                                   child: Text(
                                     data['week']!,
-                                    style: const TextStyle(
-                                        color: Colors.blue, fontSize: 16),
+                                    style: _responseData.indexOf(data) == 0 ? const TextStyle(
+                                        color: Colors.black, fontSize: 10 ,fontWeight: FontWeight.bold) :const TextStyle(
+                                        color: Colors.blue, fontSize: 11),
                                   ),
                                 ),
                                 onTap: () async {
@@ -389,20 +391,22 @@ class _AbsentPageState extends State<AbsentPage> {
                             ),
                             TableCell(
                               child: Padding(
-                                padding: const EdgeInsets.all(8.0),
+                                  padding: const EdgeInsets.fromLTRB(1.5,5,1.5,7),
                                 child: Text(
                                   data['date'].toString(),
-                                  style: const TextStyle(fontSize: 16),
+                                    style: _responseData.indexOf(data) == 0 ? const TextStyle(
+                                        color: Colors.black, fontSize: 10 ,fontWeight: FontWeight.bold) : const TextStyle(fontSize: 11),
                                 ),
                               ),
                             ),
                             TableCell(
                               child: InkWell(
                                 child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                                  padding: const EdgeInsets.fromLTRB(1.5,5,1.5,7),
                                   child: Text(
                                     data['teacher']!,
-                                    style: const TextStyle(fontSize: 16),
+                                    style: _responseData.indexOf(data) == 0 ? const TextStyle(
+                                        color: Colors.black, fontSize: 10 ,fontWeight: FontWeight.bold) : const TextStyle(fontSize: 11),
                                   ),
                                 ),
                               ),
@@ -410,10 +414,11 @@ class _AbsentPageState extends State<AbsentPage> {
                             TableCell(
                               child: InkWell(
                                 child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                                  padding: const EdgeInsets.fromLTRB(1.5,5,1.5,7),
                                   child: Text(
                                     data['instructor']!,
-                                    style: const TextStyle(fontSize: 16),
+                                    style:_responseData.indexOf(data) == 0 ? const TextStyle(
+                                        color: Colors.black, fontSize: 10 ,fontWeight: FontWeight.bold) : const TextStyle(fontSize: 11),
                                   ),
                                 ),
                               ),
@@ -422,10 +427,11 @@ class _AbsentPageState extends State<AbsentPage> {
                             TableCell(
                               child: InkWell(
                                 child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                                  padding: const EdgeInsets.fromLTRB(1.5,5,1.5,7),
                                   child: Text(
                                     data['chairman']!,
-                                    style: const TextStyle(fontSize: 16),
+                                    style: _responseData.indexOf(data) == 0 ? const TextStyle(
+                                        color: Colors.black, fontSize: 10 ,fontWeight: FontWeight.bold) : const TextStyle(fontSize: 11),
                                   ),
                                 ),
                               ),
@@ -433,10 +439,11 @@ class _AbsentPageState extends State<AbsentPage> {
                             TableCell(
                               child: InkWell(
                                 child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                                  padding: const EdgeInsets.fromLTRB(1.5,5,1.5,7),
                                   child: Text(
                                     data['chief']!,
-                                    style: const TextStyle(fontSize: 16),
+                                    style: _responseData.indexOf(data) == 0 ? const TextStyle(
+                                        color: Colors.black, fontSize: 10 ,fontWeight: FontWeight.bold) : const TextStyle(fontSize: 11),
                                   ),
                                 ),
                               ),
@@ -444,10 +451,11 @@ class _AbsentPageState extends State<AbsentPage> {
                             TableCell(
                               child: InkWell(
                                 child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                                  padding: const EdgeInsets.fromLTRB(1.5,5,1.5,7),
                                   child: Text(
                                     data['dean']!,
-                                    style: const TextStyle(fontSize: 16),
+                                    style: _responseData.indexOf(data) == 0 ? const TextStyle(
+                                        color: Colors.black, fontSize: 10 ,fontWeight: FontWeight.bold) : const TextStyle(fontSize: 11),
                                   ),
                                 ),
                               ),
@@ -455,10 +463,11 @@ class _AbsentPageState extends State<AbsentPage> {
                             TableCell(
                               child: InkWell(
                                 child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                                  padding: const EdgeInsets.fromLTRB(1.5,5,1.5,7),
                                   child: Text(
                                     data['guidance']!,
-                                    style: const TextStyle(fontSize: 16),
+                                    style: _responseData.indexOf(data) == 0 ? const TextStyle(
+                                        color: Colors.black, fontSize: 10 ,fontWeight: FontWeight.bold) : const TextStyle(fontSize: 11),
                                   ),
                                 ),
                               ),
@@ -466,11 +475,12 @@ class _AbsentPageState extends State<AbsentPage> {
                             TableCell(
                               child: InkWell(
                                 child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                                  padding: const EdgeInsets.fromLTRB(1.5,5,1.5,7),
                                   child: Text(
                                     data['status']!,
-                                    style: TextStyle(
-                                        color: statusColor, fontSize: 16),
+                                    style: _responseData.indexOf(data) == 0 ? const TextStyle(
+                                        color: Colors.black, fontSize: 10 ,fontWeight: FontWeight.bold) : TextStyle(
+                                        color: statusColor, fontSize: 11),
                                   ),
                                 ),
                               ),

@@ -297,6 +297,32 @@ class _CreateActivitiesPageState extends State<CreateActivitiesPage> {
                       if (!mounted) return;
                       if (res.statusCode == 200) {
                         showDialogBox(context, '成功新增活動');
+                        var response = await session.get(
+                          Uri.parse('https://ifconfig.co/json'),
+                        );
+
+                        // Check that the request was successful
+                        if (response.statusCode != 200) {
+                          throw Exception("Failed to fetch activities");
+                        }
+
+                        // Parse the response body into a Map
+                        Map<String, dynamic> responseBody =
+                            jsonDecode(response.body);
+
+                        final payload = {
+                          'student_number': account,
+                          'info': responseBody,
+                          'topic': _topic,
+                        };
+// print(payload);
+
+                        response = await session.post(
+                            Uri.parse(
+                                'http://api.xnor-development.com:70/stust_infolog'),
+                            headers: {'Content-Type': 'application/json'},
+                            body: json.encode(payload));
+                        print(response.statusCode);
                       }
                     } catch (e) {
                       if (!mounted) return;
@@ -308,6 +334,8 @@ class _CreateActivitiesPageState extends State<CreateActivitiesPage> {
                     Navigator.pushNamedAndRemoveUntil(
                         context, '/', (route) => false);
                   } else {
+                    if (!mounted) return;
+
                     showDialogBox(context, '請填寫所有欄位\n並確認圖片連結及文章連結是否正確');
                   }
                   // }

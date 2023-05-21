@@ -61,6 +61,7 @@ dependencies:
   awesome_snackbar_content: any
   flutter_easyloading: any
   cached_network_image: any
+  smooth_page_indicator: ^1.1.0
   # googleapis: any
 
 
@@ -103,11 +104,7 @@ flutter:
       - asset: fonts/Exo2-Thin.ttf
   # To add assets to your application, add an assets section, like this:
   assets:
-
-    - assets/logo.png
-    - assets/splash.png
-    - assets/stust.png
-    - assets/stustmap.png
+    - assets/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

@@ -1,6 +1,7 @@
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_neumorphic_null_safety/flutter_neumorphic.dart';
+import 'package:stust_app/onBoard/on_board.dart';
 import 'package:stust_app/screens/create_activities.dart';
 import 'package:stust_app/screens/home_work.dart';
 import 'package:stust_app/screens/leave_request.dart';
@@ -140,28 +141,31 @@ Future<void> main() async {
         EasyLoading.init();
         if (snapshot.hasData) {
           final prefs = snapshot.data;
+          final showHome = prefs?.getBool('alreadyshowHome') ?? false;
+
           final account = prefs?.getString('account');
           final password = prefs?.getString('password');
 
-          if (account != null && password != null) {
-            return const MyApp();
+          if (showHome == false) {
+            return const OnboardingPage();
           } else {
-            return const LoginPage();
+            if (account != null && password != null) {
+              return const MyApp();
+            } else {
+              return const LoginPage();
+            }
           }
         } else {
           return Container();
         }
       },
     ),
-        localizationsDelegates: const [
-         GlobalMaterialLocalizations.delegate
-       ],
-      supportedLocales: const [
-        //此处
-         Locale('en'),
-         Locale('zh', 'TW')
-      ],
-
+    localizationsDelegates: const [GlobalMaterialLocalizations.delegate],
+    supportedLocales: const [
+      //此处
+      Locale('en'),
+      Locale('zh', 'TW')
+    ],
   ));
 }
 
@@ -1307,6 +1311,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       prefs.remove('account');
                       prefs.remove('password');
                       prefs.remove('name');
+                      prefs.setBool('alreadyshowHome', false);
+
                       // prefs.remove('oldHomeWorkList');
                       // Workmanager().cancelAll();
 
