@@ -229,7 +229,15 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
       if (doneButtonText!.contains('檢視')) {
         isDone = '收回並刪除作業';
       } else {
-        isDone = '交作業';
+        try {
+          var isOpenToSub =
+              soup.querySelector('div.fs-p.fs-hint.text-center')?.text.trim();
+          if (isOpenToSub!.contains('作業尚未')) {
+            isDone = '尚未開放繳交';
+          } else {
+            isDone = '交作業';
+          }
+        } catch (e) {}
       }
       print('isDone: $isDone');
       try {
@@ -1548,6 +1556,9 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                                         if (isDone == '交作業') {
                                           await _showSendBox();
                                         } else {
+                                          if (isDone == '尚未開放繳交') {
+                                            return;
+                                          }
                                           if (!mounted) return;
                                           EasyLoading.init();
                                           EasyLoading.instance
@@ -1776,6 +1787,9 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                                         if (isDone == '交作業') {
                                           await _showSendBox();
                                         } else {
+                                          if (isDone == '尚未開放繳交') {
+                                            return;
+                                          }
                                           if (!mounted) return;
                                           EasyLoading.init();
                                           EasyLoading.instance

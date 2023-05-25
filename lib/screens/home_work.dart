@@ -23,7 +23,7 @@ class HomeworkPage extends StatefulWidget {
 }
 
 class _HomeworkPageState extends State<HomeworkPage>
-    with WidgetsBindingObserver {
+     {
   // final _formKey = GlobalKey<FormState>();
   // final _scaffoldKey = GlobalKey<ScaffoldState>();
   // bool _cancelToken = false;
@@ -84,16 +84,16 @@ class _HomeworkPageState extends State<HomeworkPage>
     super.dispose();
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.resumed) {
-      // Enable controls when the page is resumed
-    } else if (state == AppLifecycleState.inactive ||
-        state == AppLifecycleState.paused) {
-      // Disable controls when the page is inactive or paused
-    }
-  }
+  // @override
+  // void didChangeAppLifecycleState(AppLifecycleState state) {
+  //   super.didChangeAppLifecycleState(state);
+  //   if (state == AppLifecycleState.resumed) {
+  //     // Enable controls when the page is resumed
+  //   } else if (state == AppLifecycleState.inactive ||
+  //       state == AppLifecycleState.paused) {
+  //     // Disable controls when the page is inactive or paused
+  //   }
+  // }
 
   void EZconfigLoading() {
     EasyLoading.instance
