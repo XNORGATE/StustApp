@@ -62,6 +62,7 @@ dependencies:
   flutter_easyloading: any
   cached_network_image: any
   smooth_page_indicator: ^1.1.0
+  font_awesome_flutter : any
   # googleapis: any
 
 

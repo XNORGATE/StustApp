@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_neumorphic_null_safety/flutter_neumorphic.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:stust_app/onBoard/on_board.dart';
 import 'package:stust_app/screens/create_activities.dart';
 import 'package:stust_app/screens/home_work.dart';
@@ -10,6 +13,8 @@ import 'package:stust_app/screens/Absent.dart';
 // import 'package:stust_app/unused/Reflection.dart';
 // import 'package:stust_app/unused/Send_homework.dart';
 import 'package:stust_app/utils/check_connecion.dart';
+import 'package:stust_app/utils/dialog_utils.dart';
+import 'package:url_launcher/url_launcher.dart';
 import './login/login_page.dart';
 import 'package:stust_app/constats/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -132,6 +137,39 @@ Future<void> main() async {
     ].request();
   }
 
+  Future<bool> checkBan(name) async {
+    var session = http.Client();
+
+    bool isBanned = false;
+    dynamic response;
+
+    //  print(name);
+    try {
+      //  print(name);
+      response = await session.post(
+        Uri.parse('http://api.xnor-development.com:70/stust_checkban'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'name': name,
+        }),
+      );
+      // print(name);
+      // print(response);
+      // print(jsonDecode(response.body));
+      if (response.statusCode == 200) {
+        Map<String, dynamic> responseMap = jsonDecode(response.body);
+        final bool isBanned = responseMap['banned'];
+        return isBanned;
+      }
+    } catch (e) {
+      if (e is SocketException) {
+        print(e.toString());
+        return isBanned;
+      }
+    }
+    return isBanned;
+  }
+
   runApp(MaterialApp(
     theme: ThemeData.light(),
     debugShowCheckedModeBanner: false,
@@ -145,11 +183,34 @@ Future<void> main() async {
 
           final account = prefs?.getString('account');
           final password = prefs?.getString('password');
+          final name = prefs?.getString('name');
 
           if (showHome == false) {
             return const OnboardingPage();
           } else {
             if (account != null && password != null) {
+              checkBan(name).then((isBanned) async {
+                // print({'name': name});
+                // print(isBanned);
+                if (isBanned) {
+                  try {
+                    final prefs = await SharedPreferences.getInstance();
+                    prefs.remove('account');
+                    prefs.remove('password');
+                    prefs.remove('name');
+                    // prefs.setBool('alreadyshowHome', false);
+
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                        '/', (Route<dynamic> route) => false);
+                    showDialogBox(context, '您已被開發者停權，請聯絡開發者');
+                  } catch (e) {
+                    print(e.toString());
+                  }
+
+                  // ignore: use_build_context_synchronously
+                }
+              });
+
               return const MyApp();
             } else {
               return const LoginPage();
@@ -294,11 +355,14 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _isLoading = true;
   bool _isActivitiesLoading = true;
   bool _isStudentActivitiesLoading = true;
+  bool _isActivitiesListError = false;
+  bool _isVpsError = false;
+  bool _isFoodListError = false;
 
-  final bool _ActivateHomeWorkNoti = false;
-  final bool _ActivateBulletinsNoti = false;
+  // final bool _ActivateHomeWorkNoti = false;
+  // final bool _ActivateBulletinsNoti = false;
 
-  final bool _value2 = false;
+  // final bool _value2 = false;
 
   late List<Map<String, String>> StustAppFoodList = [];
   late List<Map<String, String>> StustActivitiesList = [];
@@ -331,12 +395,55 @@ class _MyHomePageState extends State<MyHomePage> {
           },
         );
       }
+      getProfile();
+      // getProfile().then((value) {
+      //   try {
+      //     checkBan(name).then((isBanned) async {
+      //       // print({'name': name});
+      //       // print(isBanned);
+      //       if (isBanned) {
+      //         final prefs = await SharedPreferences.getInstance();
+      //         prefs.remove('account');
+      //         prefs.remove('password');
+      //         prefs.remove('name');
+      //         // prefs.setBool('alreadyshowHome', false);
+
+      //         if (!mounted) return;
+      //         Navigator.pushNamedAndRemoveUntil(
+      //             context, LoginPage.routeName, (route) => false);
+      //         showDialog(
+      //           context: context,
+      //           builder: (BuildContext context) {
+      //             return AlertDialog(
+      //               shape: RoundedRectangleBorder(
+      //                   borderRadius: BorderRadius.circular(15)),
+      //               title: const Text('您已被開發者停權，請聯絡開發者'),
+      //               actions: [
+      //                 TextButton(
+      //                   onPressed: () {
+      //                     Navigator.of(context).pop();
+      //                   },
+      //                   child: const Text('OK'),
+      //                 ),
+      //               ],
+      //             );
+      //           },
+      //         );
+      //       }
+      //     });
+      //   } catch (e) {}
+      // });
+
       try {
         getStudentActivitiesList().then((data) {
           setState(() {
+            // if (data.isEmpty) {
+            //   _isActivitiesListError = true;
+            // } else {
             StudentActivitiesList = data;
-            // print(StustAppFoodList);
+            // print(StudentActivitiesList);
             _isStudentActivitiesLoading = false;
+            // }
           });
         });
       } catch (e) {}
@@ -352,14 +459,16 @@ class _MyHomePageState extends State<MyHomePage> {
       try {
         getActivitiesList().then((data) {
           setState(() {
+            // if (data.isEmpty) {
+            //   _isVpsError = true;
+            // } else {
             StustActivitiesList = data;
             // print(StustActivitiesList);
             _isActivitiesLoading = false;
+            // }
           });
         });
       } catch (e) {}
-
-      getProfile();
     });
 
     // NotificationService()
@@ -389,6 +498,37 @@ class _MyHomePageState extends State<MyHomePage> {
   };
   var session = http.Client();
 
+  Future<bool> checkBan(name) async {
+    bool isBanned = false;
+    dynamic response;
+
+    //  print(name);
+    try {
+      //  print(name);
+      response = await session.post(
+        Uri.parse('http://api.xnor-development.com:70/stust_checkban'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'name': name,
+        }),
+      );
+      // print(name);
+      // print(response);
+      // print(jsonDecode(response.body));
+      if (response.statusCode == 200) {
+        Map<String, dynamic> responseMap = jsonDecode(response.body);
+        final bool isBanned = responseMap['banned'];
+        return isBanned;
+      }
+    } catch (e) {
+      if (e is SocketException) {
+        print(e.toString());
+        return isBanned;
+      }
+    }
+    return isBanned;
+  }
+
   Future<List<Map<String, String>>> getFoodList() async {
     // const url =
     //     "https://docs.google.com/spreadsheets/d/e/2PACX-1vRWoZnufjinYoSp0lQ9KOLuNRpxxMlOp9K2leRL7bNN4I2_wuvx-h7wWQJg4xOK4pTVv85qs3TbvyOG/pubhtml";
@@ -396,51 +536,73 @@ class _MyHomePageState extends State<MyHomePage> {
     //   url,
     // );
 
-    var response = await session.get(
-        Uri.parse(
-            'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWoZnufjinYoSp0lQ9KOLuNRpxxMlOp9K2leRL7bNN4I2_wuvx-h7wWQJg4xOK4pTVv85qs3TbvyOG/pubhtml'),
-        headers: {...headers});
+    try {
+      var response = await session.get(
+          Uri.parse(
+              'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWoZnufjinYoSp0lQ9KOLuNRpxxMlOp9K2leRL7bNN4I2_wuvx-h7wWQJg4xOK4pTVv85qs3TbvyOG/pubhtml'),
+          headers: {...headers});
 
-    var responseBodyHex = hex.encode(response.bodyBytes);
-    var document = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
-    // print(pressentScoreData.outerHtml);
+      var responseBodyHex = hex.encode(response.bodyBytes);
+      var document =
+          html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+      // print(pressentScoreData.outerHtml);
 
-    var Alltr = document.querySelectorAll('tr');
+      var Alltr = document.querySelectorAll('tr');
 
-    for (int i = 0; i < Alltr.length; i++) {
-      var AlltdInside = Alltr[i].querySelectorAll('td');
+      for (int i = 0; i < Alltr.length; i++) {
+        var AlltdInside = Alltr[i].querySelectorAll('td');
 
-      if (Alltr[i].attributes['style'] != null &&
-          Alltr[i].attributes['style'] == 'height: 20px' &&
-          AlltdInside[0].attributes['class'] != 's0') {
-        StustAppFoodList.add({
-          'name': AlltdInside[0].text.trim(),
-          'price': AlltdInside[1].text.trim(),
-          'time': AlltdInside[2].text.trim(),
-          'ratting': AlltdInside[3].text.trim(),
-          'foodType': AlltdInside[4].text.trim(),
-          'totalRating': AlltdInside[5].text.trim(),
-          'link': AlltdInside[6].text.trim(),
-          'image': AlltdInside[7].text.trim(),
-        });
+        if (Alltr[i].attributes['style'] != null &&
+            Alltr[i].attributes['style'] == 'height: 20px' &&
+            AlltdInside[0].attributes['class'] != 's0') {
+          StustAppFoodList.add({
+            'name': AlltdInside[0].text.trim(),
+            'price': AlltdInside[1].text.trim(),
+            'time': AlltdInside[2].text.trim(),
+            'ratting': AlltdInside[3].text.trim(),
+            'foodType': AlltdInside[4].text.trim(),
+            'totalRating': AlltdInside[5].text.trim(),
+            'link': AlltdInside[6].text.trim(),
+            'image': AlltdInside[7].text.trim(),
+          });
+        }
+      }
+
+      // print(StustAppFoodList);
+      final random = Random();
+      StustAppFoodList.shuffle(random); // randomize the order of the list
+
+      return StustAppFoodList;
+    } catch (e) {
+      if (e is SocketException) {
+        _isFoodListError = true;
+
+        return [];
       }
     }
+    _isFoodListError = true;
 
-    // print(StustAppFoodList);
-    final random = Random();
-    StustAppFoodList.shuffle(random); // randomize the order of the list
-
-    return StustAppFoodList;
+    return [];
   }
 
   Future<List<Map<String, String>>> getStudentActivitiesList() async {
-    var response = await session.get(
-      Uri.parse('http://api.xnor-development.com:70/stust_activities'),
-    );
+    dynamic response;
+    try {
+      response = await session.get(
+        Uri.parse('http://api.xnor-development.com:70/stust_activities'),
+      );
+    } catch (e) {
+      if (e is SocketException) {
+        _isVpsError = true;
+        return [];
+      }
+    }
 
     // Check that the request was successful
     if (response.statusCode != 200) {
-      throw Exception("Failed to fetch activities");
+      _isVpsError = true;
+
+      return [];
     }
 
     // Parse the response body into a Map
@@ -470,9 +632,23 @@ class _MyHomePageState extends State<MyHomePage> {
     // final response = await Dio().get(
     //   url,
     // );
+    dynamic response;
+    try {
+      response = await session.get(
+        Uri.parse('https://www.stust.edu.tw/'),
+      );
+    } catch (e) {
+      if (e is SocketException) {
+        _isActivitiesListError = true;
+        return [];
+      }
+    }
 
-    var response = await session
-        .get(Uri.parse('https://www.stust.edu.tw/'), headers: {...headers});
+    // Check that the request was successful
+    if (response.statusCode != 200) {
+      _isActivitiesListError = true;
+      return [];
+    }
 
     var responseBodyHex = hex.encode(response.bodyBytes);
     var document = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
@@ -497,7 +673,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // print(StustActivitiesList);
     // final random = Random();
     // StustActivitiesList.shuffle(random); // randomize the order of the list
-
+    // print(_isVpsError);
     return StustActivitiesList;
   }
 
@@ -798,28 +974,28 @@ class _MyHomePageState extends State<MyHomePage> {
                         fontSize: 17.5,
                         fontFamily: Bold),
                   ),
-                  IconButton(
-                    onPressed: () => Navigator.push(
-                        context,
-                        PageTransition(
-                            type: PageTransitionType.rightToLeftWithFade,
-                            child: const CreateActivitiesPage())),
-                    icon: const Icon(
-                      Icons.playlist_add,
-                      size: 25,
-                      color: Color.fromARGB(255, 110, 109, 110),
-                    ),
-                  )
+                  if (!_isVpsError) //
+                    IconButton(
+                      onPressed: () => Navigator.push(
+                          context,
+                          PageTransition(
+                              type: PageTransitionType.rightToLeftWithFade,
+                              child: const CreateActivitiesPage())),
+                      icon: const Icon(
+                        Icons.playlist_add,
+                        size: 25,
+                        color: Color.fromARGB(255, 110, 109, 110),
+                      ),
+                    )
                 ],
               ),
             ),
-            SizedBox(
-              height: 170,
-              child:
-                  // const Center(child: CircularProgressIndicator())
-                  _isStudentActivitiesLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : ListView.builder(
+            if (_isVpsError == false)
+              _isStudentActivitiesLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : SizedBox(
+                      height: 170,
+                      child: ListView.builder(
                           itemCount: StudentActivitiesList.length,
                           scrollDirection: Axis.horizontal,
                           itemBuilder: (context, index) {
@@ -835,7 +1011,9 @@ class _MyHomePageState extends State<MyHomePage> {
                               host: data['host'] ?? '',
                             );
                           }),
-            ),
+                    )
+            else
+              const Center(child: Text('無法取得資料，請稍後再試')),
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 10),
               child: Text(
@@ -846,13 +1024,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     fontFamily: Bold),
               ),
             ),
-            SizedBox(
-              height: 170,
-              child:
-                  // const Center(child: CircularProgressIndicator())
-                  _isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : ListView.builder(
+            if (_isFoodListError == false)
+              _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : SizedBox(
+                      height: 170,
+                      child: ListView.builder(
                           itemCount: StustAppFoodList.length,
                           scrollDirection: Axis.horizontal,
                           itemBuilder: (context, index) {
@@ -869,7 +1046,9 @@ class _MyHomePageState extends State<MyHomePage> {
                               price: data['price'] ?? '',
                             );
                           }),
-            ),
+                    )
+            else
+              const Center(child: Text('無法取得資料，請稍後再試')),
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 10),
               child: Text(
@@ -878,21 +1057,19 @@ class _MyHomePageState extends State<MyHomePage> {
                     color: Color(0xff323232), fontSize: 17.5, fontFamily: Bold),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 1),
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height * .18,
-                child:
-                    // const Center(child: CircularProgressIndicator())
-                    _isActivitiesLoading
-                        ? const Center(child: CircularProgressIndicator())
-                        : ListView.builder(
+            if (_isActivitiesListError == false)
+              _isActivitiesLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 1),
+                      child: SizedBox(
+                        height: MediaQuery.of(context).size.height * .18,
+                        child: ListView.builder(
                             itemCount: StustActivitiesList.length,
                             scrollDirection: Axis.horizontal,
                             itemBuilder: (context, index) {
                               // PandaPickItemModel model =
                               final data = StustActivitiesList[index];
-                              // print(data);
                               return ActivitiesScreen(
                                 href: data['href'] ?? '',
                                 image: data['image'] ?? '',
@@ -901,8 +1078,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                     : data['topic']!,
                               );
                             }),
-              ),
-            ),
+                      ),
+                    )
+            else
+              const Center(child: Text('無法取得資料，請稍後再試')),
           ],
         ),
       ),
@@ -1122,7 +1301,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     const Divider(
                       height: 35,
                       color: Color.fromARGB(255, 29, 33, 52),
-                      thickness: 1,
+                      thickness: 1.5,
                     ),
                     const SizedBox(
                       height: 15,
@@ -1132,9 +1311,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     //   icon: Icons.key,
                     // ),
                     DrawerItem(
-                      title: '幫助中心',
+                      title: '關於此APP',
                       icon: Icons.help_outline,
-                      onTap: () {},
+                      onTap: () {
+                        showDialogBox(context,
+                            '此App只負責協助獲取資料 並無存取您的密碼\n\n目前僅有一人維護+開發 \n\n因此若非重大bug 將不會有即時的更新 請見諒\n如熟悉Flutter與Dart，歡迎與我聯絡');
+                      },
                     ),
 
                     // DrawerItem(
@@ -1263,16 +1445,94 @@ class _MyHomePageState extends State<MyHomePage> {
                     //   },
                     // ),
 
-                    DrawerItem(
-                      title: '關於此APP',
-                      icon: Icons.perm_contact_calendar,
-                      onTap: () {},
-                    ),
+                    // DrawerItem(
+                    //   title: '回報緊急重大bug',
+                    //   icon: Icons.perm_contact_calendar,
+                    //   onTap: () {
+                    //     showDialogBox(context, '');
+                    //   },
+                    // ),
 
                     DrawerItem(
-                      title: '幫助中心',
+                      title: '聯絡開發者',
                       icon: Icons.help,
-                      onTap: () {},
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                                insetPadding: const EdgeInsets.all(5),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15)),
+                                title: SafeArea(
+                                  child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        const Center(
+                                          child: Text(
+                                            '聯絡作者(點擊)',
+                                            style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          height: 20,
+                                        ),
+                                        Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              IconButton(
+                                                onPressed: () {
+                                                  Clipboard.setData(
+                                                    const ClipboardData(
+                                                        text: 'XNORGATE#3514'),
+                                                  );
+                                                },
+                                                icon: const FaIcon(
+                                                    FontAwesomeIcons.discord),
+                                              ),
+                                              const Text(
+                                                  'Discord: XNORGATE#3514'),
+                                            ]),
+                                        Row(children: [
+                                          IconButton(
+                                            onPressed: () {
+                                              Clipboard.setData(
+                                                const ClipboardData(
+                                                    text:
+                                                        'tsaidarius@gmail.com'),
+                                              );
+                                            },
+                                            icon: const FaIcon(
+                                                FontAwesomeIcons.envelope),
+                                          ),
+                                          const Text(
+                                              'Gmail: tsaidarius@gmail.com'),
+                                        ]),
+                                        Row(children: [
+                                          IconButton(
+                                            onPressed: () async {
+                                              await launchUrl(
+                                                  Uri.parse(
+                                                      'https://www.instagram.com/_thr8t_/'),
+                                                  mode: LaunchMode
+                                                      .externalApplication);
+                                            },
+                                            icon: const FaIcon(
+                                                FontAwesomeIcons.instagram),
+                                          ),
+                                          const Text('IG (緊急重大bug回報請使用IG)'),
+                                        ]),
+                                      ]),
+                                )
+                                // content:
+                                );
+                          },
+                        );
+                      },
                     ),
 
                     // const DrawerItem(

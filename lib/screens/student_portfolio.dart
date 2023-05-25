@@ -45,7 +45,7 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
   @override
   void initState() {
     super.initState();
-      _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
 
     checkNetwork().then((isConnected) {
       if (isConnected == false) {
@@ -79,7 +79,6 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
         setState(() {});
         _submit();
       });
-
     });
   }
 
@@ -101,7 +100,9 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
 
   Future<Pages> getPages() async {
     // List<Map<String, String>> absentEvent = [];
-
+    dynamic pressentScoreData = '';
+    dynamic pastScoreData = '';
+    dynamic timeTableData = '';
     var session = http.Client();
     // print(_account);
     // print(_password);
@@ -141,85 +142,91 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
     };
     // print(formData);
 
-    var dio = Dio();
-    Response resp;
-    // try {
-    resp = await dio.post(
-      'https://course.stust.edu.tw/CourSel/Login.aspx',
-      data: formData,
-      options: Options(
-          contentType: Headers.formUrlEncodedContentType,
-          followRedirects: true,
-          validateStatus: (status) {
-            return true;
-          }),
-    );
-    // } catch (ex) {
-    //   print("E");
-    // }
+    try {
+      var dio = Dio();
+      Response resp;
+      // try {
+      resp = await dio.post(
+        'https://course.stust.edu.tw/CourSel/Login.aspx',
+        data: formData,
+        options: Options(
+            contentType: Headers.formUrlEncodedContentType,
+            followRedirects: true,
+            validateStatus: (status) {
+              return true;
+            }),
+      );
+      // } catch (ex) {
+      //   print("E");
+      // }
 
-    /// login
-    ///
-    // final uri =
-    //     Uri.https('course.stust.edu.tw', '/CourSel/Login.aspx', formData);
-    // //authenticate
-    // var response = await session.post(uri);
-    // response = await session.post(
-    //     Uri.parse('https://course.stust.edu.tw/CourSel/Login.aspx'),
-    //     headers: {...headers},
-    //     body: formData);
-    // var cookies = response.headers['set-cookie']!;
+      /// login
+      ///
+      // final uri =
+      //     Uri.https('course.stust.edu.tw', '/CourSel/Login.aspx', formData);
+      // //authenticate
+      // var response = await session.post(uri);
+      // response = await session.post(
+      //     Uri.parse('https://course.stust.edu.tw/CourSel/Login.aspx'),
+      //     headers: {...headers},
+      //     body: formData);
+      // var cookies = response.headers['set-cookie']!;
 
-    // print(response.bodyBytes);
-    // var responseBodyHex = hex.encode(response.);
-    // var data = utf8.decode(hex.decode(responseBodyHex));
-    // print(response.headers.values);
-    // print(cookies);
-    // print(response.statusCode);
-    // if (response.statusCode == 302) {
-    //   print(response.headers['Location']!);
-    //   response = await session.get(Uri.https(response.headers['Location']!));
-    // }
+      // print(response.bodyBytes);
+      // var responseBodyHex = hex.encode(response.);
+      // var data = utf8.decode(hex.decode(responseBodyHex));
+      // print(response.headers.values);
+      // print(cookies);
+      // print(response.statusCode);
+      // if (response.statusCode == 302) {
+      //   print(response.headers['Location']!);
+      //   response = await session.get(Uri.https(response.headers['Location']!));
+      // }
 
-    // var responseBodyHex = hex.encode(response.bodyBytes);
-    // var soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
-    // print(soup.outerHtml);
+      // var responseBodyHex = hex.encode(response.bodyBytes);
+      // var soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+      // print(soup.outerHtml);
 
-    // print(resp.headers['set-cookie']);
-    String cookies = resp.headers['set-cookie']!.join(";");
-    // print(resp.data);
+      // print(resp.headers['set-cookie']);
+      String cookies = resp.headers['set-cookie']!.join(";");
+      // print(resp.data);
 
-    ///go to pressentScore
-    var response = await session.get(
-        Uri.parse(
-            'https://course.stust.edu.tw/CourSel/Pages/PresentScore.aspx?role=S'),
-        headers: {...headers, 'cookie': cookies});
+      ///go to pressentScore
+      var response = await session.get(
+          Uri.parse(
+              'https://course.stust.edu.tw/CourSel/Pages/PresentScore.aspx?role=S'),
+          headers: {...headers, 'cookie': cookies});
 
-    var responseBodyHex = hex.encode(response.bodyBytes);
-    var pressentScoreData =
-        html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
-    // print(pressentScoreData.outerHtml);
+      var responseBodyHex = hex.encode(response.bodyBytes);
+      var pressentScoreData =
+          html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+      // print(pressentScoreData.outerHtml);
 
-    ///go to pastScore
-    response = await session.get(
-        Uri.parse(
-            'https://course.stust.edu.tw/CourSel/Pages/PastScore.aspx?role=S'),
-        headers: {...headers, 'cookie': cookies});
+      ///go to pastScore
+      response = await session.get(
+          Uri.parse(
+              'https://course.stust.edu.tw/CourSel/Pages/PastScore.aspx?role=S'),
+          headers: {...headers, 'cookie': cookies});
 
-    responseBodyHex = hex.encode(response.bodyBytes);
-    var pastScoreData =
-        html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+      responseBodyHex = hex.encode(response.bodyBytes);
+      var pastScoreData =
+          html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
 
-    ///go to timeTable
-    response = await session.get(
-        Uri.parse(
-            'https://course.stust.edu.tw/CourSel/Pages/MyTimeTable.aspx?role=S'),
-        headers: {...headers, 'cookie': cookies});
+      ///go to timeTable
+      response = await session.get(
+          Uri.parse(
+              'https://course.stust.edu.tw/CourSel/Pages/MyTimeTable.aspx?role=S'),
+          headers: {...headers, 'cookie': cookies});
 
-    responseBodyHex = hex.encode(response.bodyBytes);
-    var timeTableData =
-        html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+      responseBodyHex = hex.encode(response.bodyBytes);
+      var timeTableData =
+          html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
 
+      return Pages(
+          pressentScoreData: pressentScoreData,
+          pastScoreData: pastScoreData,
+          timeTableData: timeTableData);
+    } catch (e) {}
     return Pages(
         pressentScoreData: pressentScoreData,
         pastScoreData: pastScoreData,

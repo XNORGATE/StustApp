@@ -189,130 +189,135 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
       'b1': '登入Login'
     };
     // print(_account);
-    final uri = Uri.https(
-        'portal.stust.edu.tw', '/abs_stu/verify.asp', queryParameters);
-    //authenticate
-    var response = await session.post(uri);
-    String cookies = '${response.headers['set-cookie']!}; 3wave=1';
+    try {
+      final uri = Uri.https(
+          'portal.stust.edu.tw', '/abs_stu/verify.asp', queryParameters);
+      //authenticate
+      var response = await session.post(uri);
+      String cookies = '${response.headers['set-cookie']!}; 3wave=1';
 
-    final headers = {
-      'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
-    };
-    response = await session.get(
-        Uri.parse('https://portal.stust.edu.tw/abs_stu/query/week.asp'),
-        headers: {...headers, 'cookie': cookies});
-    // print(utf8.decode(response.bodyBytes));
-    var responseBodyHex = hex.encode(response.bodyBytes);
-    var soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
-    // print(utf8.decode(hex.decode(responseBodyHex)));
-    // final absent_event = <Map<String, dynamic>>[];
+      final headers = {
+        'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
+      };
+      response = await session.get(
+          Uri.parse('https://portal.stust.edu.tw/abs_stu/query/week.asp'),
+          headers: {...headers, 'cookie': cookies});
+      // print(utf8.decode(response.bodyBytes));
+      var responseBodyHex = hex.encode(response.bodyBytes);
+      var soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+      // print(utf8.decode(hex.decode(responseBodyHex)));
+      // final absent_event = <Map<String, dynamic>>[];
 
-    final res = soup.querySelectorAll("font.c10");
-    //  print(res);
-    for (final font in res) {
-      if (font.text.trim() == '遲到Late' || font.text.trim() == '缺課Absence') {
-        final reason = font.text.trim();
+      final res = soup.querySelectorAll("font.c10");
+      //  print(res);
+      for (final font in res) {
+        if (font.text.trim() == '遲到Late' || font.text.trim() == '缺課Absence') {
+          final reason = font.text.trim();
 
-        final td = font.parent;
-        final lesson = td?.previousElementSibling;
-        final lessonText = lesson!.querySelector('font')!.text.trim();
-        final section = lesson.previousElementSibling;
-        final sectionText = section!.querySelector('font')!.text.trim();
-        final date = section.previousElementSibling;
-        final dateText = date!.querySelector('font')!.text.trim();
-        final week = date.previousElementSibling;
-        final weekText = week!.querySelector('font')!.text.trim();
+          final td = font.parent;
+          final lesson = td?.previousElementSibling;
+          final lessonText = lesson!.querySelector('font')!.text.trim();
+          final section = lesson.previousElementSibling;
+          final sectionText = section!.querySelector('font')!.text.trim();
+          final date = section.previousElementSibling;
+          final dateText = date!.querySelector('font')!.text.trim();
+          final week = date.previousElementSibling;
+          final weekText = week!.querySelector('font')!.text.trim();
 
-        absentEvent.add({
-          'week': weekText,
-          'date': dateText,
-          'section': sectionText,
-          'lesson': lessonText,
-          'reason': reason
-        });
+          absentEvent.add({
+            'week': weekText,
+            'date': dateText,
+            'section': sectionText,
+            'lesson': lessonText,
+            'reason': reason
+          });
+        }
       }
-    }
 
-    ///  responseData載入後 先去載入假單查詢 然後將處理中的href 全部抓出來 依次載入所有href裡的節數與周次 與responseData 裡的week跟 section比對 看哪個假單處理中 卻還存在於responseData 將他們del掉 避免重複請假
+      ///  responseData載入後 先去載入假單查詢 然後將處理中的href 全部抓出來 依次載入所有href裡的節數與周次 與responseData 裡的week跟 section比對 看哪個假單處理中 卻還存在於responseData 將他們del掉 避免重複請假
 
-    response = await session.get(
-        Uri.parse('https://portal.stust.edu.tw/abs_stu/query/query.asp'),
-        headers: {...headers, 'cookie': cookies});
-    responseBodyHex = hex.encode(response.bodyBytes);
-    soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
-    final rows = soup.querySelectorAll('tr[align="center"][bgcolor="#FFFF99"]');
+      response = await session.get(
+          Uri.parse('https://portal.stust.edu.tw/abs_stu/query/query.asp'),
+          headers: {...headers, 'cookie': cookies});
+      responseBodyHex = hex.encode(response.bodyBytes);
+      soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+      final rows =
+          soup.querySelectorAll('tr[align="center"][bgcolor="#FFFF99"]');
 
-    for (final row in rows) {
-      final status = row.querySelector('td[width="104"]');
-      // print(status?.innerHtml);
+      for (final row in rows) {
+        final status = row.querySelector('td[width="104"]');
+        // print(status?.innerHtml);
 
-      if (status != null && status.innerHtml.contains('處理中')) {
-        String link =
-            'https://portal.stust.edu.tw/abs_stu/query/${row.querySelector('a')!.attributes['href']!}';
+        if (status != null && status.innerHtml.contains('處理中')) {
+          String link =
+              'https://portal.stust.edu.tw/abs_stu/query/${row.querySelector('a')!.attributes['href']!}';
 
-        response = await session
-            .get(Uri.parse(link), headers: {...headers, 'cookie': cookies});
-        responseBodyHex = hex.encode(response.bodyBytes);
-        soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
-        // print(soup.outerHtml);
+          response = await session
+              .get(Uri.parse(link), headers: {...headers, 'cookie': cookies});
+          responseBodyHex = hex.encode(response.bodyBytes);
+          soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+          // print(soup.outerHtml);
 
-        var week = soup.querySelector('td[width="134"]')!.text.trim();
-        var typeElement = soup.querySelector('td[valign="center"]');
-        var type = typeElement?.nextElementSibling?.text.trim(); // output 事假/病假
+          var week = soup.querySelector('td[width="134"]')!.text.trim();
+          var typeElement = soup.querySelector('td[valign="center"]');
+          var type =
+              typeElement?.nextElementSibling?.text.trim(); // output 事假/病假
 
-        // get the desired <td> element
-        var tdElement = soup.querySelector('td > font.c12 > b');
-        // print(tdElement);
+          // get the desired <td> element
+          var tdElement = soup.querySelector('td > font.c12 > b');
+          // print(tdElement);
 
-        // get the parent <tr> element
-        var trElement = tdElement!.parent!
-            .parent; //<td><font class="c12"><b>事假<br>Personal Leave</b>　</font></td>
-        var tableElement = trElement!.parent;
+          // get the parent <tr> element
+          var trElement = tdElement!.parent!
+              .parent; //<td><font class="c12"><b>事假<br>Personal Leave</b>　</font></td>
+          var tableElement = trElement!.parent;
 
-        // find the index of the <td> element in the parent <tr> element
-        var tdIndex = tableElement!.children.indexOf(trElement);
-        var day = (tdIndex.toInt() - 1).toString(); // 周幾
-        // print(tdIndex);
+          // find the index of the <td> element in the parent <tr> element
+          var tdIndex = tableElement!.children.indexOf(trElement);
+          var day = (tdIndex.toInt() - 1).toString(); // 周幾
+          // print(tdIndex);
 
-        // find the index of the parent <tr> element in its parent <table> element
-        // var trIndex = tableElement!.children.indexOf(trElement);
+          // find the index of the parent <tr> element in its parent <table> element
+          // var trIndex = tableElement!.children.indexOf(trElement);
 
-        // get the previous sibling <td> element to get the "5"
-        var prevTdElement = tableElement.children[0];
-        // print(prevTdElement);
-        var tdValue = prevTdElement.text;
-        // print('week $week ,周幾: $day  section: $tdValue');
+          // get the previous sibling <td> element to get the "5"
+          var prevTdElement = tableElement.children[0];
+          // print(prevTdElement);
+          var tdValue = prevTdElement.text;
+          // print('week $week ,周幾: $day  section: $tdValue');
 
-        // print(tdValue);
-        ExistLeaveRequest.add({
-          'week': week,
-          'day': day,
-          'section': tdValue,
-        });
+          // print(tdValue);
+          ExistLeaveRequest.add({
+            'week': week,
+            'day': day,
+            'section': tdValue,
+          });
+        }
       }
-    }
-    // print(ExistLeaveRequest);
-    // print(absentEvent);
+      // print(ExistLeaveRequest);
+      // print(absentEvent);
 
-    absentEvent.removeWhere((absent) => ExistLeaveRequest.any((exist) =>
-        exist['week'] == absent['week'] &&
-        exist['section'] == absent['section'] &&
-        exist['day'] == dateToWeekDay(absent['date']!).toString()));
-    // print(ExistLeaveRequest);
-    var now = DateTime.now();
+      absentEvent.removeWhere((absent) => ExistLeaveRequest.any((exist) =>
+          exist['week'] == absent['week'] &&
+          exist['section'] == absent['section'] &&
+          exist['day'] == dateToWeekDay(absent['date']!).toString()));
+      // print(ExistLeaveRequest);
+      var now = DateTime.now();
 
-    // Filter out entries where the date is more than 30 days ago
-    var filteredAbsentEvent = absentEvent.where((event) {
-      var eventDate = DateFormat('yyyy/MM/dd').parse(event['date']!);
-      return now.difference(eventDate).inDays <= 30;
-    }).toList();
+      // Filter out entries where the date is more than 30 days ago
+      var filteredAbsentEvent = absentEvent.where((event) {
+        var eventDate = DateFormat('yyyy/MM/dd').parse(event['date']!);
+        return now.difference(eventDate).inDays <= 30;
+      }).toList();
 
 // Update the original list with the filtered list
-    absentEvent = filteredAbsentEvent;
-    // Print the updated absentEvent list
-    // print(absentEvent);
+      absentEvent = filteredAbsentEvent;
+      // Print the updated absentEvent list
+      // print(absentEvent);
 
+      return absentEvent;
+    } catch (e) {}
     return absentEvent;
   }
 

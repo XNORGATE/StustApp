@@ -127,180 +127,182 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
   Future<void> getHomework() async {
     // var homeworkCode = '';
     var session = http.Client();
-    var response = await session
-        .get(Uri.parse('https://flipclass.stust.edu.tw/index/login'));
-    var soup = html.parse(response.body);
+    try {
+      var response = await session
+          .get(Uri.parse('https://flipclass.stust.edu.tw/index/login'));
+      var soup = html.parse(response.body);
 
-    var hiddenInput =
-        soup.querySelector('input[name="csrf-t"]')!.attributes['value']!;
+      var hiddenInput =
+          soup.querySelector('input[name="csrf-t"]')!.attributes['value']!;
 
-    var queryParameters = {
-      '_fmSubmit': 'yes',
-      'formVer': '3.0',
-      'formId': 'login_form',
-      'next': '/',
-      'act': 'kick',
-      'account': account,
-      'password': password,
-      'rememberMe': '',
-      'csrf-t': hiddenInput,
-    };
+      var queryParameters = {
+        '_fmSubmit': 'yes',
+        'formVer': '3.0',
+        'formId': 'login_form',
+        'next': '/',
+        'act': 'kick',
+        'account': account,
+        'password': password,
+        'rememberMe': '',
+        'csrf-t': hiddenInput,
+      };
 
-    final uri =
-        Uri.https('flipclass.stust.edu.tw', '/index/login', queryParameters);
+      final uri =
+          Uri.https('flipclass.stust.edu.tw', '/index/login', queryParameters);
 
-    response = await session.get(uri);
+      response = await session.get(uri);
 
-    if (response.headers['set-cookie'] == null) {
-      print('Authenticate error(帳號密碼錯誤)');
-      // Navigator.pop(context);
-      return;
-    }
-    var cookies = response.headers['set-cookie']!;
+      if (response.headers['set-cookie'] == null) {
+        print('Authenticate error(帳號密碼錯誤)');
+        // Navigator.pop(context);
+        return;
+      }
+      var cookies = response.headers['set-cookie']!;
 
-    var headers = {
-      'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
-      'cookie': cookies,
-    };
+      var headers = {
+        'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+        'cookie': cookies,
+      };
 
-    response = await session.get(Uri.parse(href), headers: headers);
-    soup = html.parse(response.body);
-    // print(soup.outerHtml);
-    // print(href);
-    // print(src);
+      response = await session.get(Uri.parse(href), headers: headers);
+      soup = html.parse(response.body);
+      // print(soup.outerHtml);
+      // print(href);
+      // print(src);
 
 // extract the desired data
-    typeOfHomework = soup
-        .querySelectorAll('dt')
-        .firstWhere((element) => element.text == '類型')
-        .nextElementSibling!
-        .text
-        .trim();
-    // print(typeOfHomework);
-    openForSubmission = soup
-        .querySelectorAll('dt')
-        .firstWhere((element) => element.text == '開放繳交')
-        .nextElementSibling!
-        .text
-        .trim();
-
-    submissionDeadline = soup
-        .querySelectorAll('dt')
-        .firstWhere((element) => element.text == '繳交期限')
-        .nextElementSibling
-        ?.querySelector('span')
-        ?.text
-        .trim();
-
-    numberOfSubmissions = soup
-        .querySelectorAll('dt')
-        .firstWhere((element) => element.text == '已繳交')
-        .nextElementSibling
-        ?.text
-        .trim();
-    allowLateSubmission = soup
-        .querySelectorAll('dt')
-        .firstWhere((element) => element.text == '允許遲交')
-        .nextElementSibling
-        ?.text
-        .trim();
-
-    gradeWeight = soup
-        .querySelectorAll('dt')
-        .firstWhere((element) => element.text == '成績比重')
-        .nextElementSibling
-        ?.text
-        .trim();
-
-    gradingMethod = soup
-        .querySelectorAll('dt')
-        .firstWhere((element) => element.text == '評分方式')
-        .nextElementSibling
-        ?.text
-        .trim();
-
-    var doneButtonText = soup
-        .querySelector('div.text-center.fs-margin-default > a > span')
-        ?.text
-        .trim();
-
-    if (doneButtonText!.contains('檢視')) {
-      isDone = '收回並刪除作業';
-    } else {
-      isDone = '交作業';
-    }
-    print('isDone: $isDone');
-    try {
-      detail = soup
+      typeOfHomework = soup
           .querySelectorAll('dt')
-          .firstWhere((element) => element.text == '說明')
+          .firstWhere((element) => element.text == '類型')
+          .nextElementSibling!
+          .text
+          .trim();
+      // print(typeOfHomework);
+      openForSubmission = soup
+          .querySelectorAll('dt')
+          .firstWhere((element) => element.text == '開放繳交')
+          .nextElementSibling!
+          .text
+          .trim();
+
+      submissionDeadline = soup
+          .querySelectorAll('dt')
+          .firstWhere((element) => element.text == '繳交期限')
+          .nextElementSibling
+          ?.querySelector('span')
+          ?.text
+          .trim();
+
+      numberOfSubmissions = soup
+          .querySelectorAll('dt')
+          .firstWhere((element) => element.text == '已繳交')
           .nextElementSibling
           ?.text
           .trim();
-    } catch (e) {
-      // Handle the error here
-    }
+      allowLateSubmission = soup
+          .querySelectorAll('dt')
+          .firstWhere((element) => element.text == '允許遲交')
+          .nextElementSibling
+          ?.text
+          .trim();
 
-    try {
-      final embedYTs = soup.querySelectorAll('iframe');
+      gradeWeight = soup
+          .querySelectorAll('dt')
+          .firstWhere((element) => element.text == '成績比重')
+          .nextElementSibling
+          ?.text
+          .trim();
 
-      for (var embedYT in embedYTs) {
-        if (embedYT.attributes['src']!.contains('youtube')) {
-          EmbedYTList.add(getThumbnail(embedYT.attributes['src']!));
-          // print(getThumbnail(embedYT.attributes['src']!));
+      gradingMethod = soup
+          .querySelectorAll('dt')
+          .firstWhere((element) => element.text == '評分方式')
+          .nextElementSibling
+          ?.text
+          .trim();
+
+      var doneButtonText = soup
+          .querySelector('div.text-center.fs-margin-default > a > span')
+          ?.text
+          .trim();
+
+      if (doneButtonText!.contains('檢視')) {
+        isDone = '收回並刪除作業';
+      } else {
+        isDone = '交作業';
+      }
+      print('isDone: $isDone');
+      try {
+        detail = soup
+            .querySelectorAll('dt')
+            .firstWhere((element) => element.text == '說明')
+            .nextElementSibling
+            ?.text
+            .trim();
+      } catch (e) {
+        // Handle the error here
+      }
+
+      try {
+        final embedYTs = soup.querySelectorAll('iframe');
+
+        for (var embedYT in embedYTs) {
+          if (embedYT.attributes['src']!.contains('youtube')) {
+            EmbedYTList.add(getThumbnail(embedYT.attributes['src']!));
+            // print(getThumbnail(embedYT.attributes['src']!));
+          }
         }
+        // print(EmbedYTList);
+      } catch (e) {}
+
+      try {
+        videoUrl = soup
+            .querySelectorAll('dt')
+            .firstWhere((element) => element.text == '說明')
+            .nextElementSibling
+            ?.querySelector('a')
+            ?.attributes['href'];
+      } catch (e) {
+        // Handle the error here
       }
-      // print(EmbedYTList);
-    } catch (e) {}
 
-    try {
-      videoUrl = soup
-          .querySelectorAll('dt')
-          .firstWhere((element) => element.text == '說明')
-          .nextElementSibling
-          ?.querySelector('a')
-          ?.attributes['href'];
-    } catch (e) {
-      // Handle the error here
-    }
-
-    try {
-      attachmentName = soup
-          .querySelectorAll('dt')
-          .firstWhere((element) => element.text == '附件')
-          .nextElementSibling
-          ?.querySelector('a')
-          ?.text
-          .trim();
-    } catch (e) {
-      // Handle the error here
-    }
-
-    try {
-      attachmentUrl = soup
-          .querySelectorAll('dt')
-          .firstWhere((element) => element.text == '附件')
-          .nextElementSibling
-          ?.querySelector('a')
-          ?.attributes['href'];
-
-      var attachment = await session.get(
-          Uri.parse('https://flipclass.stust.edu.tw$attachmentUrl'),
-          headers: headers);
-
-      if (attachment.headers['content-type']!.contains("image")) {
-        attachmentBytes = attachment.bodyBytes;
+      try {
+        attachmentName = soup
+            .querySelectorAll('dt')
+            .firstWhere((element) => element.text == '附件')
+            .nextElementSibling
+            ?.querySelector('a')
+            ?.text
+            .trim();
+      } catch (e) {
+        // Handle the error here
       }
-    } catch (e) {
-      // Handle the error here
-    }
 
-    // sleep(const Duration(seconds: 1));
-    try {
-      setState(() {
-        isLoaded = true;
-      });
+      try {
+        attachmentUrl = soup
+            .querySelectorAll('dt')
+            .firstWhere((element) => element.text == '附件')
+            .nextElementSibling
+            ?.querySelector('a')
+            ?.attributes['href'];
+
+        var attachment = await session.get(
+            Uri.parse('https://flipclass.stust.edu.tw$attachmentUrl'),
+            headers: headers);
+
+        if (attachment.headers['content-type']!.contains("image")) {
+          attachmentBytes = attachment.bodyBytes;
+        }
+      } catch (e) {
+        // Handle the error here
+      }
+
+      // sleep(const Duration(seconds: 1));
+      try {
+        setState(() {
+          isLoaded = true;
+        });
+      } catch (e) {}
     } catch (e) {}
   }
 
@@ -309,474 +311,482 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
     // var homeworkCode = '';
     var session = http.Client();
 
-    var response = await session
-        .get(Uri.parse('https://flipclass.stust.edu.tw/index/login'));
-    var soup = html.parse(response.body);
+    try {
+      var response = await session
+          .get(Uri.parse('https://flipclass.stust.edu.tw/index/login'));
+      var soup = html.parse(response.body);
 
-    String? hiddenInput =
-        soup.querySelector('input[name="csrf-t"]')!.attributes['value']!;
+      String? hiddenInput =
+          soup.querySelector('input[name="csrf-t"]')!.attributes['value']!;
 
-    var queryParameters = {
-      '_fmSubmit': 'yes',
-      'formVer': '3.0',
-      'formId': 'login_form',
-      'next': '/',
-      'act': 'kick',
-      'account': account,
-      'password': password,
-      'rememberMe': '',
-      'csrf-t': hiddenInput,
-    };
+      var queryParameters = {
+        '_fmSubmit': 'yes',
+        'formVer': '3.0',
+        'formId': 'login_form',
+        'next': '/',
+        'act': 'kick',
+        'account': account,
+        'password': password,
+        'rememberMe': '',
+        'csrf-t': hiddenInput,
+      };
 
-    final uri =
-        Uri.https('flipclass.stust.edu.tw', '/index/login', queryParameters);
+      final uri =
+          Uri.https('flipclass.stust.edu.tw', '/index/login', queryParameters);
 
-    response = await session.get(uri);
+      response = await session.get(uri);
 
-    var cookies = response.headers['set-cookie']!;
+      var cookies = response.headers['set-cookie']!;
 
-    var headers = {
-      'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
-      'cookie': cookies,
-    };
+      var headers = {
+        'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+        'cookie': cookies,
+      };
 
-    response = await session.get(
-      Uri.parse(href),
-      headers: {...headers},
-    );
-    soup = html.parse(response.body);
+      response = await session.get(
+        Uri.parse(href),
+        headers: {...headers},
+      );
+      soup = html.parse(response.body);
 
-    ///進到作業頁面
-    var iframeUrl = soup
-        .querySelector("a[data-modal-title='交作業' ]")!
-        .attributes['data-url']!;
+      ///進到作業頁面
+      var iframeUrl = soup
+          .querySelector("a[data-modal-title='交作業' ]")!
+          .attributes['data-url']!;
 
-    ///取得iframe的網址
-    iframeUrl = "https://flipclass.stust.edu.tw$iframeUrl&fs_no_foot_js=1";
-    // iframeUrl = iframeUrl;
+      ///取得iframe的網址
+      iframeUrl = "https://flipclass.stust.edu.tw$iframeUrl&fs_no_foot_js=1";
+      // iframeUrl = iframeUrl;
 
-    // print(iframeUrl);
+      // print(iframeUrl);
 
-    response = await session.get(
-      Uri.parse(iframeUrl),
-      headers: {...headers},
-    );
-    soup = html.parse(response.body); // 進到iframe
-    hiddenInput =
-        soup.querySelector('input[name="csrf-t"]')?.attributes['value'];
-    var titleInput =
-        soup.querySelector('input[name="title"]')?.attributes['value'];
-    print('hiddenInput: $hiddenInput');
-    print('title_input: $titleInput');
+      response = await session.get(
+        Uri.parse(iframeUrl),
+        headers: {...headers},
+      );
+      soup = html.parse(response.body); // 進到iframe
+      hiddenInput =
+          soup.querySelector('input[name="csrf-t"]')?.attributes['value'];
+      var titleInput =
+          soup.querySelector('input[name="title"]')?.attributes['value'];
+      print('hiddenInput: $hiddenInput');
+      print('title_input: $titleInput');
 
-    var finalUrl =
-        soup.querySelector('form[id="media-edit-form"]')!.attributes['action'];
+      var finalUrl = soup
+          .querySelector('form[id="media-edit-form"]')!
+          .attributes['action'];
 
-    print('finalUrl: $finalUrl');
-    // print('soup: ${soup.outerHtml}');
+      print('finalUrl: $finalUrl');
+      // print('soup: ${soup.outerHtml}');
 
-    List scripts = soup.getElementsByTagName('script');
-    // String firstUrlPath = '';
-    String secondUrlPath = '';
-    // // Define a regular expression pattern for the strings.
-    // RegExp regExp1 = RegExp(r'"fetchUrl":"(.*?)"');
+      List scripts = soup.getElementsByTagName('script');
+      // String firstUrlPath = '';
+      String secondUrlPath = '';
+      // // Define a regular expression pattern for the strings.
+      // RegExp regExp1 = RegExp(r'"fetchUrl":"(.*?)"');
 
-    // // Iterate over the script tags.
-    // for (var script in scripts) {
-    //   // Get the JavaScript code.
-    //   String jsCode = script.innerHtml;
-    //   // print('jsCode: $jsCode');
-    //   // Use the allMatches method to get all matches.
-    //   Iterable<RegExpMatch> matches = regExp1.allMatches(jsCode);
+      // // Iterate over the script tags.
+      // for (var script in scripts) {
+      //   // Get the JavaScript code.
+      //   String jsCode = script.innerHtml;
+      //   // print('jsCode: $jsCode');
+      //   // Use the allMatches method to get all matches.
+      //   Iterable<RegExpMatch> matches = regExp1.allMatches(jsCode);
 
-    //   // Extract the strings from the matches.
-    //   for (RegExpMatch match in matches) {
-    //     String string = match.group(0)!;
-    //     firstUrlPath = string;
-    //     // print('firstUrlPath: $firstUrlPath');
-    //   }
-    // }
-    // print('firstUrlPath: $firstUrlPath');
+      //   // Extract the strings from the matches.
+      //   for (RegExpMatch match in matches) {
+      //     String string = match.group(0)!;
+      //     firstUrlPath = string;
+      //     // print('firstUrlPath: $firstUrlPath');
+      //   }
+      // }
+      // print('firstUrlPath: $firstUrlPath');
 
-    RegExp regExp = RegExp(
-        r'uploadUrl\":\"\\/ajax\\/sys.modules.mod_fileUpload2\\/upload\\/\?([^"]*)');
+      RegExp regExp = RegExp(
+          r'uploadUrl\":\"\\/ajax\\/sys.modules.mod_fileUpload2\\/upload\\/\?([^"]*)');
 
-    // Iterate over the script tags.
-    for (var script in scripts) {
-      // Get the JavaScript code.
-      String jsCode = script.innerHtml;
+      // Iterate over the script tags.
+      for (var script in scripts) {
+        // Get the JavaScript code.
+        String jsCode = script.innerHtml;
 
-      // Use the allMatches method to get all matches.
-      Iterable<RegExpMatch> matches = regExp.allMatches(jsCode);
+        // Use the allMatches method to get all matches.
+        Iterable<RegExpMatch> matches = regExp.allMatches(jsCode);
 
-      // Extract the strings from the matches.
-      for (RegExpMatch match in matches) {
-        String string = match.group(0)!;
-        // Split the string by the question mark '?'
-        List<String> splitString = string.split('?');
+        // Extract the strings from the matches.
+        for (RegExpMatch match in matches) {
+          String string = match.group(0)!;
+          // Split the string by the question mark '?'
+          List<String> splitString = string.split('?');
 
-        // Check if the split produced two parts
-        if (splitString.length == 2) {
-          String result = splitString[1];
-          secondUrlPath = result;
+          // Check if the split produced two parts
+          if (splitString.length == 2) {
+            String result = splitString[1];
+            secondUrlPath = result;
+          }
+
+          // print('secondUrlPath: $secondUrlPath');
         }
-
-        // print('secondUrlPath: $secondUrlPath');
       }
-    }
-    print('secondUrlPath: $secondUrlPath');
+      print('secondUrlPath: $secondUrlPath');
 
-    // var firstUrl =
-    //     'https://flipclass.stust.edu.tw/ajax/sys.pages.attach_get/tempItems/?$firstUrlPath';
-    // print(firstUrl);
-    // response = await session.get(
-    //   // first request (after click and loading iframe)
-    //   Uri.parse(firstUrl),
-    //   headers: {...headers},
-    // );
+      // var firstUrl =
+      //     'https://flipclass.stust.edu.tw/ajax/sys.pages.attach_get/tempItems/?$firstUrlPath';
+      // print(firstUrl);
+      // response = await session.get(
+      //   // first request (after click and loading iframe)
+      //   Uri.parse(firstUrl),
+      //   headers: {...headers},
+      // );
 
-    var secondUrl =
-        'https://flipclass.stust.edu.tw/ajax/sys.modules.mod_fileUpload2/upload/?$secondUrlPath';
+      var secondUrl =
+          'https://flipclass.stust.edu.tw/ajax/sys.modules.mod_fileUpload2/upload/?$secondUrlPath';
 
-    for (var file in finalFiles) {
-      String fname = file.name;
-      FormData data = FormData.fromMap({
+      for (var file in finalFiles) {
+        String fname = file.name;
+        FormData data = FormData.fromMap({
+          'action': 'submit',
+          'title': titleInput,
+          'content': '',
+          'csrf-t': hiddenInput,
+          "files[]": await MultipartFile.fromFile(
+            file.path,
+            filename: fname,
+          ),
+        });
+
+        Dio dio = Dio();
+
+        print('Image File Name: $fname');
+        var response = await dio.post(
+          secondUrl,
+          data: data,
+          options: Options(
+            // contentType: 'multipart/form-data',
+            followRedirects: false,
+            headers: {...headers},
+          ),
+        );
+
+        print('response.statusCode: ${response.statusCode}');
+        print('response.data: ${response.data}');
+      }
+
+      var formData = {
+        '_fmSubmit': 'yes',
+        'formVer': '3.0',
+        'formId': 'media-edit-form',
         'action': 'submit',
         'title': titleInput,
-        'content': '',
-        'csrf-t': hiddenInput,
-        "files[]": await MultipartFile.fromFile(
-          file.path,
-          filename: fname,
-        ),
-      });
+        'content': '<div>$content</div>',
+        'csrf-t': hiddenInput
+      };
 
-      Dio dio = Dio();
-
-      print('Image File Name: $fname');
-      var response = await dio.post(
-        secondUrl,
-        data: data,
-        options: Options(
-          // contentType: 'multipart/form-data',
-          followRedirects: false,
+      response = await session.post(
+          Uri.parse('https://flipclass.stust.edu.tw$finalUrl'),
           headers: {...headers},
-        ),
-      );
+          body: formData);
 
-      print('response.statusCode: ${response.statusCode}');
-      print('response.data: ${response.data}');
-    }
+      ///最終繳交
 
-    var formData = {
-      '_fmSubmit': 'yes',
-      'formVer': '3.0',
-      'formId': 'media-edit-form',
-      'action': 'submit',
-      'title': titleInput,
-      'content': '<div>$content</div>',
-      'csrf-t': hiddenInput
-    };
+      var isDoneresponse = await session.get(
+          //確認繳交
+          Uri.parse(href),
+          headers: {...headers, 'cookie': cookies});
+      var isDonesoup = html.parse(isDoneresponse.body);
 
-    response = await session.post(
-        Uri.parse('https://flipclass.stust.edu.tw$finalUrl'),
-        headers: {...headers},
-        body: formData);
-
-    ///最終繳交
-
-    var isDoneresponse = await session.get(
-        //確認繳交
-        Uri.parse(href),
-        headers: {...headers, 'cookie': cookies});
-    var isDonesoup = html.parse(isDoneresponse.body);
-
-    // bool isDone = false;
-    // print(soup.outerHtml);
-    var doneButtonText = isDonesoup
-        .querySelector('div.text-center.fs-margin-default > a > span')
-        ?.text
-        .trim();
-    if (doneButtonText!.contains('檢視')) {
-      // isDone = true;
-      return true;
-    } else {
-      return false;
-    }
+      // bool isDone = false;
+      // print(soup.outerHtml);
+      var doneButtonText = isDonesoup
+          .querySelector('div.text-center.fs-margin-default > a > span')
+          ?.text
+          .trim();
+      if (doneButtonText!.contains('檢視')) {
+        // isDone = true;
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {}
   }
 
   Future<dynamic> sendHomeworkOnlyText(String href, String content) async {
     // var homeworkCode = '';
     var session = http.Client();
-    var response = await session
-        .get(Uri.parse('https://flipclass.stust.edu.tw/index/login'));
-    var soup = html.parse(response.body);
+    try {
+      var response = await session
+          .get(Uri.parse('https://flipclass.stust.edu.tw/index/login'));
+      var soup = html.parse(response.body);
 
-    String? hiddenInput =
-        soup.querySelector('input[name="csrf-t"]')!.attributes['value']!;
+      String? hiddenInput =
+          soup.querySelector('input[name="csrf-t"]')!.attributes['value']!;
 
-    var queryParameters = {
-      '_fmSubmit': 'yes',
-      'formVer': '3.0',
-      'formId': 'login_form',
-      'next': '/',
-      'act': 'kick',
-      'account': account,
-      'password': password,
-      'rememberMe': '',
-      'csrf-t': hiddenInput,
-    };
+      var queryParameters = {
+        '_fmSubmit': 'yes',
+        'formVer': '3.0',
+        'formId': 'login_form',
+        'next': '/',
+        'act': 'kick',
+        'account': account,
+        'password': password,
+        'rememberMe': '',
+        'csrf-t': hiddenInput,
+      };
 
-    final uri =
-        Uri.https('flipclass.stust.edu.tw', '/index/login', queryParameters);
+      final uri =
+          Uri.https('flipclass.stust.edu.tw', '/index/login', queryParameters);
 
-    response = await session.get(uri);
+      response = await session.get(uri);
 
-    var cookies = response.headers['set-cookie']!;
+      var cookies = response.headers['set-cookie']!;
 
-    var headers = {
-      'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
-      'cookie': cookies,
-    };
+      var headers = {
+        'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+        'cookie': cookies,
+      };
 
-    response = await session.get(
-      Uri.parse(href),
-      headers: {...headers},
-    );
-    soup = html.parse(response.body);
-
-    ///進到作業頁面
-    var iframeUrl = soup
-        .querySelector("a[data-modal-title='交作業' ]")!
-        .attributes['data-url']!;
-
-    ///取得iframe的網址
-    iframeUrl = "https://flipclass.stust.edu.tw$iframeUrl&fs_no_foot_js=1";
-    // iframeUrl = iframeUrl;
-
-    // print(iframeUrl);
-
-    response = await session.get(
-      Uri.parse(iframeUrl),
-      headers: {...headers},
-    );
-    soup = html.parse(response.body); // 進到iframe
-    hiddenInput =
-        soup.querySelector('input[name="csrf-t"]')?.attributes['value'];
-    var titleInput =
-        soup.querySelector('input[name="title"]')?.attributes['value'];
-    print('hiddenInput: $hiddenInput');
-    print('title_input: $titleInput');
-
-    var finalUrl =
-        soup.querySelector('form[id="media-edit-form"]')!.attributes['action'];
-    // .replaceAll('https://flipclass.stust.edu.tw', '');
-
-    print('finalUrl: $finalUrl');
-
-    var formData = {
-      '_fmSubmit': 'yes',
-      'formVer': '3.0',
-      'formId': 'media-edit-form',
-      'action': 'submit',
-      'title': titleInput,
-      'content': '<div>$content</div>',
-      'csrf-t': hiddenInput
-    };
-
-    response = await session.post(
-        Uri.parse('https://flipclass.stust.edu.tw$finalUrl'),
-        headers: {...headers},
-        body: formData);
-
-    ///最終繳交
-
-    var isDoneresponse = await session.get(
-        //確認繳交
+      response = await session.get(
         Uri.parse(href),
-        headers: {...headers, 'cookie': cookies});
-    var isDonesoup = html.parse(isDoneresponse.body);
+        headers: {...headers},
+      );
+      soup = html.parse(response.body);
 
-    // print(soup.outerHtml);
-    var doneButtonText = isDonesoup
-        .querySelector('div.text-center.fs-margin-default > a > span')
-        ?.text
-        .trim();
-    if (doneButtonText!.contains('檢視')) {
-      return true;
-    } else {
-      return false;
-    }
+      ///進到作業頁面
+      var iframeUrl = soup
+          .querySelector("a[data-modal-title='交作業' ]")!
+          .attributes['data-url']!;
+
+      ///取得iframe的網址
+      iframeUrl = "https://flipclass.stust.edu.tw$iframeUrl&fs_no_foot_js=1";
+      // iframeUrl = iframeUrl;
+
+      // print(iframeUrl);
+
+      response = await session.get(
+        Uri.parse(iframeUrl),
+        headers: {...headers},
+      );
+      soup = html.parse(response.body); // 進到iframe
+      hiddenInput =
+          soup.querySelector('input[name="csrf-t"]')?.attributes['value'];
+      var titleInput =
+          soup.querySelector('input[name="title"]')?.attributes['value'];
+      print('hiddenInput: $hiddenInput');
+      print('title_input: $titleInput');
+
+      var finalUrl = soup
+          .querySelector('form[id="media-edit-form"]')!
+          .attributes['action'];
+      // .replaceAll('https://flipclass.stust.edu.tw', '');
+
+      print('finalUrl: $finalUrl');
+
+      var formData = {
+        '_fmSubmit': 'yes',
+        'formVer': '3.0',
+        'formId': 'media-edit-form',
+        'action': 'submit',
+        'title': titleInput,
+        'content': '<div>$content</div>',
+        'csrf-t': hiddenInput
+      };
+
+      response = await session.post(
+          Uri.parse('https://flipclass.stust.edu.tw$finalUrl'),
+          headers: {...headers},
+          body: formData);
+
+      ///最終繳交
+
+      var isDoneresponse = await session.get(
+          //確認繳交
+          Uri.parse(href),
+          headers: {...headers, 'cookie': cookies});
+      var isDonesoup = html.parse(isDoneresponse.body);
+
+      // print(soup.outerHtml);
+      var doneButtonText = isDonesoup
+          .querySelector('div.text-center.fs-margin-default > a > span')
+          ?.text
+          .trim();
+      if (doneButtonText!.contains('檢視')) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {}
   }
 
   Future<bool> deleteHomework() async {
     // var homeworkCode = '';
     var session = http.Client();
-    var response = await session
-        .get(Uri.parse('https://flipclass.stust.edu.tw/index/login'));
-    var soup = html.parse(response.body);
+    try {
+      var response = await session
+          .get(Uri.parse('https://flipclass.stust.edu.tw/index/login'));
+      var soup = html.parse(response.body);
 
-    String? hiddenInput =
-        soup.querySelector('input[name="csrf-t"]')!.attributes['value']!;
+      String? hiddenInput =
+          soup.querySelector('input[name="csrf-t"]')!.attributes['value']!;
 
-    var queryParameters = {
-      '_fmSubmit': 'yes',
-      'formVer': '3.0',
-      'formId': 'login_form',
-      'next': '/',
-      'act': 'kick',
-      'account': account,
-      'password': password,
-      'rememberMe': '',
-      'csrf-t': hiddenInput,
-    };
+      var queryParameters = {
+        '_fmSubmit': 'yes',
+        'formVer': '3.0',
+        'formId': 'login_form',
+        'next': '/',
+        'act': 'kick',
+        'account': account,
+        'password': password,
+        'rememberMe': '',
+        'csrf-t': hiddenInput,
+      };
 
-    final uri =
-        Uri.https('flipclass.stust.edu.tw', '/index/login', queryParameters);
+      final uri =
+          Uri.https('flipclass.stust.edu.tw', '/index/login', queryParameters);
 
-    response = await session.get(uri);
+      response = await session.get(uri);
 
-    var cookies = response.headers['set-cookie']!;
+      var cookies = response.headers['set-cookie']!;
 
-    var headers = {
-      'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
-      'cookie': cookies,
-    };
+      var headers = {
+        'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+        'cookie': cookies,
+      };
 
-    response = await session.get(
-      Uri.parse(href),
-      headers: {...headers},
-    );
-    soup = html.parse(response.body);
-
-    // print(soup.outerHtml);
-    var editUrl = soup
-        .querySelector('div.text-center.fs-margin-default > a')!
-        .attributes['href']!;
-
-    response = await session.get(
-      Uri.parse('https://flipclass.stust.edu.tw$editUrl'),
-      headers: {...headers},
-    );
-    soup = html.parse(response.body);
-
-    String extractURL(String htmlString) {
-      RegExp regExp = RegExp(r"fs\.post\('(.*?)',");
-      Match? match = regExp.firstMatch(htmlString);
-      return match?.group(1) ?? '';
-    }
-    // List scripts = soup.getElementsByTagName('script');
-
-    String url = extractURL(soup.outerHtml); //收回的URL
-    print('retrieve_url: $url');
-
-    Dio dio = Dio();
-
-    var Dioresponse = await dio.post(
-      'https://flipclass.stust.edu.tw$url',
-      options: Options(
-        // contentType: 'multipart/form-data',
-        followRedirects: true,
-        headers: {...headers},
-      ),
-    );
-
-    // RegExp regExp = RegExp(r'reportId=(\d+)&');
-    // Match? match = regExp.firstMatch(url);
-    // String? reportID = '';
-    // if (match != null) {
-    //   reportID = match.group(1);
-    //   print(reportID);
-    // } else {
-    //   print('No match found');
-    // }
-
-    response = await session.get(
-      Uri.parse('https://flipclass.stust.edu.tw$editUrl'),
-      headers: {...headers},
-    );
-
-    soup = html.parse(response.body);
-
-    // print(Dioresponse.data.toString());
-    // print(Dioresponse.data);
-    // print('soup: $soup');
-    // print('soup.outerHtml ${soup.outerHtml}');
-    List scripts = soup.getElementsByTagName('script');
-    print('scripts: $scripts');
-    String UrlPath = '';
-
-    var regExp = RegExp(
-        r'"/ajax/sys\.pages\.homework_report/deleteReport/\?id=\d+&_lock=id&ajaxAuth=\w+"');
-    // Match match = regExp.firstMatch(soup.outerHtml) as Match;
-
-    for (var script in scripts) {
-      // Get the JavaScript code.
-      String jsCode = script.innerHtml;
-      print('jsCode: $jsCode');
-      // Use the allMatches method to get all matches.
-
-      String? matchedString = regExp.stringMatch(jsCode);
-
-      // Remove the double quotes around the matched string.
-      if (matchedString != null) {
-        matchedString = matchedString.substring(1, matchedString.length - 1);
-        UrlPath = matchedString;
-      }
-
-      // print('UrlPath: $UrlPath');
-
-      // Iterable<RegExpMatch> matches = regExp.allMatches(jsCode);
-
-      // Extract the strings from the matches.
-      // for (RegExpMatch match in matches) {
-      //   String string = match.group(0)!;
-      //   // Split the string by the question mark '?'
-      //   List<String> splitString = string.split('?');
-
-      //   // Check if the split produced two parts
-      //   if (splitString.length == 2) {
-      //     String result = splitString[1];
-      //     UrlPath = result;
-      //   }
-
-      //   // print('secondUrlPath: $secondUrlPath');
-      // }
-    }
-    print('UrlPath: $UrlPath');
-
-    Dioresponse = await dio.post(
-      'https://flipclass.stust.edu.tw$UrlPath',
-      options: Options(
-        // contentType: 'multipart/form-data',
-        followRedirects: true,
-        headers: {...headers},
-      ),
-    ); // 刪除作業
-
-    // response = await session.post(
-    //   Uri.parse('https://flipclass.stust.edu.tw$UrlPath'),
-    //   headers: {...headers},
-    // );
-
-    var isDoneresponse = await session.get(
-        //確認繳交
+      response = await session.get(
         Uri.parse(href),
-        headers: {...headers, 'cookie': cookies});
-    var isDonesoup = html.parse(isDoneresponse.body);
+        headers: {...headers},
+      );
+      soup = html.parse(response.body);
 
-    // bool isDone = false;
-    // print(soup.outerHtml);
-    var doneButtonText = isDonesoup
-        .querySelector('div.text-center.fs-margin-default > a > span')
-        ?.text
-        .trim();
-    if (!doneButtonText!.contains('檢視')) {
-      return true;
-    }
+      // print(soup.outerHtml);
+      var editUrl = soup
+          .querySelector('div.text-center.fs-margin-default > a')!
+          .attributes['href']!;
+
+      response = await session.get(
+        Uri.parse('https://flipclass.stust.edu.tw$editUrl'),
+        headers: {...headers},
+      );
+      soup = html.parse(response.body);
+
+      String extractURL(String htmlString) {
+        RegExp regExp = RegExp(r"fs\.post\('(.*?)',");
+        Match? match = regExp.firstMatch(htmlString);
+        return match?.group(1) ?? '';
+      }
+      // List scripts = soup.getElementsByTagName('script');
+
+      String url = extractURL(soup.outerHtml); //收回的URL
+      print('retrieve_url: $url');
+
+      Dio dio = Dio();
+
+      var Dioresponse = await dio.post(
+        'https://flipclass.stust.edu.tw$url',
+        options: Options(
+          // contentType: 'multipart/form-data',
+          followRedirects: true,
+          headers: {...headers},
+        ),
+      );
+
+      // RegExp regExp = RegExp(r'reportId=(\d+)&');
+      // Match? match = regExp.firstMatch(url);
+      // String? reportID = '';
+      // if (match != null) {
+      //   reportID = match.group(1);
+      //   print(reportID);
+      // } else {
+      //   print('No match found');
+      // }
+
+      response = await session.get(
+        Uri.parse('https://flipclass.stust.edu.tw$editUrl'),
+        headers: {...headers},
+      );
+
+      soup = html.parse(response.body);
+
+      // print(Dioresponse.data.toString());
+      // print(Dioresponse.data);
+      // print('soup: $soup');
+      // print('soup.outerHtml ${soup.outerHtml}');
+      List scripts = soup.getElementsByTagName('script');
+      print('scripts: $scripts');
+      String UrlPath = '';
+
+      var regExp = RegExp(
+          r'"/ajax/sys\.pages\.homework_report/deleteReport/\?id=\d+&_lock=id&ajaxAuth=\w+"');
+      // Match match = regExp.firstMatch(soup.outerHtml) as Match;
+
+      for (var script in scripts) {
+        // Get the JavaScript code.
+        String jsCode = script.innerHtml;
+        print('jsCode: $jsCode');
+        // Use the allMatches method to get all matches.
+
+        String? matchedString = regExp.stringMatch(jsCode);
+
+        // Remove the double quotes around the matched string.
+        if (matchedString != null) {
+          matchedString = matchedString.substring(1, matchedString.length - 1);
+          UrlPath = matchedString;
+        }
+
+        // print('UrlPath: $UrlPath');
+
+        // Iterable<RegExpMatch> matches = regExp.allMatches(jsCode);
+
+        // Extract the strings from the matches.
+        // for (RegExpMatch match in matches) {
+        //   String string = match.group(0)!;
+        //   // Split the string by the question mark '?'
+        //   List<String> splitString = string.split('?');
+
+        //   // Check if the split produced two parts
+        //   if (splitString.length == 2) {
+        //     String result = splitString[1];
+        //     UrlPath = result;
+        //   }
+
+        //   // print('secondUrlPath: $secondUrlPath');
+        // }
+      }
+      print('UrlPath: $UrlPath');
+
+      Dioresponse = await dio.post(
+        'https://flipclass.stust.edu.tw$UrlPath',
+        options: Options(
+          // contentType: 'multipart/form-data',
+          followRedirects: true,
+          headers: {...headers},
+        ),
+      ); // 刪除作業
+
+      // response = await session.post(
+      //   Uri.parse('https://flipclass.stust.edu.tw$UrlPath'),
+      //   headers: {...headers},
+      // );
+
+      var isDoneresponse = await session.get(
+          //確認繳交
+          Uri.parse(href),
+          headers: {...headers, 'cookie': cookies});
+      var isDonesoup = html.parse(isDoneresponse.body);
+
+      // bool isDone = false;
+      // print(soup.outerHtml);
+      var doneButtonText = isDonesoup
+          .querySelector('div.text-center.fs-margin-default > a > span')
+          ?.text
+          .trim();
+      if (!doneButtonText!.contains('檢視')) {
+        return true;
+      }
+    } catch (e) {}
     return false;
   }
 
@@ -1699,27 +1709,26 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                                 height: 10,
                               ),
                               InkWell(
-                                onTap: () => launchUrl(
-                                    Uri.parse(
-                                        'https://flipclass.stust.edu.tw$attachmentUrl'),
-                                    mode: LaunchMode
-                                        .externalNonBrowserApplication),
-                                child: FittedBox(
+                                  onTap: () => launchUrl(
+                                      Uri.parse(
+                                          'https://flipclass.stust.edu.tw$attachmentUrl'),
+                                      mode: LaunchMode
+                                          .externalNonBrowserApplication),
+                                  child: FittedBox(
                                     fit: BoxFit.contain,
                                     child: Row(
-                                  children: [
-                                    const Icon(Icons.file_present),
-                                    Text(
-                                      '$attachmentName',
-                                      style: const TextStyle(
-                                          color: Colors.blue,
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.bold),
+                                      children: [
+                                        const Icon(Icons.file_present),
+                                        Text(
+                                          '$attachmentName',
+                                          style: const TextStyle(
+                                              color: Colors.blue,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                                )
-                              ),
+                                  )),
                               if (attachmentBytes != null)
                                 Image.memory(attachmentBytes!),
                               const SizedBox(
@@ -1879,7 +1888,6 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                         ),
                       ),
                     ),
-
                 ],
               )
             : const Center(child: CircularProgressIndicator()),

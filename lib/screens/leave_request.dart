@@ -145,56 +145,59 @@ class _AbsentPageState extends State<AbsentPage> {
     final uri = Uri.https(
         'portal.stust.edu.tw', '/abs_stu/verify.asp', queryParameters);
     //authenticate
-    var response = await session.post(uri);
-    String cookies = '${response.headers['set-cookie']!}; 3wave=1';
+    try {
+      var response = await session.post(uri);
+      String cookies = '${response.headers['set-cookie']!}; 3wave=1';
 
-    final headers = {
-      'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
-    };
+      final headers = {
+        'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
+      };
 
-    response = await session.get(
-        Uri.parse('https://portal.stust.edu.tw/abs_stu/query/query.asp'),
-        headers: {...headers, 'cookie': cookies});
-    var responseBodyHex = hex.encode(response.bodyBytes);
-    var soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+      response = await session.get(
+          Uri.parse('https://portal.stust.edu.tw/abs_stu/query/query.asp'),
+          headers: {...headers, 'cookie': cookies});
+      var responseBodyHex = hex.encode(response.bodyBytes);
+      var soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
 
-    var trElement = soup
-        .querySelectorAll('tr[align="center"][bgcolor="#FFFF99"]'); // every row
-    for (var i = 0; i < trElement.length; i++) {
-      var tdElement = trElement[i].querySelectorAll('td');
-      var aElement = trElement[i].querySelector('a');
+      var trElement = soup.querySelectorAll(
+          'tr[align="center"][bgcolor="#FFFF99"]'); // every row
+      for (var i = 0; i < trElement.length; i++) {
+        var tdElement = trElement[i].querySelectorAll('td');
+        var aElement = trElement[i].querySelector('a');
 
-      var href = aElement!.attributes['href']; //假單連結
+        var href = aElement!.attributes['href']; //假單連結
 
-      var leaveType = tdElement[0].text; //假別
-      var week = trElement[i].querySelector('a')!.text; // 週次-序號
-      var date = tdElement[2].text; // 登錄時間
-      var teacher = tdElement[3].text; // 導師/指導老師
-      var instructor = tdElement[4].text; // 課程老師
-      var chairman = tdElement[5].text; // 系主任/組長
-      var chief = tdElement[6].text; // 生輔組組長
-      var dean = tdElement[7].text; // 學務處處長
-      var guidance = tdElement[8].text; // 退件說明
-      var status = tdElement[9].text; // 簽核狀態
+        var leaveType = tdElement[0].text; //假別
+        var week = trElement[i].querySelector('a')!.text; // 週次-序號
+        var date = tdElement[2].text; // 登錄時間
+        var teacher = tdElement[3].text; // 導師/指導老師
+        var instructor = tdElement[4].text; // 課程老師
+        var chairman = tdElement[5].text; // 系主任/組長
+        var chief = tdElement[6].text; // 生輔組組長
+        var dean = tdElement[7].text; // 學務處處長
+        var guidance = tdElement[8].text; // 退件說明
+        var status = tdElement[9].text; // 簽核狀態
 
-      LeaveRequest.add({
-        'leaveType': leaveType,
-        'week': week,
-        'date': date,
-        'teacher': teacher,
-        'instructor': instructor,
-        'chairman': chairman,
-        'chief': chief,
-        'dean': dean,
-        'guidance': guidance,
-        'status': status,
-        'href': href
-      });
-    }
-    // print(ExistLeaveRequest);
-    // print(absentEvent);
+        LeaveRequest.add({
+          'leaveType': leaveType,
+          'week': week,
+          'date': date,
+          'teacher': teacher,
+          'instructor': instructor,
+          'chairman': chairman,
+          'chief': chief,
+          'dean': dean,
+          'guidance': guidance,
+          'status': status,
+          'href': href
+        });
+      }
+      // print(ExistLeaveRequest);
+      // print(absentEvent);
 
+      return LeaveRequest;
+    } catch (e) {}
     return LeaveRequest;
   }
 
@@ -330,23 +333,33 @@ class _AbsentPageState extends State<AbsentPage> {
                           children: [
                             TableCell(
                               child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(1.5,5,1.5,7),
+                                padding:
+                                    const EdgeInsets.fromLTRB(1.5, 5, 1.5, 7),
                                 child: Text(
                                   data['leaveType']!,
-                                  style: _responseData.indexOf(data) == 0 ? const TextStyle(
-                                        color: Colors.black, fontSize: 10 ,fontWeight: FontWeight.bold) :const TextStyle(fontSize: 8),
+                                  style: _responseData.indexOf(data) == 0
+                                      ? const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold)
+                                      : const TextStyle(fontSize: 8),
                                 ),
                               ),
                             ),
                             TableCell(
                               child: InkWell(
                                 child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(1.5,5,1.5,7),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(1.5, 5, 1.5, 7),
                                   child: Text(
                                     data['week']!,
-                                    style: _responseData.indexOf(data) == 0 ? const TextStyle(
-                                        color: Colors.black, fontSize: 10 ,fontWeight: FontWeight.bold) :const TextStyle(
-                                        color: Colors.blue, fontSize: 11),
+                                    style: _responseData.indexOf(data) == 0
+                                        ? const TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold)
+                                        : const TextStyle(
+                                            color: Colors.blue, fontSize: 11),
                                   ),
                                 ),
                                 onTap: () async {
@@ -364,49 +377,61 @@ class _AbsentPageState extends State<AbsentPage> {
                                     final uri = Uri.https('portal.stust.edu.tw',
                                         '/abs_stu/verify.asp', queryParameters);
                                     //authenticate
-                                    var response = await session.post(uri);
-                                    String cookies =
-                                        '${response.headers['set-cookie']!}; 3wave=1';
+                                    try {
+                                      var response = await session.post(uri);
+                                      String cookies =
+                                          '${response.headers['set-cookie']!}; 3wave=1';
 
-                                    final headers = {
-                                      'User-Agent':
-                                          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
-                                    };
-                                    final link = data['href'];
-                                    response = await session.get(
-                                        Uri.parse(
-                                            'https://portal.stust.edu.tw/abs_stu//query/$link'),
-                                        headers: {
-                                          ...headers,
-                                          'cookie': cookies
-                                        });
-                                    var responseBodyHex =
-                                        hex.encode(response.bodyBytes);
-                                    var soup = html_parser.parse(utf8
-                                        .decode(hex.decode(responseBodyHex)));
-                                    _showAlertDialog(soup);
+                                      final headers = {
+                                        'User-Agent':
+                                            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
+                                      };
+                                      final link = data['href'];
+                                      response = await session.get(
+                                          Uri.parse(
+                                              'https://portal.stust.edu.tw/abs_stu//query/$link'),
+                                          headers: {
+                                            ...headers,
+                                            'cookie': cookies
+                                          });
+                                      var responseBodyHex =
+                                          hex.encode(response.bodyBytes);
+                                      var soup = html_parser.parse(utf8
+                                          .decode(hex.decode(responseBodyHex)));
+                                      _showAlertDialog(soup);
+                                    } catch (e) {}
                                   }
                                 },
                               ),
                             ),
                             TableCell(
                               child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(1.5,5,1.5,7),
+                                padding:
+                                    const EdgeInsets.fromLTRB(1.5, 5, 1.5, 7),
                                 child: Text(
                                   data['date'].toString(),
-                                    style: _responseData.indexOf(data) == 0 ? const TextStyle(
-                                        color: Colors.black, fontSize: 10 ,fontWeight: FontWeight.bold) : const TextStyle(fontSize: 11),
+                                  style: _responseData.indexOf(data) == 0
+                                      ? const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold)
+                                      : const TextStyle(fontSize: 11),
                                 ),
                               ),
                             ),
                             TableCell(
                               child: InkWell(
                                 child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(1.5,5,1.5,7),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(1.5, 5, 1.5, 7),
                                   child: Text(
                                     data['teacher']!,
-                                    style: _responseData.indexOf(data) == 0 ? const TextStyle(
-                                        color: Colors.black, fontSize: 10 ,fontWeight: FontWeight.bold) : const TextStyle(fontSize: 11),
+                                    style: _responseData.indexOf(data) == 0
+                                        ? const TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold)
+                                        : const TextStyle(fontSize: 11),
                                   ),
                                 ),
                               ),
@@ -414,11 +439,16 @@ class _AbsentPageState extends State<AbsentPage> {
                             TableCell(
                               child: InkWell(
                                 child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(1.5,5,1.5,7),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(1.5, 5, 1.5, 7),
                                   child: Text(
                                     data['instructor']!,
-                                    style:_responseData.indexOf(data) == 0 ? const TextStyle(
-                                        color: Colors.black, fontSize: 10 ,fontWeight: FontWeight.bold) : const TextStyle(fontSize: 11),
+                                    style: _responseData.indexOf(data) == 0
+                                        ? const TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold)
+                                        : const TextStyle(fontSize: 11),
                                   ),
                                 ),
                               ),
@@ -427,11 +457,16 @@ class _AbsentPageState extends State<AbsentPage> {
                             TableCell(
                               child: InkWell(
                                 child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(1.5,5,1.5,7),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(1.5, 5, 1.5, 7),
                                   child: Text(
                                     data['chairman']!,
-                                    style: _responseData.indexOf(data) == 0 ? const TextStyle(
-                                        color: Colors.black, fontSize: 10 ,fontWeight: FontWeight.bold) : const TextStyle(fontSize: 11),
+                                    style: _responseData.indexOf(data) == 0
+                                        ? const TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold)
+                                        : const TextStyle(fontSize: 11),
                                   ),
                                 ),
                               ),
@@ -439,11 +474,16 @@ class _AbsentPageState extends State<AbsentPage> {
                             TableCell(
                               child: InkWell(
                                 child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(1.5,5,1.5,7),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(1.5, 5, 1.5, 7),
                                   child: Text(
                                     data['chief']!,
-                                    style: _responseData.indexOf(data) == 0 ? const TextStyle(
-                                        color: Colors.black, fontSize: 10 ,fontWeight: FontWeight.bold) : const TextStyle(fontSize: 11),
+                                    style: _responseData.indexOf(data) == 0
+                                        ? const TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold)
+                                        : const TextStyle(fontSize: 11),
                                   ),
                                 ),
                               ),
@@ -451,11 +491,16 @@ class _AbsentPageState extends State<AbsentPage> {
                             TableCell(
                               child: InkWell(
                                 child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(1.5,5,1.5,7),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(1.5, 5, 1.5, 7),
                                   child: Text(
                                     data['dean']!,
-                                    style: _responseData.indexOf(data) == 0 ? const TextStyle(
-                                        color: Colors.black, fontSize: 10 ,fontWeight: FontWeight.bold) : const TextStyle(fontSize: 11),
+                                    style: _responseData.indexOf(data) == 0
+                                        ? const TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold)
+                                        : const TextStyle(fontSize: 11),
                                   ),
                                 ),
                               ),
@@ -463,11 +508,16 @@ class _AbsentPageState extends State<AbsentPage> {
                             TableCell(
                               child: InkWell(
                                 child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(1.5,5,1.5,7),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(1.5, 5, 1.5, 7),
                                   child: Text(
                                     data['guidance']!,
-                                    style: _responseData.indexOf(data) == 0 ? const TextStyle(
-                                        color: Colors.black, fontSize: 10 ,fontWeight: FontWeight.bold) : const TextStyle(fontSize: 11),
+                                    style: _responseData.indexOf(data) == 0
+                                        ? const TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold)
+                                        : const TextStyle(fontSize: 11),
                                   ),
                                 ),
                               ),
@@ -475,12 +525,17 @@ class _AbsentPageState extends State<AbsentPage> {
                             TableCell(
                               child: InkWell(
                                 child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(1.5,5,1.5,7),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(1.5, 5, 1.5, 7),
                                   child: Text(
                                     data['status']!,
-                                    style: _responseData.indexOf(data) == 0 ? const TextStyle(
-                                        color: Colors.black, fontSize: 10 ,fontWeight: FontWeight.bold) : TextStyle(
-                                        color: statusColor, fontSize: 11),
+                                    style: _responseData.indexOf(data) == 0
+                                        ? const TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold)
+                                        : TextStyle(
+                                            color: statusColor, fontSize: 11),
                                   ),
                                 ),
                               ),
@@ -525,7 +580,7 @@ class _AbsentPageState extends State<AbsentPage> {
       //     }
       //   },
       // ),
-            appBar: AppBar(
+      appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 117, 149, 120),
         // automaticallyImplyLeading: false,
         centerTitle: true,

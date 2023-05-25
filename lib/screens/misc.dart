@@ -53,7 +53,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
   @override
   void initState() {
     super.initState();
-      _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
 
     checkNetwork().then((isConnected) {
       if (isConnected == false) {
@@ -87,7 +87,6 @@ class _StudentMiscPageState extends State<StudentMiscPage>
         setState(() {});
         _submit();
       });
-
     });
   }
 
@@ -109,7 +108,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
 
   Future<Pages> getPages() async {
     // List<Map<String, String>> absentEvent = [];
-
+    List fullPage = [];
     var session = http.Client();
     final headers = {
       'User-Agent':
@@ -131,125 +130,134 @@ class _StudentMiscPageState extends State<StudentMiscPage>
     var dio = Dio();
     Response resp;
     // try {
-    resp = await dio.post(
-      'https://portal.stust.edu.tw/StudentPortfolio/Login.aspx',
-      data: formData,
-      options: Options(
-          contentType: Headers.formUrlEncodedContentType,
-          followRedirects: true,
-          validateStatus: (status) {
-            return true;
-          }),
-    );
-    // } catch (ex) {
-    //   print("E");
-    // }
-
-    String cookies = resp.headers['set-cookie']!.join(";");
-    // print(resp.data);
-
-    ///go to departmentOfficeData
-    var response = await session.get(
-        Uri.parse('https://portal.stust.edu.tw/StudentPortfolio/Board.aspx'),
-        headers: {...headers, 'cookie': cookies});
-
-    var responseBodyHex = hex.encode(response.bodyBytes);
-    var departmentOfficeData =
-        html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
-    // print(pressentScoreData.outerHtml);
-
-    ///go to absentData
-    // response = await session.get(
-    //     Uri.parse(
-    //         'https://portal.stust.edu.tw/StudentPortfolio/Pages/Manager/DataBrowse.aspx?role=S'),
-    //     headers: {...headers, 'cookie': cookies});
-
-    // responseBodyHex = hex.encode(response.bodyBytes);
-    // var absentData =
-    //     html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
-
-    ///go to foreignTestData
-    response = await session.get(
-        Uri.parse(
-            'https://portal.stust.edu.tw/StudentPortfolio/Pages/stud_lang_grad/stud_lang_grad.aspx'),
-        headers: {...headers, 'cookie': cookies});
-
-    responseBodyHex = hex.encode(response.bodyBytes);
-    var foreignTestData =
-        html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
-
-    //go to graduateData
-    response = await session.get(
-        Uri.parse(
-            'https://portal.stust.edu.tw/StudentPortfolio/Pages/Manager/Student_Score.aspx?role=S'),
-        headers: {...headers, 'cookie': cookies});
-
-    responseBodyHex = hex.encode(response.bodyBytes);
-    int totalcredit = 0;
-    var graduateData =
-        html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
-
-    var graduateTable = graduateData
-        .querySelector('#ctl00_ContentPlaceHolder1_ctl00_GridView1');
-    var graduateTableRows = graduateTable!.querySelectorAll('tr');
     try {
-      // print(graduateTableRows.);
-      for (int i = 1; i < graduateTableRows.length; i++) {
-        if (graduateTableRows[i].attributes['style'] == null ||
-            graduateTableRows[i].attributes['style'] ==
-                'background-color:#FEEBAB;') {
-          totalcredit += int.parse(
-              graduateTableRows[i].querySelectorAll('td')[5].text.trim());
-        }
+      resp = await dio.post(
+        'https://portal.stust.edu.tw/StudentPortfolio/Login.aspx',
+        data: formData,
+        options: Options(
+            contentType: Headers.formUrlEncodedContentType,
+            followRedirects: true,
+            validateStatus: (status) {
+              return true;
+            }),
+      );
+      // } catch (ex) {
+      //   print("E");
+      // }
 
-        // print(graduateTableRows[i].styles.getPropertyValue('background-color'));
-      }
-    } catch (e) {
-      print('error$e');
-    }
-    // print(totalcredit);
-    // print(graduateTable.styles);
-    // var failedClass = graduateTable.querySelectorAll('tr[style="background-color:#FFC4E1;"]');
-    // for (int j=1; j < graduateTableRows.length; j++){
+      String cookies = resp.headers['set-cookie']!.join(";");
+      // print(resp.data);
 
-    // }
-    // print(failedClass);
+      ///go to departmentOfficeData
+      var response = await session.get(
+          Uri.parse('https://portal.stust.edu.tw/StudentPortfolio/Board.aspx'),
+          headers: {...headers, 'cookie': cookies});
 
-    //
-    response = await session.get(
-        Uri.parse('https://aura.stust.edu.tw/life/lostthing.aspx'),
-        headers: {...headers});
-
-    cookies = response.headers['set-cookie']!;
-
-    responseBodyHex = hex.encode(response.bodyBytes);
-    List fullPage = [];
-
-    var lostAndFoundData =
-        html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
-    fullPage.add(lostAndFoundData);
-    for (int i = 1; i < 5; i++) {
-      var hiddenInput = lostAndFoundData
-          .querySelector('input[name="__VIEWSTATE"]')
-          ?.attributes['value'];
-
-      final queryParameters = {
-        '__EVENTTARGET': 'DataGrid1:_ctl1:_ctl$i', //從第二頁開始爬
-        '__EVENTARGUMENT': '_password',
-        '__VIEWSTATE': hiddenInput,
-        '__VIEWSTATEGENERATOR': 'E8D08EA4'
-      };
-      response = await session.post(
-          Uri.parse('https://aura.stust.edu.tw/life/lostthing.aspx'),
-          headers: {...headers, 'cookie': cookies},
-          body: queryParameters);
-      responseBodyHex = hex.encode(response.bodyBytes);
-
-      var lostAndFoundpage =
+      var responseBodyHex = hex.encode(response.bodyBytes);
+      var departmentOfficeData =
           html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
-      fullPage.add(lostAndFoundpage);
-    }
+      // print(pressentScoreData.outerHtml);
 
+      ///go to absentData
+      // response = await session.get(
+      //     Uri.parse(
+      //         'https://portal.stust.edu.tw/StudentPortfolio/Pages/Manager/DataBrowse.aspx?role=S'),
+      //     headers: {...headers, 'cookie': cookies});
+
+      // responseBodyHex = hex.encode(response.bodyBytes);
+      // var absentData =
+      //     html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+
+      ///go to foreignTestData
+      response = await session.get(
+          Uri.parse(
+              'https://portal.stust.edu.tw/StudentPortfolio/Pages/stud_lang_grad/stud_lang_grad.aspx'),
+          headers: {...headers, 'cookie': cookies});
+
+      responseBodyHex = hex.encode(response.bodyBytes);
+      var foreignTestData =
+          html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+
+      //go to graduateData
+      response = await session.get(
+          Uri.parse(
+              'https://portal.stust.edu.tw/StudentPortfolio/Pages/Manager/Student_Score.aspx?role=S'),
+          headers: {...headers, 'cookie': cookies});
+
+      responseBodyHex = hex.encode(response.bodyBytes);
+      int totalcredit = 0;
+      var graduateData =
+          html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+
+      var graduateTable = graduateData
+          .querySelector('#ctl00_ContentPlaceHolder1_ctl00_GridView1');
+      var graduateTableRows = graduateTable!.querySelectorAll('tr');
+      try {
+        // print(graduateTableRows.);
+        for (int i = 1; i < graduateTableRows.length; i++) {
+          if (graduateTableRows[i].attributes['style'] == null ||
+              graduateTableRows[i].attributes['style'] ==
+                  'background-color:#FEEBAB;') {
+            totalcredit += int.parse(
+                graduateTableRows[i].querySelectorAll('td')[5].text.trim());
+          }
+
+          // print(graduateTableRows[i].styles.getPropertyValue('background-color'));
+        }
+      } catch (e) {
+        print('error$e');
+      }
+      // print(totalcredit);
+      // print(graduateTable.styles);
+      // var failedClass = graduateTable.querySelectorAll('tr[style="background-color:#FFC4E1;"]');
+      // for (int j=1; j < graduateTableRows.length; j++){
+
+      // }
+      // print(failedClass);
+
+      //
+      response = await session.get(
+          Uri.parse('https://aura.stust.edu.tw/life/lostthing.aspx'),
+          headers: {...headers});
+
+      cookies = response.headers['set-cookie']!;
+
+      responseBodyHex = hex.encode(response.bodyBytes);
+      List fullPage = [];
+
+      var lostAndFoundData =
+          html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+      fullPage.add(lostAndFoundData);
+      for (int i = 1; i < 5; i++) {
+        var hiddenInput = lostAndFoundData
+            .querySelector('input[name="__VIEWSTATE"]')
+            ?.attributes['value'];
+
+        final queryParameters = {
+          '__EVENTTARGET': 'DataGrid1:_ctl1:_ctl$i', //從第二頁開始爬
+          '__EVENTARGUMENT': '_password',
+          '__VIEWSTATE': hiddenInput,
+          '__VIEWSTATEGENERATOR': 'E8D08EA4'
+        };
+        response = await session.post(
+            Uri.parse('https://aura.stust.edu.tw/life/lostthing.aspx'),
+            headers: {...headers, 'cookie': cookies},
+            body: queryParameters);
+        responseBodyHex = hex.encode(response.bodyBytes);
+
+        var lostAndFoundpage =
+            html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+        fullPage.add(lostAndFoundpage);
+      }
+
+      return Pages(
+          // absentData: absentData,
+          foreignTestData: foreignTestData,
+          graduateData: graduateData,
+          departmentOfficeData: departmentOfficeData,
+          lostAndFoundData: fullPage,
+          totalcredit: totalcredit);
+    } catch (e) {}
     return Pages(
         // absentData: absentData,
         foreignTestData: foreignTestData,
@@ -451,7 +459,8 @@ class _StudentMiscPageState extends State<StudentMiscPage>
                         extractHtmlContent(foreignTestData.outerHtml, 'div',
                             className: 'conplace', index: 0),
                         // onTapUrl: (url) => launchUrl(Uri.parse(url)),
-                        textStyle: const TextStyle(fontSize: 12.75,fontWeight: FontWeight.w400),
+                        textStyle: const TextStyle(
+                            fontSize: 12.75, fontWeight: FontWeight.w400),
                       ),
                     ),
                   ],
@@ -640,7 +649,8 @@ class _StudentMiscPageState extends State<StudentMiscPage>
                     extractHtmlContent(departmentOfficeData.outerHtml, 'div',
                         className: 'conplace', index: 0),
                     // textStyle: const TextStyle(fontSize: 50),
-                    textStyle: const TextStyle(fontSize: 7,fontWeight: FontWeight.w400),
+                    textStyle: const TextStyle(
+                        fontSize: 7, fontWeight: FontWeight.w400),
                   ),
                 ),
               ],

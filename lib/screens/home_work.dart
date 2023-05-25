@@ -197,120 +197,124 @@ class _HomeworkPageState extends State<HomeworkPage>
 
     var session = http.Client();
     var loginUrl = 'https://flipclass.stust.edu.tw/index/login';
-    var response = await session.get(Uri.parse(loginUrl));
-    print(response.statusCode);
-    var soup = parse(response.body);
+    try {
+      var response = await session.get(Uri.parse(loginUrl));
+      print(response.statusCode);
+      var soup = parse(response.body);
 
-    var hiddenInput =
-        soup.querySelector('input[name="csrf-t"]')?.attributes['value'];
+      var hiddenInput =
+          soup.querySelector('input[name="csrf-t"]')?.attributes['value'];
 
-    response = await session.get(Uri.parse(
-        '$loginUrl?_fmSubmit=yes&formVer=3.0&formId=login_form&next=/&act=keep&account=$_account&password=$_password&rememberMe=&csrf-t=$hiddenInput'));
-    if (response.headers['set-cookie'] == null) {
-      return [
-        {'error': 'Authenticate error(帳號密碼錯誤)'}
-      ];
-    }
+      response = await session.get(Uri.parse(
+          '$loginUrl?_fmSubmit=yes&formVer=3.0&formId=login_form&next=/&act=keep&account=$_account&password=$_password&rememberMe=&csrf-t=$hiddenInput'));
+      if (response.headers['set-cookie'] == null) {
+        return [
+          {'error': 'Authenticate error(帳號密碼錯誤)'}
+        ];
+      }
 
-    String cookies = response.headers['set-cookie']!;
+      String cookies = response.headers['set-cookie']!;
 
-    var headers = {
-      'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
-    };
-    var url = 'https://flipclass.stust.edu.tw/dashboard/latestEvent?&page=';
+      var headers = {
+        'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
+      };
+      var url = 'https://flipclass.stust.edu.tw/dashboard/latestEvent?&page=';
 
-    void genHomework(int homeworkPage) async {
-      response = await session.get(Uri.parse('$url${homeworkPage.toString()}'),
-          headers: {...headers, 'cookie': cookies});
-      soup = parse(response.body);
+      void genHomework(int homeworkPage) async {
+        response = await session.get(
+            Uri.parse('$url${homeworkPage.toString()}'),
+            headers: {...headers, 'cookie': cookies});
+        soup = parse(response.body);
 
-      if (soup.querySelector('#noData > td') == null) {
-        var hrefArr = soup.querySelectorAll('div.sm-text-overflow > a');
-        var works = soup.querySelectorAll('tbody > tr');
+        if (soup.querySelector('#noData > td') == null) {
+          var hrefArr = soup.querySelectorAll('div.sm-text-overflow > a');
+          var works = soup.querySelectorAll('tbody > tr');
 
-        var newData = List<Map<String, String>>.from(
-            _responseData); // Create new list object
+          var newData = List<Map<String, String>>.from(
+              _responseData); // Create new list object
 
-        for (int i = 0; i < works.length; i++) {
-          var topic =
-              works[i].querySelector('div.sm-text-overflow')?.text.trim();
-          var src = works[i]
-              .querySelector('div.text-overflow > a > span')
-              ?.text
-              .trim();
-          var href = hrefArr[i].attributes['href'];
-          var dateDiv = works[i]
-              .querySelector('td.text-center.col-date > div.text-overflow');
-          var date = dateDiv?.attributes['title'];
-          var isDoneresponse = await session.get(
-              Uri.parse('https://flipclass.stust.edu.tw$href'),
-              headers: {...headers, 'cookie': cookies});
-          var isDonesoup = parse(isDoneresponse.body);
+          for (int i = 0; i < works.length; i++) {
+            var topic =
+                works[i].querySelector('div.sm-text-overflow')?.text.trim();
+            var src = works[i]
+                .querySelector('div.text-overflow > a > span')
+                ?.text
+                .trim();
+            var href = hrefArr[i].attributes['href'];
+            var dateDiv = works[i]
+                .querySelector('td.text-center.col-date > div.text-overflow');
+            var date = dateDiv?.attributes['title'];
+            var isDoneresponse = await session.get(
+                Uri.parse('https://flipclass.stust.edu.tw$href'),
+                headers: {...headers, 'cookie': cookies});
+            var isDonesoup = parse(isDoneresponse.body);
 
-          String isDone = '未繳交';
-          // print(soup.outerHtml);
-          var doneButtonText = isDonesoup
-              .querySelector('div.text-center.fs-margin-default > a > span')
-              ?.text
-              .trim();
+            String isDone = '未繳交';
+            // print(soup.outerHtml);
+            var doneButtonText = isDonesoup
+                .querySelector('div.text-center.fs-margin-default > a > span')
+                ?.text
+                .trim();
 
-          var numberOfSubmissions = isDonesoup
-              .querySelectorAll('dt')
-              .firstWhere((element) => element.text == '已繳交')
-              .nextElementSibling
-              ?.text
-              .trim();
-          var submissionDeadline = isDonesoup
-              .querySelectorAll('dt')
-              .firstWhere((element) => element.text == '繳交期限')
-              .nextElementSibling
-              ?.querySelector('span')
-              ?.text
-              .trim();
-          var remain = calculateRemainingTime(submissionDeadline!);
-          var remainWithSpace =
-              calculateRemainingTimeWithSpace(submissionDeadline);
-          // print(doneButtonText);
-          if (doneButtonText!.contains('檢視')) {
-            isDone = '已繳交';
+            var numberOfSubmissions = isDonesoup
+                .querySelectorAll('dt')
+                .firstWhere((element) => element.text == '已繳交')
+                .nextElementSibling
+                ?.text
+                .trim();
+            var submissionDeadline = isDonesoup
+                .querySelectorAll('dt')
+                .firstWhere((element) => element.text == '繳交期限')
+                .nextElementSibling
+                ?.querySelector('span')
+                ?.text
+                .trim();
+            var remain = calculateRemainingTime(submissionDeadline!);
+            var remainWithSpace =
+                calculateRemainingTimeWithSpace(submissionDeadline);
+            // print(doneButtonText);
+            if (doneButtonText!.contains('檢視')) {
+              isDone = '已繳交';
+            }
+
+            newData.add({
+              'topic': topic ?? '',
+              'src': src ?? '',
+              'href': 'https://flipclass.stust.edu.tw$href',
+              'date': date ?? '',
+              'isDone': isDone,
+              'numberOfSubmissions': numberOfSubmissions ?? '',
+              'submissionDeadline': submissionDeadline,
+              'remain': remain,
+              'remainWithSpace': remainWithSpace
+            });
           }
 
-          newData.add({
-            'topic': topic ?? '',
-            'src': src ?? '',
-            'href': 'https://flipclass.stust.edu.tw$href',
-            'date': date ?? '',
-            'isDone': isDone,
-            'numberOfSubmissions': numberOfSubmissions ?? '',
-            'submissionDeadline': submissionDeadline,
-            'remain': remain,
-            'remainWithSpace': remainWithSpace
-          });
+          // if (mounted && !_cancelToken) {
+          //   try {
+          //     setState(() {
+          //       _responseData = newData;
+          //     });
+          //   } catch (e) {
+          //     setState(() {
+          //       _responseData = newData;
+          //     });
+          //   }
+          // }
+          try {
+            setState(() {
+              _responseData = newData;
+            });
+          } catch (e) {}
+          homeworkPage++;
+          genHomework(homeworkPage);
         }
-
-        // if (mounted && !_cancelToken) {
-        //   try {
-        //     setState(() {
-        //       _responseData = newData;
-        //     });
-        //   } catch (e) {
-        //     setState(() {
-        //       _responseData = newData;
-        //     });
-        //   }
-        // }
-        try {
-          setState(() {
-            _responseData = newData;
-          });
-        } catch (e) {}
-        homeworkPage++;
-        genHomework(homeworkPage);
       }
-    }
 
-    genHomework(homeworkPage);
+      genHomework(homeworkPage);
+      return homework;
+    } catch (e) {}
     return homework;
   }
 
@@ -529,13 +533,15 @@ class _HomeworkPageState extends State<HomeworkPage>
         showUnselectedLabels: true,
         items: const [
           BottomNavigationBarItem(
-              icon: Icon(Icons.assignment),
-              label: '最新作業',
-              backgroundColor: Color.fromARGB(255, 117, 149, 120),),
+            icon: Icon(Icons.assignment),
+            label: '最新作業',
+            backgroundColor: Color.fromARGB(255, 117, 149, 120),
+          ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.format_list_bulleted),
-              label: '最新公告',
-              backgroundColor: Color.fromARGB(255, 117, 149, 120),),
+            icon: Icon(Icons.format_list_bulleted),
+            label: '最新公告',
+            backgroundColor: Color.fromARGB(255, 117, 149, 120),
+          ),
         ],
         onTap: (int index) {
           switch (index) {
@@ -563,7 +569,7 @@ class _HomeworkPageState extends State<HomeworkPage>
         },
       ),
       appBar: AppBar(
-        backgroundColor:  const Color.fromARGB(255, 117, 149, 120),
+        backgroundColor: const Color.fromARGB(255, 117, 149, 120),
         automaticallyImplyLeading: false,
         centerTitle: true,
         title: const Text('查詢最近作業(flipclass)'),

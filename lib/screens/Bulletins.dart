@@ -137,116 +137,122 @@ class _BulletinsPageState extends State<BulletinsPage>
 
     var session = http.Client();
     var loginUrl = 'https://flipclass.stust.edu.tw/index/login';
-    var response = await session.get(Uri.parse(loginUrl));
-    http.Response detail;
-    var soup = parse(response.body);
+    try {
+      var response = await session.get(Uri.parse(loginUrl));
+      http.Response detail;
+      var soup = parse(response.body);
 
-    var hiddenInput =
-        soup.querySelector('input[name="csrf-t"]')?.attributes['value'];
+      var hiddenInput =
+          soup.querySelector('input[name="csrf-t"]')?.attributes['value'];
 
-    // var payload = {
-    //   '_fmSubmit': 'yes',
-    //   'formVer': '3.0',
-    //   'formId': 'login_form',
-    //   'next': '/',
-    //   'act': 'keep',
-    //   'account': acc,
-    //   'password': pwd,
-    //   'rememberMe': '',
-    //   'csrf-t': hiddenInput
-    // };
+      // var payload = {
+      //   '_fmSubmit': 'yes',
+      //   'formVer': '3.0',
+      //   'formId': 'login_form',
+      //   'next': '/',
+      //   'act': 'keep',
+      //   'account': acc,
+      //   'password': pwd,
+      //   'rememberMe': '',
+      //   'csrf-t': hiddenInput
+      // };
 
-    response = await session.get(Uri.parse(
-        '$loginUrl?_fmSubmit=yes&formVer=3.0&formId=login_form&next=/&act=keep&account=$_account&password=$_password&rememberMe=&csrf-t=$hiddenInput'));
-    if (response.headers['set-cookie'] == null) {
-      return [
-        {'error': 'Authenticate error(帳號密碼錯誤)'}
-      ];
-    }
-
-    String cookies = response.headers['set-cookie']!;
-
-    var headers = {
-      'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
-    };
-    var url = 'https://flipclass.stust.edu.tw/dashboard/latestBulletin?&page=';
-
-    void gen_bulletin(int bulletinPage) async {
-      response = await session.get(Uri.parse('$url${bulletinPage.toString()}'),
-          headers: {...headers, 'cookie': cookies});
-      soup = parse(response.body);
-
-      if (soup.querySelector('#noData > td') == null) {
-        var hrefArr = soup.querySelectorAll(
-            'td.text-center.col-char7 > div.text-overflow > a');
-        // print(hrefArr);
-        var works = soup.querySelectorAll('tbody > tr');
-
-        var newData = List<Map<String, String>>.from(
-            _responseData); // Create new list object
-
-        for (int i = 0; i < works.length; i++) {
-          var topic =
-              works[i].querySelector('a.fs-bulletin-item > span')?.text.trim();
-          var src =
-              'https://flipclass.stust.edu.tw${works[i].querySelector('div.text-overflow > a')?.attributes['data-url']}&fs_no_foot_js=1';
-          var href = hrefArr[i].attributes['href'];
-          var classSrc = hrefArr[i].querySelector('span')?.text.trim();
-          // while (href!.contains('/course')) {
-          //   href = hrefArr[i+1].attributes['href'];
-          // }
-          // print(href);
-          // var dateDiv = works[i]
-          //     .querySelector('td.hidden-xs.text-center.col-date > div');
-          var date = works[i]
-              .querySelector('td.hidden-xs.text-center.col-date > div')
-              ?.text
-              .trim();
-
-          ////scrap into detail
-          var detail = await session
-              .get(Uri.parse(src), headers: {...headers, 'cookie': cookies});
-          var detailRes = parse(detail.body);
-          String? fileName;
-          String? fileUrl;
-          var bulletinContent =
-              detailRes.querySelector('div.bulletin-content')?.text.trim();
-          var filenameElement =
-              detailRes.querySelector('li.clearfix > div.text > a >span');
-          if (filenameElement != null) {
-            // print('fileName');
-            fileName = filenameElement.text.trim();
-            fileUrl =
-                'https://flipclass.stust.edu.tw${detailRes.querySelector('li.clearfix > div.text > a')!.attributes['href']!}';
-          } else {
-            // print('null');
-            fileName = '0';
-            fileUrl = '0';
-          }
-          newData.add({
-            'topic': topic ?? '',
-            'class': classSrc ?? '',
-            'href': 'https://flipclass.stust.edu.tw$href',
-            'date': date ?? '',
-            'content': bulletinContent ?? '',
-            'filename': fileName,
-            'url': fileUrl
-          });
-        }
-
-        try {
-          setState(() {
-            _responseData = newData;
-          });
-        } catch (e) {}
-
-        bulletinPage++;
-        gen_bulletin(bulletinPage);
+      response = await session.get(Uri.parse(
+          '$loginUrl?_fmSubmit=yes&formVer=3.0&formId=login_form&next=/&act=keep&account=$_account&password=$_password&rememberMe=&csrf-t=$hiddenInput'));
+      if (response.headers['set-cookie'] == null) {
+        return [
+          {'error': 'Authenticate error(帳號密碼錯誤)'}
+        ];
       }
-    }
 
-    gen_bulletin(bulletinPage);
+      String cookies = response.headers['set-cookie']!;
+
+      var headers = {
+        'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
+      };
+      var url =
+          'https://flipclass.stust.edu.tw/dashboard/latestBulletin?&page=';
+
+      void gen_bulletin(int bulletinPage) async {
+        response = await session.get(
+            Uri.parse('$url${bulletinPage.toString()}'),
+            headers: {...headers, 'cookie': cookies});
+        soup = parse(response.body);
+
+        if (soup.querySelector('#noData > td') == null) {
+          var hrefArr = soup.querySelectorAll(
+              'td.text-center.col-char7 > div.text-overflow > a');
+          // print(hrefArr);
+          var works = soup.querySelectorAll('tbody > tr');
+
+          var newData = List<Map<String, String>>.from(
+              _responseData); // Create new list object
+
+          for (int i = 0; i < works.length; i++) {
+            var topic = works[i]
+                .querySelector('a.fs-bulletin-item > span')
+                ?.text
+                .trim();
+            var src =
+                'https://flipclass.stust.edu.tw${works[i].querySelector('div.text-overflow > a')?.attributes['data-url']}&fs_no_foot_js=1';
+            var href = hrefArr[i].attributes['href'];
+            var classSrc = hrefArr[i].querySelector('span')?.text.trim();
+            // while (href!.contains('/course')) {
+            //   href = hrefArr[i+1].attributes['href'];
+            // }
+            // print(href);
+            // var dateDiv = works[i]
+            //     .querySelector('td.hidden-xs.text-center.col-date > div');
+            var date = works[i]
+                .querySelector('td.hidden-xs.text-center.col-date > div')
+                ?.text
+                .trim();
+
+            ////scrap into detail
+            var detail = await session
+                .get(Uri.parse(src), headers: {...headers, 'cookie': cookies});
+            var detailRes = parse(detail.body);
+            String? fileName;
+            String? fileUrl;
+            var bulletinContent =
+                detailRes.querySelector('div.bulletin-content')?.text.trim();
+            var filenameElement =
+                detailRes.querySelector('li.clearfix > div.text > a >span');
+            if (filenameElement != null) {
+              // print('fileName');
+              fileName = filenameElement.text.trim();
+              fileUrl =
+                  'https://flipclass.stust.edu.tw${detailRes.querySelector('li.clearfix > div.text > a')!.attributes['href']!}';
+            } else {
+              // print('null');
+              fileName = '0';
+              fileUrl = '0';
+            }
+            newData.add({
+              'topic': topic ?? '',
+              'class': classSrc ?? '',
+              'href': 'https://flipclass.stust.edu.tw$href',
+              'date': date ?? '',
+              'content': bulletinContent ?? '',
+              'filename': fileName,
+              'url': fileUrl
+            });
+          }
+
+          try {
+            setState(() {
+              _responseData = newData;
+            });
+          } catch (e) {}
+
+          bulletinPage++;
+          gen_bulletin(bulletinPage);
+        }
+      }
+
+      gen_bulletin(bulletinPage);
+    } catch (e) {}
 
     return Bulletin;
   }
