@@ -5,6 +5,7 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../login/login_page.dart';
 // ignore: unused_import
 import '../main.dart';
+
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
 
@@ -73,19 +74,25 @@ class _OnboardingPageState extends State<OnboardingPage> {
             children: [
               buildPage(
                 color: Colors.green.shade100,
-                urlImage: 'assets/page1.png',
-                title: '隨手掃描QR CODE',
-                subtitle: '總是被社團學分困擾，不知道目前在舉行什麼活動嗎',
+                urlImage: 'assets/homeWork.jpg',
+                title: '快速繳交/查看作業',
+                subtitle: '不用再煩惱作業繳交/查看要載入許久',
               ),
               buildPage(
                 color: Colors.blue.shade100,
-                urlImage: 'assets/page2.png',
-                title: '共享分數',
-                subtitle: '團結力量大 拿分數不必再東奔西跑',
+                urlImage: 'assets/bulletins.jpg',
+                title: '快速查看即時公告',
+                subtitle: '不必再開一堆網頁',
               ),
               buildPage(
                 color: Colors.orange.shade100,
-                urlImage: 'assets/page3.png',
+                urlImage: 'assets/leaveRequest.jpg',
+                title: '快速請假',
+                subtitle: '最簡潔快速的請假功能',
+              ),
+              buildPage(
+                color: Colors.orange.shade100,
+                urlImage: 'assets/homePage.jpg',
                 title: '開始',
                 subtitle: '立即參與這項計畫',
               ),
@@ -115,7 +122,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   // );
                   if (!mounted) return;
                   Navigator.of(context).pushNamed(
-                      '/',);
+                    '/',
+                  );
                 },
               )
             : Container(
