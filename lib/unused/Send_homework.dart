@@ -34,6 +34,7 @@ class _SendHomeworkPageState extends State<SendHomeworkPage> {
     checkNetwork().then((isConnected) {
       if (isConnected == false) {
         return showDialog(
+          barrierDismissible: false,
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
@@ -110,6 +111,7 @@ class _SendHomeworkPageState extends State<SendHomeworkPage> {
 
   void _showAlertDialog(String text, String href) {
     showDialog(
+      // barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(

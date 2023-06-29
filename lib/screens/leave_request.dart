@@ -32,6 +32,7 @@ class _AbsentPageState extends State<AbsentPage> {
     checkNetwork().then((isConnected) {
       if (isConnected == false) {
         return showDialog(
+          barrierDismissible: false,
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
@@ -73,6 +74,7 @@ class _AbsentPageState extends State<AbsentPage> {
 
   void _showAlertDialog(dynamic soup) {
     showDialog(
+      // barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(

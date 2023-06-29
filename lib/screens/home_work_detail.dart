@@ -60,6 +60,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
     checkNetwork().then((isConnected) {
       if (isConnected == false) {
         return showDialog(
+          barrierDismissible: false,
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
@@ -872,6 +873,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
     FilePickerResult? result;
     bool isSent = false;
     showDialog(
+        // barrierDismissible: false,
         context: context,
         builder: (
           BuildContext context,
@@ -889,50 +891,47 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                 child: Column(
                   children: <Widget>[
                     SizedBox(
-                        height: 200,
-                        child: Expanded(
-                          child: TextFormField(
-                            textAlignVertical: TextAlignVertical.bottom,
-                            // style: TextStyle(
-                            //   color: Theme.of(context)
-                            //       .textTheme
-                            //       .bodySmall
-                            //       ?.color,
-                            //   fontSize: 20,
-                            //   height: 0.0,
-                            // ),
-                            cursorHeight: 24,
-                            enableInteractiveSelection: true,
-                            controller: controller,
-                            cursorColor: Colors.grey,
-                            // initialValue: 'Input text',
-                            expands: true,
-                            maxLines: null,
-                            // cursorHeight: 30,
-                            // expands: true,
-                            // maxLines: 5000,
-                            decoration: const InputDecoration(
-                              contentPadding: EdgeInsets.zero,
-                              floatingLabelAlignment:
-                                  FloatingLabelAlignment.center,
-                              // contentPadding:
-                              //     EdgeInsets.fromLTRB(10, 25, 10, 25),
-                              // icon: Icon(Icons.favorite),
-                              labelText: '作業內容',
+                      height: 150,
+                      child: TextFormField(
+                        textAlignVertical: TextAlignVertical.bottom,
+                        // style: TextStyle(
+                        //   color: Theme.of(context)
+                        //       .textTheme
+                        //       .bodySmall
+                        //       ?.color,
+                        //   fontSize: 20,
+                        //   height: 0.0,
+                        // ),
+                        cursorHeight: 24,
+                        enableInteractiveSelection: true,
+                        controller: controller,
+                        cursorColor: Colors.grey,
+                        // initialValue: 'Input text',
+                        expands: true,
+                        maxLines: null,
+                        // cursorHeight: 30,
+                        // expands: true,
+                        // maxLines: 5000,
+                        decoration: const InputDecoration(
+                          contentPadding: EdgeInsets.zero,
+                          floatingLabelAlignment: FloatingLabelAlignment.center,
+                          // contentPadding:
+                          //     EdgeInsets.fromLTRB(10, 25, 10, 25),
+                          // icon: Icon(Icons.favorite),
+                          labelText: '作業內容',
 
-                              labelStyle: TextStyle(
-                                  color: Color(0xFF6200EE), fontSize: 24),
-                              // helperText: '輸入文字',
-                              // suffixIcon: Icon(
-                              //   Icons.check_circle,
-                              // ),
-                              enabledBorder: UnderlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: Color(0xFF6200EE)),
-                              ),
-                            ),
+                          labelStyle:
+                              TextStyle(color: Color(0xFF6200EE), fontSize: 24),
+                          // helperText: '輸入文字',
+                          // suffixIcon: Icon(
+                          //   Icons.check_circle,
+                          // ),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Color(0xFF6200EE)),
                           ),
-                        )),
+                        ),
+                      ),
+                    ),
                     const SizedBox(
                       height: 10,
                     ),
@@ -979,7 +978,10 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                     const SizedBox(
                       height: 10,
                     ),
-                    Expanded(child: show(filteredFiles: filteredFiles)),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height/2,
+                      child: show(filteredFiles: filteredFiles),
+                    ),
                   ],
                 ),
               ),
@@ -997,6 +999,8 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                     EasyLoading.init();
                     EasyLoading.instance.userInteractions = false;
                     showDialog(
+                      // barrierDismissible: false,
+
                       context: context,
                       // barrierDismissible: false,
                       builder: (BuildContext context) {
@@ -1105,7 +1109,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
       backgroundColor: const Color.fromARGB(255, 236, 236, 236),
       appBar: AppBar(
         title: const Text('作業內容'),
-        backgroundColor: Colors.green[200],
+        backgroundColor: const Color.fromARGB(255, 117, 149, 120),
       ),
       body: SizedBox(
         child: isLoaded
@@ -1523,6 +1527,8 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                                                 submissionDeadline!) ==
                                             '已過期') {
                                           return showDialog(
+                                            // barrierDismissible: false,
+
                                             context: context,
                                             // barrierDismissible: false,
                                             builder: (BuildContext context) {
@@ -1564,6 +1570,8 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                                           EasyLoading.instance
                                               .userInteractions = false;
                                           showDialog(
+                                            // barrierDismissible: false,
+
                                             context: context,
                                             // barrierDismissible: false,
                                             builder: (BuildContext context) {
@@ -1754,6 +1762,8 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                                                 submissionDeadline!) ==
                                             '已過期') {
                                           return showDialog(
+                                            // barrierDismissible: false,
+
                                             context: context,
                                             // barrierDismissible: false,
                                             builder: (BuildContext context) {
@@ -1795,6 +1805,8 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
                                           EasyLoading.instance
                                               .userInteractions = false;
                                           showDialog(
+                                            // barrierDismissible: false,
+
                                             context: context,
                                             // barrierDismissible: false,
                                             builder: (BuildContext context) {

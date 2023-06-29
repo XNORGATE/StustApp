@@ -50,6 +50,7 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
     checkNetwork().then((isConnected) {
       if (isConnected == false) {
         return showDialog(
+          barrierDismissible: false,
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(

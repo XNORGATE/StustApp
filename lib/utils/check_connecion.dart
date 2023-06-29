@@ -1,7 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-import 'package:flutter_exit_app/flutter_exit_app.dart';
 
 Future<bool> checkNetwork() async {
   bool isConnected = false;

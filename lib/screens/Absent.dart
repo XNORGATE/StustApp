@@ -39,6 +39,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
     checkNetwork().then((isConnected) {
       if (isConnected == false) {
         return showDialog(
+          barrierDismissible: false,
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
@@ -86,6 +87,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
 
   void _showAlertDialog(String text, String href, dynamic soup) {
     showDialog(
+      // barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -95,6 +97,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
           content: InkWell(
             onTap: () {
               showDialog(
+                // barrierDismissible: false,
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
@@ -142,26 +145,27 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
     );
   }
 
-  void _showSendingDialog() {
-    showDialog(
-      context: context,
-      // barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: const <Widget>[
-              CircularProgressIndicator(),
-              SizedBox(height: 16.0),
-              Text('正在執行請假動作 待結果顯示即可關閉...'),
-            ],
-          ),
-        );
-      },
-    );
-  }
+  // void _showSendingDialog() {
+  //   showDialog(
+
+  //     context: context,
+  //     // barrierDismissible: false,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         shape:
+  //             RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+  //         content: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: const <Widget>[
+  //             CircularProgressIndicator(),
+  //             SizedBox(height: 16.0),
+  //             Text('正在執行請假動作 待結果顯示即可關閉...'),
+  //           ],
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   // void _hideSendingDialog() {
   //   Navigator.popUntil(context, ModalRoute.withName('leave_request'));
@@ -699,6 +703,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
                                         '1.此系統僅提供事假/病假申請\n2.所有請假需在缺課1個月內完成申請\n3.此表格僅會顯示已被紀錄缺席之課堂\n4.若缺課無出現表示已超過請假時限或已完成請假');
                                   } else {
                                     showDialog(
+                                      // barrierDismissible: false,
                                       context: context,
                                       builder: (context) {
                                         return Dialog(

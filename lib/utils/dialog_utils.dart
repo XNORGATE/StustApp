@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 void showDialogBox(BuildContext context, String text) {
   showDialog(
+    // barrierDismissible: false,
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(

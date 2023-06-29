@@ -4,6 +4,7 @@ import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_neumorphic_null_safety/flutter_neumorphic.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 import 'package:stust_app/onBoard/on_board.dart';
 import 'package:stust_app/screens/create_activities.dart';
 import 'package:stust_app/screens/home_work.dart';
@@ -170,7 +171,7 @@ Future<void> main() async {
     return isBanned;
   }
 
-  runApp(MaterialApp(
+  runApp(GetMaterialApp(
     theme: ThemeData.light(),
     debugShowCheckedModeBanner: false,
     home: FutureBuilder(
@@ -181,22 +182,22 @@ Future<void> main() async {
           final prefs = snapshot.data;
           final showHome = prefs?.getBool('alreadyshowHome') ?? false;
 
-          final account = prefs?.getString('account');
-          final password = prefs?.getString('password');
+          // final account = prefs?.getString('account');
+          // final password = prefs?.getString('password');
           final name = prefs?.getString('name');
 
           if (showHome == false) {
             return const OnboardingPage();
           } else {
-            if (account != null && password != null) {
+            if (name != null) {
               checkBan(name).then((isBanned) async {
                 // print({'name': name});
                 // print(isBanned);
                 if (isBanned) {
                   try {
                     final prefs = await SharedPreferences.getInstance();
-                    prefs.remove('account');
-                    prefs.remove('password');
+                    // prefs.remove('account');
+                    // prefs.remove('password');
                     prefs.remove('name');
                     // prefs.setBool('alreadyshowHome', false);
 
@@ -337,17 +338,17 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-Future<Map<String, String>> getValuesFromSharedPreferences() async {
-  // Get the SharedPreferences instance
-  SharedPreferences prefs = await SharedPreferences.getInstance();
+// Future<Map<String, String>> getValuesFromSharedPreferences() async {
+//   // Get the SharedPreferences instance
+//   SharedPreferences prefs = await SharedPreferences.getInstance();
 
-  // Get the values for the keys
-  String? name = prefs.getString('name');
-  String? account = prefs.getString('account');
+//   // Get the values for the keys
+//   String? name = prefs.getString('name');
+//   String? account = prefs.getString('account');
 
-  // Return the values as a map
-  return {'name': name ?? '', 'account': account ?? ''};
-}
+//   // Return the values as a map
+//   return {'name': name ?? '', 'account': account ?? ''};
+// }
 
 class _MyHomePageState extends State<MyHomePage> {
   var name = '姓名';
@@ -358,7 +359,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _isActivitiesListError = false;
   bool _isVpsError = false;
   bool _isFoodListError = false;
-
+  final InfoController UserInfo = Get.find();
   // final bool _ActivateHomeWorkNoti = false;
   // final bool _ActivateBulletinsNoti = false;
 
@@ -375,6 +376,7 @@ class _MyHomePageState extends State<MyHomePage> {
     checkNetwork().then((isConnected) {
       if (isConnected == false) {
         return showDialog(
+          barrierDismissible: false,
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
@@ -395,7 +397,7 @@ class _MyHomePageState extends State<MyHomePage> {
           },
         );
       }
-      getProfile();
+      // getProfile();
       // getProfile().then((value) {
       //   try {
       //     checkBan(name).then((isBanned) async {
@@ -481,16 +483,16 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
 
-  getProfile() async {
-    try {
-      Map<String, String> values = await getValuesFromSharedPreferences();
-      name = values['name']!;
-      account = values['account']!;
-      setState(() {});
-    } catch (e) {
-      print(e);
-    }
-  }
+  // getProfile() async {
+  //   try {
+  //     Map<String, String> values = await getValuesFromSharedPreferences();
+  //     name = values['name']!;
+  //     account = values['account']!;
+  //     setState(() {});
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  // }
 
   final headers = {
     'User-Agent':
@@ -1073,7 +1075,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               return ActivitiesScreen(
                                 href: data['href'] ?? '',
                                 image: data['image'] ?? '',
-                                topic: (data['topic']!).length > 10
+                                topic: (data['topic']!).length > 9
                                     ? insertLineBreak(data['topic']!)
                                     : data['topic']!,
                               );
@@ -1278,6 +1280,12 @@ class _MyHomePageState extends State<MyHomePage> {
                         const SizedBox(
                           width: 15,
                         ),
+                        Obx(() => Text(
+                              "${UserInfo.User_account.value}",
+                              style: const TextStyle(
+                                  color: Color.fromARGB(255, 29, 33, 52),
+                                  fontSize: 18),
+                            )),
                         Text(
                           account,
                           style: const TextStyle(
@@ -1458,6 +1466,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       icon: Icons.help,
                       onTap: () {
                         showDialog(
+                          // barrierDismissible: false,
                           context: context,
                           builder: (BuildContext context) {
                             return AlertDialog(
@@ -1544,6 +1553,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   icon: Icons.logout,
                   onTap: () async {
                     final confirmed = await showDialog(
+                      // barrierDismissible: false,
                       context: context,
                       builder: (context) => AlertDialog(
                         shape: RoundedRectangleBorder(
@@ -1571,7 +1581,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       prefs.remove('account');
                       prefs.remove('password');
                       prefs.remove('name');
-                      prefs.setBool('alreadyshowHome', false);
+                      // prefs.setBool('alreadyshowHome', false);
 
                       // prefs.remove('oldHomeWorkList');
                       // Workmanager().cancelAll();

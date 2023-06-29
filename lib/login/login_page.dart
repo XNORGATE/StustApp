@@ -32,6 +32,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
     checkNetwork().then((isConnected) {
       if (isConnected == false) {
         return showDialog(
+          barrierDismissible: false,
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
@@ -153,6 +154,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
 
   void _showAlertDialog(String text) {
     showDialog(
+      // barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return MaterialApp(
@@ -292,6 +294,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                     ? const Center(child: CircularProgressIndicator())
                     : Center(
                         child: SingleChildScrollView(
+                            child: AutofillGroup(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -494,7 +497,8 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                                     children: [
                                       Text(
                                         '是新生?',
-                                        style: TextStyle(color: Colors.grey[700]),
+                                        style:
+                                            TextStyle(color: Colors.grey[700]),
                                       ),
                                       const SizedBox(width: 4),
                                       InkWell(
@@ -516,7 +520,8 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                                     children: [
                                       Text(
                                         '擔心帳號安全?',
-                                        style: TextStyle(color: Colors.grey[700]),
+                                        style:
+                                            TextStyle(color: Colors.grey[700]),
                                       ),
                                       const SizedBox(width: 4),
                                       InkWell(
@@ -536,7 +541,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                               )
                             ],
                           ),
-                        ),
+                        )),
                       ),
               ),
             )));

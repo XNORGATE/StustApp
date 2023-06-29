@@ -35,6 +35,7 @@ class _ReflectionPageState extends State<ReflectionPage> {
     checkNetwork().then((isConnected) {
       if (isConnected == false) {
         return showDialog(
+          barrierDismissible: false,
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
@@ -80,27 +81,24 @@ class _ReflectionPageState extends State<ReflectionPage> {
   late bool _isLoading = false; // Flag to indicate if API request is being made
 
   void _submitForm() {
+    setState(() {
+      _isLoading = true;
+    });
 
-
+    // Make POST request to the API
+    http
+        .get(
+      Uri.parse(
+          'http://api.xnor-development.com:70/reflection?account=$_account&password=$_password'),
+    )
+        .then((response) {
+      final responseData = json.decode(response.body) as List;
+      //print(responseData);
       setState(() {
-        _isLoading = true;
+        _responseData = responseData;
+        _isLoading = false;
       });
-
-      // Make POST request to the API
-      http
-          .get(
-        Uri.parse(
-            'http://api.xnor-development.com:70/reflection?account=$_account&password=$_password'),
-      )
-          .then((response) {
-        final responseData = json.decode(response.body) as List;
-        //print(responseData);
-        setState(() {
-          _responseData = responseData;
-          _isLoading = false;
-        });
-      });
-    
+    });
   }
 
   // late List _responseData;
@@ -137,80 +135,79 @@ class _ReflectionPageState extends State<ReflectionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body:  Column(
-          children: [
-            const SizedBox(
-              height: 50,
+      body: Column(
+        children: [
+          const SizedBox(
+            height: 50,
+          ),
+          TextButton(
+            onPressed: _submitForm,
+            child: const Text(
+              '查詢',
+              style: TextStyle(fontSize: 30),
             ),
-            TextButton(
-              onPressed: _submitForm,
-              child: const Text(
-                '查詢',
-                style: TextStyle(fontSize: 30),
+          ),
+          if (_isLoading)
+            // Display loading indicator
+            const CircularProgressIndicator(),
+          if (_responseData != null)
+            // Week input
+            Expanded(
+              child: ListView.builder(
+                itemCount: _responseData.length,
+                itemBuilder: (context, index) {
+                  final data = _responseData[index];
+                  return Column(
+                    children: [
+                      TextFormField(
+                        initialValue: data['date'],
+                        decoration: const InputDecoration(
+                          labelText: '日期',
+                        ),
+                      ),
+                      TextFormField(
+                        initialValue: data['event_title'],
+                        decoration: const InputDecoration(
+                          labelText: '活動標題',
+                        ),
+                      ),
+                      TextFormField(
+                        initialValue: data['event_type'],
+                        decoration: const InputDecoration(
+                          labelText: '類別',
+                        ),
+                      ),
+                      TextFormField(
+                        initialValue: data['host_td'],
+                        decoration: const InputDecoration(
+                          labelText: '主辦單位',
+                        ),
+                      ),
+                      TextFormField(
+                        initialValue: data['position'],
+                        decoration: const InputDecoration(
+                          labelText: '地點',
+                        ),
+                      ),
+                      TextFormField(
+                        initialValue: data['score'],
+                        decoration: const InputDecoration(
+                          labelText: '獲得分數',
+                        ),
+                      ),
+                      TextFormField(
+                        initialValue: data['semester'],
+                        decoration: const InputDecoration(
+                          labelText: '學期',
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
-            ),
-            if (_isLoading)
-              // Display loading indicator
-              const CircularProgressIndicator(),
-            if (_responseData != null)
-              // Week input
-              Expanded(
-                child: ListView.builder(
-                  itemCount: _responseData.length,
-                  itemBuilder: (context, index) {
-                    final data = _responseData[index];
-                    return Column(
-                      children: [
-                        TextFormField(
-                          initialValue: data['date'],
-                          decoration: const InputDecoration(
-                            labelText: '日期',
-                          ),
-                        ),
-                        TextFormField(
-                          initialValue: data['event_title'],
-                          decoration: const InputDecoration(
-                            labelText: '活動標題',
-                          ),
-                        ),
-                        TextFormField(
-                          initialValue: data['event_type'],
-                          decoration: const InputDecoration(
-                            labelText: '類別',
-                          ),
-                        ),
-                        TextFormField(
-                          initialValue: data['host_td'],
-                          decoration: const InputDecoration(
-                            labelText: '主辦單位',
-                          ),
-                        ),
-                        TextFormField(
-                          initialValue: data['position'],
-                          decoration: const InputDecoration(
-                            labelText: '地點',
-                          ),
-                        ),
-                        TextFormField(
-                          initialValue: data['score'],
-                          decoration: const InputDecoration(
-                            labelText: '獲得分數',
-                          ),
-                        ),
-                        TextFormField(
-                          initialValue: data['semester'],
-                          decoration: const InputDecoration(
-                            labelText: '學期',
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              )
-          ],
-        ),
-      
+            )
+        ],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.shifting,
         showSelectedLabels: false,

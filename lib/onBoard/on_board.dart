@@ -17,7 +17,6 @@ class OnboardingPage extends StatefulWidget {
 class _OnboardingPageState extends State<OnboardingPage> {
   final controller = PageController();
   bool isLastPage = false;
-
   @override
   void dispose() {
     controller.dispose();
@@ -26,26 +25,33 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   Widget buildPage({
+    
     required Color color,
     required String urlImage,
     required String title,
     required String subtitle,
   }) =>
+  
       Container(
         color: color,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
-              urlImage,
-              fit: BoxFit.cover,
-              width: double.infinity,
-            ),
-            const SizedBox(height: 64),
+            SizedBox(
+                height: MediaQuery.of(context).size.height / 1.75,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: Image.asset(
+                    urlImage,
+                    fit: BoxFit.cover,
+                  
+                  ),
+                )),
+            const SizedBox(height: 30),
             Text(
               title,
               style: const TextStyle(
-                color: Color.fromARGB(255, 85, 179, 241),
+                color: Color.fromARGB(255, 8, 8, 8),
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
               ),
@@ -69,33 +75,39 @@ class _OnboardingPageState extends State<OnboardingPage> {
           child: PageView(
             controller: controller,
             onPageChanged: (index) {
-              setState(() => isLastPage = index == 2);
+              setState(() => isLastPage = index == 3);
             },
             children: [
               buildPage(
                 color: Colors.green.shade100,
-                urlImage: 'assets/homeWork.jpg',
+                urlImage: 'assets/homeWork.png',
                 title: '快速繳交/查看作業',
-                subtitle: '不用再煩惱作業繳交/查看要載入許久',
+                subtitle: '簡潔快速的繳交功能，支援多檔案上傳及刪除已繳交之作業',
               ),
               buildPage(
-                color: Colors.blue.shade100,
-                urlImage: 'assets/bulletins.jpg',
+                color: Colors.green.shade100,
+                urlImage: 'assets/bulletins.png',
                 title: '快速查看即時公告',
-                subtitle: '不必再開一堆網頁',
+                subtitle: '不必開一堆網頁，即可接收Flipclass最新公告',
               ),
               buildPage(
-                color: Colors.orange.shade100,
-                urlImage: 'assets/leaveRequest.jpg',
+                color: Colors.green.shade100,
+                urlImage: 'assets/leaveRequest.png',
                 title: '快速請假',
-                subtitle: '最簡潔快速的請假功能',
+                subtitle: '最簡潔快速的請假功能，支援病假/事假\n快速一鍵請假，查看假單',
               ),
               buildPage(
-                color: Colors.orange.shade100,
-                urlImage: 'assets/homePage.jpg',
-                title: '開始',
-                subtitle: '立即參與這項計畫',
+                color: Colors.green.shade100,
+                urlImage: 'assets/createActivities.png',
+                title: '校園活動宣傳',
+                subtitle: '幫助你曝光/接收新的活動消息',
               ),
+              // buildPage(
+              //   color: Colors.orange.shade100,
+              //   urlImage: 'assets/stust.png',
+              //   title: '開始',
+              //   subtitle: '馬上體驗',
+              // ),
             ],
           ),
         ),
@@ -110,7 +122,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 ),
                 child: const Text(
                   '開始使用',
-                  style: TextStyle(fontSize: 24),
+                  style: TextStyle(color:Color.fromARGB(255, 8, 128, 50),fontSize: 24,fontWeight: FontWeight.bold),
                 ),
                 onPressed: () async {
                   // navigate directly to home page
@@ -127,23 +139,28 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 },
               )
             : Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+                color: Colors.green.shade100,
+                // padding: const EdgeInsets.symmetric(horizontal: 12),
                 height: 80,
-                child: Row(
+                child: Container(
+                   decoration: const BoxDecoration(
+                    color: Colors.white,
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(25))),
+                  child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     TextButton(
-                      child: const Text('跳過'),
-                      onPressed: () => controller.jumpToPage(2),
+                      child: const Text('跳過',style: TextStyle(color:Color.fromARGB(255, 8, 128, 50),fontWeight: FontWeight.bold),),
+                      onPressed: () => controller.jumpToPage(3),
                     ),
                     Center(
                       child: SmoothPageIndicator(
                         controller: controller,
-                        count: 3,
+                        count: 4,
                         effect: const WormEffect(
                           spacing: 16,
                           dotColor: Colors.black26,
-                          activeDotColor: Color.fromARGB(255, 85, 179, 241),
+                          activeDotColor: Color.fromARGB(255, 11, 11, 11),
                         ),
                         onDotClicked: (index) => controller.animateToPage(
                           index,
@@ -153,7 +170,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       ),
                     ),
                     TextButton(
-                      child: const Text('下一步'),
+                      child: const Text('下一步',style: TextStyle(color:Color.fromARGB(255, 8, 128, 50),fontWeight: FontWeight.bold),),
                       onPressed: () => controller.nextPage(
                         duration: const Duration(milliseconds: 500),
                         curve: Curves.easeInOut,
@@ -161,6 +178,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     ),
                   ],
                 ),
+                )
               ),
       );
 }

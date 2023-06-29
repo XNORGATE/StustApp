@@ -1,6 +1,5 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:html/parser.dart' show parse;
@@ -36,6 +35,7 @@ class _BulletinsPageState extends State<BulletinsPage>
     checkNetwork().then((isConnected) {
       if (isConnected == false) {
         return showDialog(
+          barrierDismissible: false,
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
@@ -100,29 +100,29 @@ class _BulletinsPageState extends State<BulletinsPage>
   late List<Map<String, String>> _responseData = [];
   late bool _isLoading = false; // Flag to indicate if API request is being made
 
-  void _showAlertDialog(String text, String href) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          title: Text(text),
-          content: Html(
-            data: '<a href="$href">查看作業</a>',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  // void _showAlertDialog(String text, String href) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         shape:
+  //             RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+  //         title: Text(text),
+  //         content: Html(
+  //           data: '<a href="$href">查看作業</a>',
+  //         ),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //             child: const Text('OK'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   String extractMonthAndDay(String dateString) {
     List<String> dateParts = dateString.split("-");
@@ -305,6 +305,7 @@ class _BulletinsPageState extends State<BulletinsPage>
                       return InkWell(
                           onTap: () async {
                             final confirmed = await showDialog(
+                              // barrierDismissible: false,
                               context: context,
                               builder: (context) => AlertDialog(
                                 shape: RoundedRectangleBorder(
@@ -439,7 +440,7 @@ class _BulletinsPageState extends State<BulletinsPage>
                                   ),
                                 ),
                                 actions: [
-                                  NeumorphicButton(
+                                  TextButton(
                                     // style: const NeumorphicStyle(
                                     //   color: Color.fromARGB(255, 171, 245, 167),
                                     //   shape: NeumorphicShape.flat,

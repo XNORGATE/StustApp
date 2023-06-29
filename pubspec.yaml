@@ -45,7 +45,7 @@ dependencies:
   flutter_neumorphic_null_safety: ^3.2.4
   url_launcher: ^6.1.10
   convert: ^3.1.1
-  intl: ^0.17.0
+  intl: any
   page_transition: ^2.0.9
   flutter_widget_from_html: ^0.9.1
   # flutter_widget_from_html_core: any
@@ -63,10 +63,19 @@ dependencies:
   cached_network_image: any
   smooth_page_indicator: ^1.1.0
   font_awesome_flutter : any
+  flutter_native_splash: any
+  rename: any
+  get: any
   # googleapis: any
 
 
 dev_dependencies:
+  flutter_launcher_icons: any
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/playstore.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
   flutter_test:
     sdk: flutter
 

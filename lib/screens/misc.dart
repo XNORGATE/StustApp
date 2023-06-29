@@ -28,7 +28,7 @@ class StudentMiscPage extends StatefulWidget {
 
 class Pages {
   // late dynamic absentData;
-  late dynamic foreignTestData;
+  // late dynamic foreignTestData;
   // late dynamic studentIndexData;
   late dynamic lostAndFoundData;
   late dynamic graduateData;
@@ -36,7 +36,7 @@ class Pages {
   late int totalcredit;
   Pages({
     // required this.absentData, //  https://portal.stust.edu.tw/StudentPortfolio/Login.aspx
-    required this.foreignTestData, //  https://portal.stust.edu.tw/StudentPortfolio/Login.aspx
+    // required this.foreignTestData, //  https://portal.stust.edu.tw/StudentPortfolio/Login.aspx
     // required this.studentIndexData,
     required this.graduateData, //  https://portal.stust.edu.tw/StudentPortfolio/Login.aspx
     required this.departmentOfficeData, //ImageAsset +
@@ -58,6 +58,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
     checkNetwork().then((isConnected) {
       if (isConnected == false) {
         return showDialog(
+          barrierDismissible: false,
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
@@ -168,15 +169,15 @@ class _StudentMiscPageState extends State<StudentMiscPage>
       // var absentData =
       //     html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
 
-      ///go to foreignTestData
-      response = await session.get(
-          Uri.parse(
-              'https://portal.stust.edu.tw/StudentPortfolio/Pages/stud_lang_grad/stud_lang_grad.aspx'),
-          headers: {...headers, 'cookie': cookies});
+      // ///go to foreignTestData
+      // response = await session.get(
+      //     Uri.parse(
+      //         'https://portal.stust.edu.tw/StudentPortfolio/Pages/stud_lang_grad/stud_lang_grad.aspx'),
+      //     headers: {...headers, 'cookie': cookies});
 
-      responseBodyHex = hex.encode(response.bodyBytes);
-      var foreignTestData =
-          html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+      // responseBodyHex = hex.encode(response.bodyBytes);
+      // var foreignTestData =
+      //     html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
 
       //go to graduateData
       response = await session.get(
@@ -252,7 +253,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
 
       return Pages(
           // absentData: absentData,
-          foreignTestData: foreignTestData,
+          // foreignTestData: foreignTestData,
           graduateData: graduateData,
           departmentOfficeData: departmentOfficeData,
           lostAndFoundData: fullPage,
@@ -260,7 +261,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
     } catch (e) {}
     return Pages(
         // absentData: absentData,
-        foreignTestData: foreignTestData,
+        // foreignTestData: foreignTestData,
         graduateData: graduateData,
         departmentOfficeData: departmentOfficeData,
         lostAndFoundData: fullPage,
@@ -291,7 +292,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
         _isLoading = false;
 
         // absentData = res.absentData;
-        foreignTestData = res.foreignTestData;
+        // foreignTestData = res.foreignTestData;
         graduateData = res.graduateData;
         departmentOfficeData = res.departmentOfficeData;
         lostAndFoundData = res.lostAndFoundData;
@@ -363,7 +364,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
           // isScrollable: true,
           tabs: const [
             // Tab(text: '缺曠明細'),
-            Tab(text: '外語檢定紀錄'),
+            // Tab(text: '外語檢定紀錄'),
             Tab(text: '修課學分'),
 
             // Tab(text: '畢業學分'),
@@ -393,9 +394,9 @@ class _StudentMiscPageState extends State<StudentMiscPage>
           // Center(child: CircularProgressIndicator()),
           // Center(child: CircularProgressIndicator())
 
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : _foreignTestData(context),
+          // _isLoading
+          //     ? const Center(child: CircularProgressIndicator())
+          //     : _foreignTestData(context),
           _isLoading
               ? const Center(child: CircularProgressIndicator())
               : SingleChildScrollView(child: _graduateData(context)),
@@ -433,45 +434,45 @@ class _StudentMiscPageState extends State<StudentMiscPage>
   //   );
   // }
 
-  Widget _foreignTestData(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final height = MediaQuery.of(context).size.height;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 75, 75, 0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: width * 0.125,
-                height: height * 0.7,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      height: height * .08,
-                    ),
-                    FittedBox(
-                      fit: BoxFit.contain,
-                      child: HtmlWidget(
-                        extractHtmlContent(foreignTestData.outerHtml, 'div',
-                            className: 'conplace', index: 0),
-                        // onTapUrl: (url) => launchUrl(Uri.parse(url)),
-                        textStyle: const TextStyle(
-                            fontSize: 12.75, fontWeight: FontWeight.w400),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          )
-        ],
-      ),
-    );
-  }
+  // Widget _foreignTestData(BuildContext context) {
+  //   final width = MediaQuery.of(context).size.width;
+  //   final height = MediaQuery.of(context).size.height;
+  //   return Padding(
+  //     padding: const EdgeInsets.fromLTRB(0, 75, 75, 0),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.start,
+  //       children: [
+  //         Column(
+  //           crossAxisAlignment: CrossAxisAlignment.center,
+  //           children: [
+  //             SizedBox(
+  //               width: width * 0.125,
+  //               height: height * 0.7,
+  //               child: Column(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   SizedBox(
+  //                     height: height * .08,
+  //                   ),
+  //                   FittedBox(
+  //                     fit: BoxFit.contain,
+  //                     child: HtmlWidget(
+  //                       extractHtmlContent(foreignTestData.outerHtml, 'div',
+  //                           className: 'conplace', index: 0),
+  //                       // onTapUrl: (url) => launchUrl(Uri.parse(url)),
+  //                       textStyle: const TextStyle(
+  //                           fontSize: 12.75, fontWeight: FontWeight.w400),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //           ],
+  //         )
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _graduateData(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -553,9 +554,11 @@ class _StudentMiscPageState extends State<StudentMiscPage>
                   child: Column(
                     children: [
                       _infoRow(context, 0),
-                      HtmlWidget(extractHtmlContent(
-                          lostAndFoundData[0].outerHtml, 'div',
-                          className: 'BOX', index: 1)),
+                      HtmlWidget(
+                          extractHtmlContent(
+                              lostAndFoundData[0].outerHtml, 'div',
+                              className: 'BOX', index: 1),
+                          textStyle: const TextStyle(fontSize: 20)),
                     ],
                   ),
                 )),
@@ -567,10 +570,14 @@ class _StudentMiscPageState extends State<StudentMiscPage>
               fit: BoxFit.scaleDown,
               child: Column(
                 children: [
+                  SizedBox(
+                    height: 15,
+                  ),
                   _infoRow(context, 1),
-                  HtmlWidget(extractHtmlContent(
-                      lostAndFoundData[1].outerHtml, 'div',
-                      className: 'BOX', index: 1)),
+                  HtmlWidget(
+                      extractHtmlContent(lostAndFoundData[1].outerHtml, 'div',
+                          className: 'BOX', index: 1),
+                      textStyle: const TextStyle(fontSize: 20)),
                 ],
               ),
             ),
@@ -582,10 +589,14 @@ class _StudentMiscPageState extends State<StudentMiscPage>
               fit: BoxFit.scaleDown,
               child: Column(
                 children: [
+                  SizedBox(
+                    height: 15,
+                  ),
                   _infoRow(context, 2),
-                  HtmlWidget(extractHtmlContent(
-                      lostAndFoundData[2].outerHtml, 'div',
-                      className: 'BOX', index: 1)),
+                  HtmlWidget(
+                      extractHtmlContent(lostAndFoundData[2].outerHtml, 'div',
+                          className: 'BOX', index: 1),
+                      textStyle: const TextStyle(fontSize: 20)),
                 ],
               ),
             ),
@@ -597,10 +608,15 @@ class _StudentMiscPageState extends State<StudentMiscPage>
               fit: BoxFit.scaleDown,
               child: Column(
                 children: [
+                  SizedBox(
+                    height: 15,
+                  ),
                   _infoRow(context, 3),
-                  HtmlWidget(extractHtmlContent(
-                      lostAndFoundData[3].outerHtml, 'div',
-                      className: 'BOX', index: 1)),
+                  HtmlWidget(
+                      extractHtmlContent(lostAndFoundData[3].outerHtml, 'div',
+                          className: 'BOX', index: 1),
+                      textStyle:
+                          const TextStyle(color: Colors.black, fontSize: 20)),
                 ],
               ),
             ),
@@ -612,10 +628,14 @@ class _StudentMiscPageState extends State<StudentMiscPage>
               fit: BoxFit.scaleDown,
               child: Column(
                 children: [
+                  SizedBox(
+                    height: 15,
+                  ),
                   _infoRow(context, 4),
-                  HtmlWidget(extractHtmlContent(
-                      lostAndFoundData[4].outerHtml, 'div',
-                      className: 'BOX', index: 1)),
+                  HtmlWidget(
+                      extractHtmlContent(lostAndFoundData[4].outerHtml, 'div',
+                          className: 'BOX', index: 1),
+                      textStyle: const TextStyle(fontSize: 20)),
                 ],
               ),
             ),
@@ -680,43 +700,43 @@ Widget _infoRow(BuildContext context, int index) {
       Center(
         child: Text(
           '第${index + 1}頁',
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
         ),
       ),
       const SizedBox(height: 10),
-      Row(
-        children: const [
-          Text(
-            '編號',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(width: 30),
-          Text(
-            '公告日期',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(width: 30),
-          Text(
-            '物品名稱',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(width: 30),
-          Text(
-            '數量',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(width: 30),
-          Text(
-            '簽領情形',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(width: 30),
-          Text(
-            '簽領日期',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-        ],
-      ),
+      // Row(
+      //   children: const [
+      //     Text(
+      //       '編號',
+      //       style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      //     ),
+      //     SizedBox(width: 30),
+      //     Text(
+      //       '公告日期',
+      //       style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      //     ),
+      //     SizedBox(width: 30),
+      //     Text(
+      //       '物品名稱',
+      //       style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      //     ),
+      //     SizedBox(width: 30),
+      //     Text(
+      //       '數量',
+      //       style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      //     ),
+      //     SizedBox(width: 30),
+      //     Text(
+      //       '簽領情形',
+      //       style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      //     ),
+      //     SizedBox(width: 30),
+      //     Text(
+      //       '簽領日期',
+      //       style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      //     ),
+      //   ],
+      // ),
     ],
   );
 }
