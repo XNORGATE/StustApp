@@ -292,7 +292,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                     ? const Center(child: CircularProgressIndicator())
                     : Center(
                         child: SingleChildScrollView(
-                          child: Column(
+                          child: AutofillGroup(child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               const SizedBox(height: 10),
@@ -420,6 +420,8 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                                               prefs.setString(
                                                   'name', isAuthenticated);
                                             });
+                                      // TextInput.finishAutofillContext();
+
                                       if (!mounted) return;
 
                                       Navigator.of(context)
@@ -535,7 +537,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                                 ],
                               )
                             ],
-                          ),
+                          ),)
                         ),
                       ),
               ),
