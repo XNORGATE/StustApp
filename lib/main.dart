@@ -599,7 +599,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     // Check that the request was successful
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200 || jsonDecode(response.body) is String ) {
       _isVpsError = true;
 
       return [];

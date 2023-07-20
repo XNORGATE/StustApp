@@ -63,18 +63,18 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  @override
-  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
-    if (state == AppLifecycleState.resumed) {
-      // Check if there's an account and password in SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      if (!prefs.containsKey('account') || !prefs.containsKey('password')) {
-        // If not, show the login page
-        if (!mounted) return;
-        Navigator.of(context).pushReplacementNamed(LoginPage.routeName);
-      }
-    }
-  }
+  // @override
+  // Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+  //   if (state == AppLifecycleState.resumed) {
+  //     // Check if there's an account and password in SharedPreferences
+  //     final prefs = await SharedPreferences.getInstance();
+  //     if (!prefs.containsKey('account') || !prefs.containsKey('password')) {
+  //       // If not, show the login page
+  //       if (!mounted) return;
+  //       Navigator.of(context).pushReplacementNamed(LoginPage.routeName);
+  //     }
+  //   }
+  // }
 
   // final formKey = GlobalKey<FormState>();
   late String _account;
