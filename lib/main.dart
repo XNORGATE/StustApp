@@ -599,7 +599,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     // Check that the request was successful
-    if (response.statusCode != 200 || jsonDecode(response.body) is String ) {
+    if (response.statusCode != 200 || jsonDecode(response.body) is String) {
       _isVpsError = true;
 
       return [];
@@ -744,490 +744,379 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: InkWell(
-                onTap: () async {
-                  Navigator.push(
-                      context,
-                      PageTransition(
-                          type: PageTransitionType.leftToRightWithFade,
-                          child: const HomeworkPage()));
-                  // await NotificationService().showNotification(
-                  //     title: 'Sample title', body: 'It works!');
-                  // Navigator.of(context).pushReplacementNamed('/homework');
+            toHomeworkPage(context),
+            secondRow(context),
+            vpsRow(context),
+            foodListRow(context),
+            siteActivity(context),
+          ],
+        ),
+      ),
+      drawer: drawerWidget(context),
+    );
+  }
 
-                  // Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(
-                  //         builder: (context) => const HomeworkPage()));
-                },
-                child: Container(
-                  height: MediaQuery.of(context).size.height * .18,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 5, 5, 5),
-                      borderRadius: BorderRadius.circular(10)),
+  Widget toHomeworkPage(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: InkWell(
+        onTap: () async {
+          Navigator.push(
+              context,
+              PageTransition(
+                  type: PageTransitionType.leftToRightWithFade,
+                  child: const HomeworkPage()));
+          // await NotificationService().showNotification(
+          //     title: 'Sample title', body: 'It works!');
+          // Navigator.of(context).pushReplacementNamed('/homework');
+
+          // Navigator.push(
+          //     context,
+          //     MaterialPageRoute(
+          //         builder: (context) => const HomeworkPage()));
+        },
+        child: Container(
+          height: MediaQuery.of(context).size.height * .18,
+          width: double.infinity,
+          decoration: BoxDecoration(
+              color: const Color.fromARGB(255, 5, 5, 5),
+              borderRadius: BorderRadius.circular(10)),
+          child: Stack(
+            alignment: Alignment.bottomLeft,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(6.0),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Text(
+                        'Flipclass',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: Bold,
+                            fontSize: 18),
+                      ),
+                      Text('最新公告及最近事件(作業)',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
+                              height: 1,
+                              fontFamily: Medium,
+                              fontSize: 14)),
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget secondRow(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 1,
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    PageTransition(
+                        type: PageTransitionType.leftToRightWithFade,
+                        child: const LeaveRequestPage()));
+              },
+              child: Container(
+                height: MediaQuery.of(context).size.height * .25,
+                decoration: BoxDecoration(
+                    color: const Color(0xfffed271),
+                    borderRadius: BorderRadius.circular(10)),
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
                   child: Stack(
-                    alignment: Alignment.bottomLeft,
-                    children: [
-                      // const Image(
-                      //     fit: BoxFit.fitWidth,
-                      //     width: double.infinity,
-                      //     image: NetworkImage(
-                      //         'https://cdn.pixabay.com/photo/2021/01/16/09/05/meal-5921491_960_720.jpg')),
-                      Padding(
-                        padding: const EdgeInsets.all(6.0),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: const [
-                              Text(
-                                'Flipclass',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontFamily: Bold,
-                                    fontSize: 18),
-                              ),
-                              Text('最新公告及最近事件(作業)',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w500,
-                                      height: 1,
-                                      fontFamily: Medium,
-                                      fontSize: 14)),
-                            ],
-                          ),
-                        ),
-                      )
+                    alignment: Alignment.center,
+                    children: const [
+                      CircleAvatar(
+                        radius: 50,
+                        // backgroundImage:
+                        //     AssetImage('assets/pandamart.jpg'),
+                      ),
+                      Positioned(
+                          bottom: 15,
+                          left: 0,
+                          child: Text(
+                            '請假系統',
+                            style: TextStyle(
+                                color: blackColor,
+                                fontFamily: Bold,
+                                fontSize: 18),
+                          )),
+                      Positioned(
+                          bottom: 0,
+                          left: 0,
+                          child: Text('查詢缺曠及請假',
+                              style: TextStyle(
+                                  color: blackColor,
+                                  fontWeight: FontWeight.w500,
+                                  height: 1,
+                                  fontFamily: Medium,
+                                  fontSize: 14))),
                     ],
                   ),
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: 1,
-                    child: InkWell(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            PageTransition(
-                                type: PageTransitionType.leftToRightWithFade,
-                                child: const LeaveRequestPage()));
-                      },
-                      child: Container(
-                        height: MediaQuery.of(context).size.height * .25,
-                        decoration: BoxDecoration(
-                            color: const Color(0xfffed271),
-                            borderRadius: BorderRadius.circular(10)),
-                        child: Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: const [
-                              CircleAvatar(
-                                radius: 50,
-                                // backgroundImage:
-                                //     AssetImage('assets/pandamart.jpg'),
-                              ),
-                              Positioned(
-                                  bottom: 15,
-                                  left: 0,
-                                  child: Text(
-                                    '請假系統',
-                                    style: TextStyle(
-                                        color: blackColor,
-                                        fontFamily: Bold,
-                                        fontSize: 18),
-                                  )),
-                              Positioned(
-                                  bottom: 0,
-                                  left: 0,
-                                  child: Text('查詢缺曠及請假',
-                                      style: TextStyle(
-                                          color: blackColor,
-                                          fontWeight: FontWeight.w500,
-                                          height: 1,
-                                          fontFamily: Medium,
-                                          fontSize: 14))),
-                            ],
+          ),
+          const SizedBox(
+            width: 8,
+          ),
+          Expanded(
+            flex: 1,
+            child: Column(
+              children: [
+                InkWell(
+                  onTap: () {
+                    // Do something when this widget is tapped
+                    Navigator.push(
+                        context,
+                        PageTransition(
+                            type: PageTransitionType.leftToRightWithFade,
+                            child: const StudentPortfolioPage()));
+                  },
+                  child: Container(
+                    height: MediaQuery.of(context).size.height * .15,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: const Color(0xffef9fc4),
+                      borderRadius: BorderRadius.circular(10),
+                      // image: const DecorationImage(
+                      //     image: AssetImage('assets/food.jpg'))
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          Text(
+                            '課程事項',
+                            style: TextStyle(
+                                color: blackColor,
+                                fontFamily: Bold,
+                                fontSize: 18),
                           ),
-                        ),
+                          Text('成績與課表',
+                              style: TextStyle(
+                                  color: blackColor,
+                                  fontWeight: FontWeight.w500,
+                                  height: 1,
+                                  fontFamily: Medium,
+                                  fontSize: 14)),
+                        ],
                       ),
                     ),
                   ),
-                  const SizedBox(
-                    width: 8,
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: Column(
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            // Do something when this widget is tapped
-                            Navigator.push(
-                                context,
-                                PageTransition(
-                                    type:
-                                        PageTransitionType.leftToRightWithFade,
-                                    child: const StudentPortfolioPage()));
-                          },
-                          child: Container(
-                            height: MediaQuery.of(context).size.height * .15,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: const Color(0xffef9fc4),
-                              borderRadius: BorderRadius.circular(10),
-                              // image: const DecorationImage(
-                              //     image: AssetImage('assets/food.jpg'))
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: const [
-                                  Text(
-                                    '課程事項',
-                                    style: TextStyle(
-                                        color: blackColor,
-                                        fontFamily: Bold,
-                                        fontSize: 18),
-                                  ),
-                                  Text('成績與課表',
-                                      style: TextStyle(
-                                          color: blackColor,
-                                          fontWeight: FontWeight.w500,
-                                          height: 1,
-                                          fontFamily: Medium,
-                                          fontSize: 14)),
-                                ],
-                              ),
-                            ),
+                ),
+                const SizedBox(height: 5),
+                InkWell(
+                  onTap: () {
+                    // Do something when this widget is tapped
+                    Navigator.push(
+                        context,
+                        PageTransition(
+                            type: PageTransitionType.leftToRightWithFade,
+                            child: const StudentMiscPage()));
+                  },
+                  child: Container(
+                    height: MediaQuery.of(context).size.height * .1,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                        color: const Color(0xff85bfff),
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          Text(
+                            '學生其他事項',
+                            style: TextStyle(
+                                color: blackColor,
+                                fontFamily: Bold,
+                                fontSize: 18),
                           ),
-                        ),
-                        const SizedBox(height: 5),
-                        InkWell(
-                          onTap: () {
-                            // Do something when this widget is tapped
-                            Navigator.push(
-                                context,
-                                PageTransition(
-                                    type:
-                                        PageTransitionType.leftToRightWithFade,
-                                    child: const StudentMiscPage()));
-                          },
-                          child: Container(
-                            height: MediaQuery.of(context).size.height * .1,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                                color: const Color(0xff85bfff),
-                                borderRadius: BorderRadius.circular(10)),
-                            child: Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: const [
-                                  Text(
-                                    '學生其他事項',
-                                    style: TextStyle(
-                                        color: blackColor,
-                                        fontFamily: Bold,
-                                        fontSize: 18),
-                                  ),
-                                  Text('各式事項',
-                                      style: TextStyle(
-                                          color: blackColor,
-                                          fontWeight: FontWeight.w500,
-                                          height: 1,
-                                          fontFamily: Medium,
-                                          fontSize: 14)),
-                                ],
-                              ),
-                            ),
-                          ),
-                        )
-                      ],
+                          Text('各式事項',
+                              style: TextStyle(
+                                  color: blackColor,
+                                  fontWeight: FontWeight.w500,
+                                  height: 1,
+                                  fontFamily: Medium,
+                                  fontSize: 14)),
+                        ],
+                      ),
                     ),
                   ),
-                ],
-              ),
+                )
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    '校園活動',
-                    style: TextStyle(
-                        color: Color.fromARGB(255, 18, 18, 18),
-                        fontSize: 17.5,
-                        fontFamily: Bold),
-                  ),
-                  if (!_isVpsError) //
-                    IconButton(
-                      onPressed: () => Navigator.push(
-                          context,
-                          PageTransition(
-                              type: PageTransitionType.rightToLeftWithFade,
-                              child: const CreateActivitiesPage())),
-                      icon: const Icon(
-                        Icons.playlist_add,
-                        size: 25,
-                        color: Color.fromARGB(255, 110, 109, 110),
-                      ),
-                    )
-                ],
-              ),
-            ),
-            if (_isVpsError == false)
-              _isStudentActivitiesLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : SizedBox(
-                      height: 170,
-                      child: ListView.builder(
-                          itemCount: StudentActivitiesList.length,
-                          scrollDirection: Axis.horizontal,
-                          itemBuilder: (context, index) {
-                            // PandaPickItemModel model =
-                            final data = StudentActivitiesList[index];
-                            return StudentActivitiesScreen(
-                              location: data['location'] ?? '',
-                              date: data['date'] ?? '',
-                              topic: data['topic'] ?? '',
-                              link: data['link'] ?? '',
-                              image_link: data['image_link'] ?? '',
-                              student_number: data['student_number'] ?? '',
-                              host: data['host'] ?? '',
-                            );
-                          }),
-                    )
-            else
-              const Center(child: Text('無法取得資料，請稍後再試')),
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 10),
-              child: Text(
-                '美食地圖',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget vpsRow(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 5),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                '校園活動',
                 style: TextStyle(
                     color: Color.fromARGB(255, 18, 18, 18),
                     fontSize: 17.5,
                     fontFamily: Bold),
               ),
-            ),
-            if (_isFoodListError == false)
-              _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : SizedBox(
-                      height: 170,
-                      child: ListView.builder(
-                          itemCount: StustAppFoodList.length,
-                          scrollDirection: Axis.horizontal,
-                          itemBuilder: (context, index) {
-                            // PandaPickItemModel model =
-                            final data = StustAppFoodList[index];
-                            return RestuarentScreen(
-                              name: data['name'] ?? '',
-                              image: data['image'] ?? '',
-                              time: data['time'] ?? '',
-                              totalRating: data['totalRating'] ?? '',
-                              foodType: data['foodType'] ?? '',
-                              rating: data['ratting'] ?? '',
-                              link: data['link'] ?? '',
-                              price: data['price'] ?? '',
-                            );
-                          }),
-                    )
-            else
-              const Center(child: Text('無法取得資料，請稍後再試')),
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 10),
-              child: Text(
-                '校網公告',
-                style: TextStyle(
-                    color: Color(0xff323232), fontSize: 17.5, fontFamily: Bold),
-              ),
-            ),
-            if (_isActivitiesListError == false)
-              _isActivitiesLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 1),
-                      child: SizedBox(
-                        height: MediaQuery.of(context).size.height * .18,
-                        child: ListView.builder(
-                            itemCount: StustActivitiesList.length,
-                            scrollDirection: Axis.horizontal,
-                            itemBuilder: (context, index) {
-                              // PandaPickItemModel model =
-                              final data = StustActivitiesList[index];
-                              return ActivitiesScreen(
-                                href: data['href'] ?? '',
-                                image: data['image'] ?? '',
-                                topic: (data['topic']!).length > 10
-                                    ? insertLineBreak(data['topic']!)
-                                    : data['topic']!,
-                              );
-                            }),
-                      ),
-                    )
-            else
-              const Center(child: Text('無法取得資料，請稍後再試')),
-          ],
+              if (!_isVpsError) //
+                IconButton(
+                  onPressed: () => Navigator.push(
+                      context,
+                      PageTransition(
+                          type: PageTransitionType.rightToLeftWithFade,
+                          child: const CreateActivitiesPage())),
+                  icon: const Icon(
+                    Icons.playlist_add,
+                    size: 25,
+                    color: Color.fromARGB(255, 110, 109, 110),
+                  ),
+                )
+            ],
+          ),
         ),
-      ),
-//       drawer: Drawer(
-//         shape: const RoundedRectangleBorder(
-//             borderRadius: BorderRadius.horizontal(right: Radius.circular(40))),
-//         child: ListView(
-//           // Important: Remove any padding from the ListView.
-//           padding: EdgeInsets.zero,
-//           children: [
-//             const DrawerHeader(
-//               decoration: BoxDecoration(
-//                 color: Color.fromARGB(255, 74, 154, 220),
-//               ),
-//               child: Padding(
-//                 padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-//                 child: CircleAvatar(
-//                   radius: 25.0,
-//                   backgroundImage: NetworkImage(
-//                       'https://cdn.discordapp.com/attachments/672820483862953994/1088101079926984714/AL5GRJXhY34ARUUiwPjHIsBA_xQwyi0To9ShYof8S0Srs900-c-k-c0x00ffffff-no-rj.png'),
-//                 ),
-//               ),
-//             ),
-//             const SizedBox(
-//               height: 10,
-//             ),
-//             SizedBox(
-//               child: Padding(
-//                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-//                 child:
-//                     Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-//                   Text(
-//                     account,
-//                     style: const TextStyle(
-//                         color: Color(0xff323232),
-//                         fontSize: 15,
-//                         fontFamily: Bold),
-//                   ),
-//                   const SizedBox(
-//                     width: 10,
-//                   ),
-//                   Text(
-//                     name,
-//                     style: const TextStyle(
-//                         color: Color(0xff323232),
-//                         fontSize: 15,
-//                         fontFamily: Bold),
-//                   ),
-//                 ]),
-//               ),
-//             ),
-//             const SizedBox(
-//               height: 15,
-//             ),
-//             const Divider(
-//               color: Color.fromARGB(255, 222, 220, 220),
-//               thickness: 2,
-//               height: 1,
-//             ),
-//             ListTile(
-//               title: const Text('設定',
-//                   style: TextStyle(fontFamily: Medium, color: Colors.black)),
-//               leading: const Icon(
-//                 Icons.settings_outlined,
-//                 color: Color.fromARGB(255, 24, 62, 216),
-//               ),
-//               onTap: () {
-//                 // Update the state of the app
-//                 // ...
-//                 // Then close the drawer
-//                 Navigator.pop(context);
-//               },
-//             ),
-//             ListTile(
-//               title: const Text('幫助中心',
-//                   style: TextStyle(fontFamily: Medium, color: Colors.black)),
-//               leading:
-//                   const Icon(Icons.help_outline, color: MyColors.primaryColor),
-//               onTap: () {
-//                 // Update the state of the app
-//                 // ...
-//                 // Then close the drawer
-//                 Navigator.pop(context);
-//               },
-//             ),
-//             ListTile(
-//               title: const Text('更多',
-//                   style: TextStyle(fontFamily: Medium, color: Colors.black)),
-//               leading:
-//                   const Icon(Icons.more_horiz, color: MyColors.primaryColor),
-//               onTap: () {
-//                 // Update the state of the app
-//                 // ...
-//                 // Then close the drawer
-//                 Navigator.pop(context);
-//               },
-//             ),
-//             ListTile(
-//               title: const Text('登出',
-//                   style: TextStyle(fontFamily: Medium, color: Colors.black)),
-//               leading: const Icon(Icons.login_outlined,
-//                   color: MyColors.primaryColor),
-//               onTap:
-//                   // Update the state of the app
-//                   // ...
-//                   // Then close the drawer
-//                   () async {
-//                 final confirmed = await showDialog(
-//                   context: context,
-//                   builder: (context) => AlertDialog(
-//                     title: const Text(
-//                       '登出',
-//                       style: TextStyle(color: Colors.black),
-//                     ),
-//                     content: const Text('確定要登出 ?'),
-//                     actions: [
-//                       NeumorphicButton(
-//                         onPressed: () => Navigator.pop(context, false),
-//                         child: const Text('取消'),
-//                       ),
-//                       NeumorphicButton(
-//                         onPressed: () => Navigator.pop(context, true),
-//                         child: const Text('確認'),
-//                       ),
-//                     ],
-//                   ),
-//                 );
-//                 if (confirmed == true) {
-// // Clear 'account' and 'password' from SharedPreferences
-//                   final prefs = await SharedPreferences.getInstance();
-//                   prefs.remove('account');
-//                   prefs.remove('password');
-//                   prefs.remove('name');
+        if (_isVpsError == false)
+          _isStudentActivitiesLoading
+              ? const Center(child: CircularProgressIndicator())
+              : SizedBox(
+                  height: 170,
+                  child: ListView.builder(
+                      itemCount: StudentActivitiesList.length,
+                      scrollDirection: Axis.horizontal,
+                      itemBuilder: (context, index) {
+                        // PandaPickItemModel model =
+                        final data = StudentActivitiesList[index];
+                        return StudentActivitiesScreen(
+                          location: data['location'] ?? '',
+                          date: data['date'] ?? '',
+                          topic: data['topic'] ?? '',
+                          link: data['link'] ?? '',
+                          image_link: data['image_link'] ?? '',
+                          student_number: data['student_number'] ?? '',
+                          host: data['host'] ?? '',
+                        );
+                      }),
+                )
+        else
+          const Center(child: Text('無法取得資料，請稍後再試'))
+      ],
+    );
+  }
 
-// // Navigate to login page
-//                   // ignore: use_build_context_synchronously
-//                   Navigator.pushNamedAndRemoveUntil(
-//                       context, LoginPage.routeName, (route) => false);
-//                 }
-//               },
-//             ),
-//           ],
-//         ),
+  Widget foodListRow(BuildContext context) {
+    return Column(
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 10),
+          child: Text(
+            '美食地圖',
+            style: TextStyle(
+                color: Color.fromARGB(255, 18, 18, 18),
+                fontSize: 17.5,
+                fontFamily: Bold),
+          ),
+        ),
+        if (_isFoodListError == false)
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : SizedBox(
+                  height: 170,
+                  child: ListView.builder(
+                      itemCount: StustAppFoodList.length,
+                      scrollDirection: Axis.horizontal,
+                      itemBuilder: (context, index) {
+                        // PandaPickItemModel model =
+                        final data = StustAppFoodList[index];
+                        return RestuarentScreen(
+                          name: data['name'] ?? '',
+                          image: data['image'] ?? '',
+                          time: data['time'] ?? '',
+                          totalRating: data['totalRating'] ?? '',
+                          foodType: data['foodType'] ?? '',
+                          rating: data['ratting'] ?? '',
+                          link: data['link'] ?? '',
+                          price: data['price'] ?? '',
+                        );
+                      }),
+                )
+        else
+          const Center(child: Text('無法取得資料，請稍後再試')),
+      ],
+    );
+  }
 
-//       ),
-      drawer: Drawer(
+  Widget siteActivity(BuildContext context) {
+    return Column(
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 10),
+          child: Text(
+            '校網公告',
+            style: TextStyle(
+                color: Color(0xff323232), fontSize: 17.5, fontFamily: Bold),
+          ),
+        ),
+        if (_isActivitiesListError == false)
+          _isActivitiesLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 1),
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height * .18,
+                    child: ListView.builder(
+                        itemCount: StustActivitiesList.length,
+                        scrollDirection: Axis.horizontal,
+                        itemBuilder: (context, index) {
+                          // PandaPickItemModel model =
+                          final data = StustActivitiesList[index];
+                          return ActivitiesScreen(
+                            href: data['href'] ?? '',
+                            image: data['image'] ?? '',
+                            topic: (data['topic']!).length > 10
+                                ? insertLineBreak(data['topic']!)
+                                : data['topic']!,
+                          );
+                        }),
+                  ),
+                )
+        else
+          const Center(child: Text('無法取得資料，請稍後再試')),
+      ],
+    );
+  }
+
+
+  drawerWidget(BuildContext context){
+    return Drawer(
         width: 275,
         elevation: 30,
         backgroundColor: const Color.fromARGB(255, 236, 236, 236),
@@ -1587,8 +1476,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 }
 
@@ -1632,6 +1520,7 @@ class DrawerItem extends StatelessWidget {
       ),
     );
   }
+  
 }
 
 class UserAvatar extends StatelessWidget {
@@ -1653,292 +1542,8 @@ class UserAvatar extends StatelessWidget {
     );
   }
 }
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//           automaticallyImplyLeading: false,
-//           centerTitle: true,
-//           title: const Text('南台通Beta v1.0 首頁'),
-//           actions: [
-//             IconButton(
-//                 iconSize: 35,
-//                 padding: const EdgeInsets.only(right: 20),
-//                 onPressed: () async {
-//                   final confirmed = await showDialog(
-//                     context: context,
-//                     builder: (context) => AlertDialog(
-//                       title: const Text(
-//                         '登出',
-//                         style: TextStyle(color: Colors.black),
-//                       ),
-//                       content: const Text('確定要登出 ?'),
-//                       actions: [
-//                         NeumorphicButton(
-//                           onPressed: () => Navigator.pop(context, false),
-//                           child: const Text('取消'),
-//                         ),
-//                         NeumorphicButton(
-//                           onPressed: () => Navigator.pop(context, true),
-//                           child: const Text('確認'),
-//                         ),
-//                       ],
-//                     ),
-//                   );
-//                   if (confirmed == true) {
-// // Clear 'account' and 'password' from SharedPreferences
-//                     final prefs = await SharedPreferences.getInstance();
-//                     prefs.remove('account');
-//                     prefs.remove('password');
-// // Navigate to login page
-//                     // ignore: use_build_context_synchronously
-//                     Navigator.pushNamedAndRemoveUntil(
-//                         context, LoginPage.routeName, (route) => false);
-//                   }
-//                 },
-//                 icon: const Icon(Icons.exit_to_app_outlined))
-//             // NeumorphicButton(
-//             //   child: Icon(Icons.exit_to_app_outlined),
-//             //   style: NeumorphicStyle(
-//             //       shape: NeumorphicShape.concave,
-//             //       boxShape:
-//             //           NeumorphicBoxShape.roundRect(BorderRadius.circular(50)),
-//             //       depth: 3,
-//             //       color: Color.fromARGB(255, 212, 69, 76)),
-//             //   drawSurfaceAboveChild: false,
-//             //   margin: EdgeInsets.fromLTRB(0.0, 10.0, 15.0, 10.0),
-//             //   //padding: EdgeInsets.only(bottom: 1),
 
-//             // ),
-//           ]),
-//       body: isMobile(context)
-//           ? Row(
-//               mainAxisAlignment: MainAxisAlignment.center,
-//               children: [
-// // Homework section
-//                     Column(
-//                       mainAxisAlignment: MainAxisAlignment.center,
-//                       children: [
-//                         const SizedBox(
-//                           height: 15,
-//                         ),
-//                         NeumorphicButton(
-//                           onPressed: () {
-//                             Navigator.push(
-//                                 context,
-//                                 MaterialPageRoute(
-//                                     builder: (context) => const HomeworkPage()));
-//                           },
-//                           child: const Text(
-//                             '最新事件',
-//                             style: TextStyle(color: Colors.black, fontSize: 20),
-//                           ),
-//                         ),
-// // Bulletins section
-//                         const SizedBox(
-//                           height: 15,
-//                         ),
 
-//                         NeumorphicButton(
-//                           onPressed: () {
-//                             Navigator.push(
-//                                 context,
-//                                 MaterialPageRoute(
-//                                     builder: (context) => const BulletinsPage()));
-//                           },
-//                           child: const Text(
-//                             '最新公告',
-//                             style: TextStyle(color: Colors.black, fontSize: 20),
-//                           ),
-//                         ),
-// // Absent section
-//                         const SizedBox(
-//                           height: 15,
-//                         ),
-
-//                         NeumorphicButton(
-//                           onPressed: () {
-//                             Navigator.push(
-//                                 context,
-//                                 MaterialPageRoute(
-//                                     builder: (context) => const AbsentPage()));
-//                           },
-//                           child: const Text(
-//                             '缺席',
-//                             style: TextStyle(color: Colors.black, fontSize: 20),
-//                           ),
-//                         ),
-// // Reflection section
-//                         const SizedBox(
-//                           height: 15,
-//                         ),
-
-//                         NeumorphicButton(
-//                           onPressed: () {
-//                             Navigator.push(
-//                                 context,
-//                                 MaterialPageRoute(
-//                                     builder: (context) => const ReflectionPage()));
-//                           },
-//                           child: const Text(
-//                             '未繳心得',
-//                             style: TextStyle(color: Colors.black, fontSize: 20),
-//                           ),
-//                         ),
-//                         // Leave request section
-//                         const SizedBox(
-//                           height: 15,
-//                         ),
-
-//                         NeumorphicButton(
-//                           onPressed: () {
-//                             Navigator.push(
-//                                 context,
-//                                 MaterialPageRoute(
-//                                     builder: (context) => const LeaveRequestPage()));
-//                           },
-//                           child: const Text(
-//                             '請假',
-//                             style: TextStyle(color: Colors.black, fontSize: 20),
-//                           ),
-//                         ),
-// // Send homework section
-//                         const SizedBox(
-//                           height: 15,
-//                         ),
-
-//                         NeumorphicButton(
-//                           onPressed: () {
-//                             Navigator.push(
-//                                 context,
-//                                 MaterialPageRoute(
-//                                     builder: (context) => const SendHomeworkPage()));
-//                           },
-//                           child: const Text(
-//                             '快速繳交作業',
-//                             style: TextStyle(color: Colors.black, fontSize: 20),
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//                   ],
-//             )
-//           : Column(
-//               mainAxisAlignment: MainAxisAlignment.center,
-//               crossAxisAlignment: CrossAxisAlignment.center,
-//               children: [
-// // Homework section
-//                 Row(
-//                   mainAxisAlignment: MainAxisAlignment.center,
-//                   //crossAxisAlignment: CrossAxisAlignment.center,
-//                   children: [
-//                     const SizedBox(
-//                       width: 15,
-//                     ),
-//                     NeumorphicButton(
-//                       onPressed: () {
-//                         Navigator.push(
-//                             context,
-//                             MaterialPageRoute(
-//                                 builder: (context) => const HomeworkPage()));
-//                       },
-//                       child: const Text(
-//                         '最新事件',
-//                         style: TextStyle(color: Colors.black, fontSize: 20),
-//                       ),
-//                     ),
-// // Bulletins section
-//                     const SizedBox(
-//                       width: 15,
-//                     ),
-
-//                     NeumorphicButton(
-//                       onPressed: () {
-//                         Navigator.push(
-//                             context,
-//                             MaterialPageRoute(
-//                                 builder: (context) => const BulletinsPage()));
-//                       },
-//                       child: const Text(
-//                         '最新公告',
-//                         style: TextStyle(color: Colors.black, fontSize: 20),
-//                       ),
-//                     ),
-// // Absent section
-//                     const SizedBox(
-//                       width: 15,
-//                     ),
-
-//                     NeumorphicButton(
-//                       onPressed: () {
-//                         Navigator.push(
-//                             context,
-//                             MaterialPageRoute(
-//                                 builder: (context) => const AbsentPage()));
-//                       },
-//                       child: const Text(
-//                         '缺席',
-//                         style: TextStyle(color: Colors.black, fontSize: 20),
-//                       ),
-//                     ),
-// // Reflection section
-//                     const SizedBox(
-//                       width: 15,
-//                     ),
-
-//                     NeumorphicButton(
-//                       onPressed: () {
-//                         Navigator.push(
-//                             context,
-//                             MaterialPageRoute(
-//                                 builder: (context) => const ReflectionPage()));
-//                       },
-//                       child: const Text(
-//                         '未繳心得',
-//                         style: TextStyle(color: Colors.black, fontSize: 20),
-//                       ),
-//                     ),
-//                     // Leave request section
-//                     const SizedBox(
-//                       width: 15,
-//                     ),
-
-//                     NeumorphicButton(
-//                       onPressed: () {
-//                         Navigator.push(
-//                             context,
-//                             MaterialPageRoute(
-//                                 builder: (context) => const LeaveRequestPage()));
-//                       },
-//                       child: const Text(
-//                         '請假',
-//                         style: TextStyle(color: Colors.black, fontSize: 20),
-//                       ),
-//                     ),
-// // Send homework section
-//                     const SizedBox(
-//                       width: 15,
-//                     ),
-
-//                     NeumorphicButton(
-//                       onPressed: () {
-//                         Navigator.push(
-//                             context,
-//                             MaterialPageRoute(
-//                                 builder: (context) => const SendHomeworkPage()));
-//                       },
-//                       child: const Text(
-//                         '快速繳交作業',
-//                         style: TextStyle(color: Colors.black, fontSize: 20),
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ],
-//             ),
-//     );
-//   }
-// }
 // class NotificationService {
 //   final FlutterLocalNotificationsPlugin notificationsPlugin =
 //       FlutterLocalNotificationsPlugin();
