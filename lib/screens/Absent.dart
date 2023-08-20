@@ -3,6 +3,8 @@ import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as html_parser;
 import 'dart:convert';
+import 'package:get/get.dart';
+
 import 'package:convert/convert.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
@@ -12,6 +14,8 @@ import 'package:stust_app/utils/dialog_utils.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../main.dart';
+import '../utils/auto_logout.dart';
 import '../utils/check_connecion.dart';
 
 class LeaveRequestPage extends StatefulWidget {
@@ -24,7 +28,8 @@ class LeaveRequestPage extends StatefulWidget {
   _LeaveRequestPageState createState() => _LeaveRequestPageState();
 }
 
-class _LeaveRequestPageState extends State<LeaveRequestPage> {
+class _LeaveRequestPageState extends State<LeaveRequestPage>
+    with AutoLogoutMixin<LeaveRequestPage> {
   // final _formKey = GlobalKey<FormState>();
   // final _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -36,6 +41,12 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
   @override
   void initState() {
     super.initState();
+    _getlocal_UserData().then((data) {
+      _account = data[0];
+      _password = data[1];
+
+      setState(() {});
+    });
     checkNetwork().then((isConnected) {
       if (isConnected == false) {
         return showDialog(
@@ -47,9 +58,13 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
               title: const Text('偵測不到網路連線，請檢查網路連線後再試一次'),
               actions: [
                 TextButton(
-                  onPressed: () {
+                  onPressed: () async {
                     // Navigator.of(context).pop();
                     // SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                    final prefs = await SharedPreferences.getInstance();
+                    userController.username.value = '';
+                    userController.password.value = '';
+                    prefs.remove('name');
                     FlutterExitApp.exitApp();
                   },
                   child: const Text('OK'),
@@ -59,20 +74,15 @@ class _LeaveRequestPageState extends State<LeaveRequestPage> {
           },
         );
       }
-
-      _getlocal_UserData().then((data) {
-        _account = data[0];
-        _password = data[1];
-
-        setState(() {});
-      });
     });
   }
 
   _getlocal_UserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    _account = prefs.getString('account')!;
-    _password = prefs.getString('password')!;
+    final userController = Get.find<UserController>();
+
+    _account = userController.username.value;
+    _password = userController.password.value;
 
     // Call _submitForm() method after retrieving and setting the values
     _submitForm();

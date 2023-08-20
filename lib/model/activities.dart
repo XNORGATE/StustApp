@@ -1,8 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:stust_app/constats/constants.dart';
 
 import 'package:url_launcher/url_launcher.dart';
+
+import '../utils/auto_logout.dart';
+import '../utils/check_connecion.dart';
 
 class ActivitiesScreen extends StatefulWidget {
   final String href, image, topic;
@@ -18,7 +22,37 @@ class ActivitiesScreen extends StatefulWidget {
   _ActivitiesScreenState createState() => _ActivitiesScreenState();
 }
 
-class _ActivitiesScreenState extends State<ActivitiesScreen> {
+class _ActivitiesScreenState extends State<ActivitiesScreen>
+    with AutoLogoutMixin<ActivitiesScreen> {
+  @override
+  void initState() {
+    super.initState();
+    checkNetwork().then((isConnected) {
+      if (isConnected == false) {
+        return showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              title: const Text('偵測不到網路連線，請檢查網路連線後再試一次'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    // Navigator.of(context).pop();
+                    // SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                    FlutterExitApp.exitApp();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height * 1;
@@ -48,9 +82,9 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                           imageBuilder: (context, imageProvider) => Container(
                             decoration: BoxDecoration(
                               image: DecorationImage(
-                                  image: imageProvider,
-                                  fit: BoxFit.cover,
-                                ),
+                                image: imageProvider,
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
                           placeholder: (context, url) =>

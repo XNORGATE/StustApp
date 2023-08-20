@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class MyTextField extends StatelessWidget {
   final controller;
@@ -24,6 +25,10 @@ class MyTextField extends StatelessWidget {
                 AutofillHints.username,
               ]
             : [AutofillHints.password],
+                   onEditingComplete: () =>
+           (hintText == '學號(大小寫皆可)')
+            ? FocusScope.of(context).nextFocus()
+            : TextInput.finishAutofillContext(),
         decoration: InputDecoration(
             enabledBorder: const OutlineInputBorder(
               borderSide: BorderSide(color: Colors.white),

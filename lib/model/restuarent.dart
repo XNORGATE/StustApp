@@ -4,6 +4,8 @@ import 'package:stust_app/constats/constants.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 
+import '../utils/auto_logout.dart';
+
 class RestuarentScreen extends StatefulWidget {
   final String name, image, time, foodType, rating, link, totalRating, price;
   const RestuarentScreen(
@@ -23,7 +25,7 @@ class RestuarentScreen extends StatefulWidget {
   _RestuarentScreenState createState() => _RestuarentScreenState();
 }
 
-class _RestuarentScreenState extends State<RestuarentScreen> {
+class _RestuarentScreenState extends State<RestuarentScreen> with AutoLogoutMixin<RestuarentScreen> {
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height * 1;

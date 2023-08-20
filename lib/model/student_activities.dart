@@ -3,6 +3,8 @@ import 'package:stust_app/constats/constants.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 
+import '../utils/auto_logout.dart';
+
 class StudentActivitiesScreen extends StatefulWidget {
   final String location, date, topic, link, image_link, student_number, host;
   const StudentActivitiesScreen(
@@ -21,7 +23,7 @@ class StudentActivitiesScreen extends StatefulWidget {
   _StudentActivitiesScreenState createState() => _StudentActivitiesScreenState();
 }
 
-class _StudentActivitiesScreenState extends State<StudentActivitiesScreen> {
+class _StudentActivitiesScreenState extends State<StudentActivitiesScreen> with AutoLogoutMixin<StudentActivitiesScreen> {
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height * 1;

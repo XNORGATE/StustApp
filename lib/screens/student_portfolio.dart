@@ -1,16 +1,20 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:get/instance_manager.dart';
 import 'package:http/http.dart' as http;
 // ignore: depend_on_referenced_packages
 import 'package:html/parser.dart' as html_parser;
 import 'package:stust_app/utils/check_connecion.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../main.dart';
+import '../utils/auto_logout.dart';
 import '../utils/html_utils.dart';
 
 import 'dart:convert';
 import 'package:convert/convert.dart';
-import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+// import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -38,7 +42,7 @@ class Pages {
 }
 
 class _StudentPortfolioPageState extends State<StudentPortfolioPage>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, AutoLogoutMixin<StudentPortfolioPage> {
   late TabController _tabController;
   late String _account = '0'; // Set account and password to 0 by default
   late String _password = '0';
@@ -58,9 +62,13 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
               title: const Text('偵測不到網路連線，請檢查網路連線後再試一次'),
               actions: [
                 TextButton(
-                  onPressed: () {
+                  onPressed: () async {
                     // Navigator.of(context).pop();
                     // SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                    final prefs = await SharedPreferences.getInstance();
+                    userController.username.value = '';
+                    userController.password.value = '';
+                    prefs.remove('name');
                     FlutterExitApp.exitApp();
                   },
                   child: const Text('OK'),
@@ -90,8 +98,10 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
 
   _getlocal_UserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    _account = prefs.getString('account')!;
-    _password = prefs.getString('password')!;
+    final userController = Get.find<UserController>();
+
+    _account = userController.username.value;
+    _password = userController.password.value;
 
     return [_account, _password];
   }

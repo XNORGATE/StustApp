@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:html/parser.dart' show parse;
@@ -8,6 +9,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:flutter_neumorphic_null_safety/flutter_neumorphic.dart';
 
+import '../main.dart';
+import '../utils/auto_logout.dart';
 import '../utils/check_connecion.dart';
 
 class BulletinsPage extends StatefulWidget {
@@ -20,7 +23,7 @@ class BulletinsPage extends StatefulWidget {
 }
 
 class _BulletinsPageState extends State<BulletinsPage>
-    with WidgetsBindingObserver {
+    with WidgetsBindingObserver, AutoLogoutMixin<BulletinsPage>{
   // final _formKey = GlobalKey<FormState>();
   // final _scaffoldKey = GlobalKey<ScaffoldState>();
   // final bool _cancelToken = false;
@@ -44,9 +47,13 @@ class _BulletinsPageState extends State<BulletinsPage>
               title: const Text('偵測不到網路連線，請檢查網路連線後再試一次'),
               actions: [
                 TextButton(
-                  onPressed: () {
+                  onPressed: () async {
                     // Navigator.of(context).pop();
                     // SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                                        final prefs = await SharedPreferences.getInstance();
+                    userController.username.value = '';
+                    userController.password.value = '';
+                    prefs.remove('name');
                     FlutterExitApp.exitApp();
                   },
                   child: const Text('OK'),
@@ -64,9 +71,10 @@ class _BulletinsPageState extends State<BulletinsPage>
         //print(_password);
 
         setState(() {});
+        _submitForm();
       });
 
-      _submitForm();
+      
     });
   }
 
@@ -91,12 +99,15 @@ class _BulletinsPageState extends State<BulletinsPage>
 
   _getlocal_UserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    _account = prefs.getString('account')!;
-    _password = prefs.getString('password')!;
+      final userController = Get.find<UserController>();
+
+    _account = userController.username.value;
+    _password = userController.password.value;
+
+    // Call _submitForm() method after retrieving and setting the values
 
     return [_account, _password];
   }
-
   late List<Map<String, String>> _responseData = [];
   late bool _isLoading = false; // Flag to indicate if API request is being made
 

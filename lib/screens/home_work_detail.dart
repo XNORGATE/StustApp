@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';
 import 'package:dio/dio.dart';
@@ -16,6 +17,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:intl/intl.dart';
 
+import '../utils/auto_logout.dart';
 import '../utils/check_connecion.dart';
 
 class HomeWorkDetailPage extends StatefulWidget {
@@ -28,7 +30,7 @@ class HomeWorkDetailPage extends StatefulWidget {
   _HomeWorkDetailPageState createState() => _HomeWorkDetailPageState();
 }
 
-class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
+class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> with AutoLogoutMixin<HomeWorkDetailPage> {
   late String topic;
   late String src;
   late String href;
@@ -68,9 +70,13 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> {
               title: const Text('偵測不到網路連線，請檢查網路連線後再試一次'),
               actions: [
                 TextButton(
-                  onPressed: () {
+                  onPressed: () async {
                     // Navigator.of(context).pop();
                     // SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                                        final prefs = await SharedPreferences.getInstance();
+                    userController.username.value = '';
+                    userController.password.value = '';
+                    prefs.remove('name');
                     FlutterExitApp.exitApp();
                   },
                   child: const Text('OK'),

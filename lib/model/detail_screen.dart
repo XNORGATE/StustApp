@@ -4,6 +4,8 @@ import 'package:stust_app/constats/constants.dart';
 
 import 'package:scrollable_list_tabview/scrollable_list_tabview.dart';
 
+import '../utils/auto_logout.dart';
+
 class DetailScreen extends StatefulWidget {
   final String name, image;
   const DetailScreen({Key? key ,  required this.name , required this.image,}) : super(key: key);
@@ -12,7 +14,7 @@ class DetailScreen extends StatefulWidget {
   _DetailScreenState createState() => _DetailScreenState();
 }
 
-class _DetailScreenState extends State<DetailScreen> with SingleTickerProviderStateMixin {
+class _DetailScreenState extends State<DetailScreen> with SingleTickerProviderStateMixin , AutoLogoutMixin<DetailScreen>{
 
   late TabController controller;
   @override

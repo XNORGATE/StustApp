@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
 import 'package:page_transition/page_transition.dart';
@@ -9,6 +10,8 @@ import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stust_app/screens/Bulletins.dart';
 // ignore: depend_on_referenced_packages
+import '../main.dart';
+import '../utils/auto_logout.dart';
 import '../utils/check_connecion.dart';
 import './home_work_detail.dart';
 // import 'package:html/dom.dart';
@@ -23,7 +26,7 @@ class HomeworkPage extends StatefulWidget {
 }
 
 class _HomeworkPageState extends State<HomeworkPage>
-     {
+    with AutoLogoutMixin<HomeworkPage> {
   // final _formKey = GlobalKey<FormState>();
   // final _scaffoldKey = GlobalKey<ScaffoldState>();
   // bool _cancelToken = false;
@@ -46,9 +49,13 @@ class _HomeworkPageState extends State<HomeworkPage>
               title: const Text('偵測不到網路連線，請檢查網路連線後再試一次'),
               actions: [
                 TextButton(
-                  onPressed: () {
+                  onPressed: () async {
                     // Navigator.of(context).pop();
                     // SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                    final prefs = await SharedPreferences.getInstance();
+                    userController.username.value = '';
+                    userController.password.value = '';
+                    prefs.remove('name');
                     FlutterExitApp.exitApp();
                   },
                   child: const Text('OK'),
@@ -112,8 +119,12 @@ class _HomeworkPageState extends State<HomeworkPage>
 
   _getlocal_UserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    _account = prefs.getString('account')!;
-    _password = prefs.getString('password')!;
+    final userController = Get.find<UserController>();
+
+    _account = userController.username.value;
+    _password = userController.password.value;
+
+    // Call _submitForm() method after retrieving and setting the values
 
     return [_account, _password];
   }

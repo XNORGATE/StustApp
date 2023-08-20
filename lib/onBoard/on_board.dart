@@ -34,30 +34,42 @@ class _OnboardingPageState extends State<OnboardingPage> {
       Container(
         color: color,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Image.asset(
-              urlImage,
-              fit: BoxFit.cover,
-              width: double.infinity,
-            ),
-            const SizedBox(height: 64),
-            Text(
-              title,
-              style: const TextStyle(
-                color: Color.fromARGB(255, 85, 179, 241),
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
+            const SizedBox(height: 20),
+            SizedBox(
+              height: 500,
+              width: 250,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8.0),
+                child: Image.asset(
+                  urlImage,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                ),
               ),
             ),
-            const SizedBox(height: 24),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 48),
-              child: Text(
-                subtitle,
-                style: const TextStyle(color: Colors.black, fontSize: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: Color.fromARGB(255, 85, 179, 241),
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(color: Colors.black, fontSize: 16),
+                  ),
+                ],
               ),
             ),
+            const SizedBox(height: 20),
           ],
         ),
       );
@@ -69,7 +81,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
           child: PageView(
             controller: controller,
             onPageChanged: (index) {
-              setState(() => isLastPage = index == 2);
+              setState(() => isLastPage = index == 3);
             },
             children: [
               buildPage(
@@ -85,16 +97,16 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 subtitle: '不必再開一堆網頁',
               ),
               buildPage(
-                color: Colors.orange.shade100,
+                color: Colors.blue.shade100,
                 urlImage: 'assets/leaveRequest.jpg',
                 title: '快速請假',
                 subtitle: '最簡潔快速的請假功能',
               ),
               buildPage(
-                color: Colors.orange.shade100,
+                color: Colors.blue.shade100,
                 urlImage: 'assets/homePage.jpg',
-                title: '開始',
-                subtitle: '立即參與這項計畫',
+                title: '首頁',
+                subtitle: '美食地圖，校園活動，最新消息，快速查看成績，計算GPA，以及更多功能都在南臺通',
               ),
             ],
           ),
@@ -139,7 +151,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     Center(
                       child: SmoothPageIndicator(
                         controller: controller,
-                        count: 3,
+                        count: 4,
                         effect: const WormEffect(
                           spacing: 16,
                           dotColor: Colors.black26,

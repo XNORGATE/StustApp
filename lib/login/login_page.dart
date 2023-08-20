@@ -6,10 +6,12 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
 import 'package:shared_preferences/shared_preferences.dart';
+import '../main.dart';
 import '../utils/check_connecion.dart';
 import './my_button.dart';
 import './my_textfield.dart';
 import '../utils/dialog_utils.dart';
+import 'package:get/get.dart';
 
 class LoginPage extends StatefulWidget {
   static const routeName = '/login';
@@ -24,10 +26,12 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
+    _isLoading = false;
     WidgetsBinding.instance.addObserver(this);
     checkNetwork().then((isConnected) {
       if (isConnected == false) {
@@ -79,7 +83,6 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   // final formKey = GlobalKey<FormState>();
   late String _account;
   late String _password;
-  bool _isLoading = false;
   String _name = '';
   Future<dynamic> authenticate(String account, String password) async {
     if (password == null) {
@@ -273,7 +276,9 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
 //           ),
 //         ));
 //   }
+  // ScrollController ListViewController = ScrollController();
 
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -292,10 +297,12 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                     ? const Center(child: CircularProgressIndicator())
                     : Center(
                         child: SingleChildScrollView(
-                          child: AutofillGroup(child: Column(
+                            // controller: ListViewController,
+                            child: AutofillGroup(
+                          child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const SizedBox(height: 10),
+                              const SizedBox(height: 5),
 
                               // logo
                               const Icon(
@@ -303,7 +310,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                                 size: 100,
                               ),
 
-                              const SizedBox(height: 50),
+                              const SizedBox(height: 20),
 
                               // welcome back, you've been missed!
                               Text(
@@ -315,30 +322,6 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                               ),
 
                               const SizedBox(height: 25),
-
-                              // username textfield
-
-                              // Padding(
-                              //   padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                              //   child: TextField(
-                              //     controller: usernameController,
-                              //     obscureText: true,
-                              //     decoration: InputDecoration(
-                              //         enabledBorder: const OutlineInputBorder(
-                              //           borderSide: BorderSide(color: Colors.white),
-                              //         ),
-                              //         focusedBorder: OutlineInputBorder(
-                              //           borderSide: BorderSide(color: Colors.grey.shade400),
-                              //         ),
-                              //         fillColor: Colors.grey.shade200,
-                              //         filled: true,
-                              //         hintText: '學號',
-                              //         hintStyle: TextStyle(color: Colors.grey[500])),
-                              //     onSubmitted: (value) => _account = value,
-                              //     // validator: (value) => value!.isEmpty ? '請填入帳號' : null,
-                              //   ),
-                              // ),
-
                               MyTextField(
                                 controller: usernameController,
                                 hintText: '學號(大小寫皆可)',
@@ -346,28 +329,6 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                               ),
 
                               const SizedBox(height: 10),
-
-                              // password textfield
-                              // Padding(
-                              //   padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                              //   child: TextField(
-                              //     controller: passwordController,
-                              //     obscureText: true,
-                              //     decoration: InputDecoration(
-                              //         enabledBorder: const OutlineInputBorder(
-                              //           borderSide: BorderSide(color: Colors.white),
-                              //         ),
-                              //         focusedBorder: OutlineInputBorder(
-                              //           borderSide: BorderSide(color: Colors.grey.shade400),
-                              //         ),
-                              //         fillColor: Colors.grey.shade200,
-                              //         filled: true,
-                              //         hintText: '密碼',
-                              //         hintStyle: TextStyle(color: Colors.grey[500])),
-                              //     onSubmitted: (value) => _password = value,
-                              //     // validator: (value) => value!.isEmpty ? '請填入帳號' : null,
-                              //   ),
-                              // ),
 
                               MyTextField(
                                 controller: passwordController,
@@ -377,23 +338,10 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
 
                               const SizedBox(height: 10),
 
-                              // forgot password?
-                              // Padding(
-                              //   padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                              //   child: Row(
-                              //     mainAxisAlignment: MainAxisAlignment.end,
-                              //     children: [
-                              //       Text(
-                              //         'Forgot Password?',
-                              //         style: TextStyle(color: Colors.grey[600]),
-                              //       ),
-                              //     ],
-                              //   ),
-                              // ),
-
                               const SizedBox(height: 25),
 
                               // sign in button
+
                               MyButton(
                                 onTap: () async {
                                   _account = usernameController.text;
@@ -407,86 +355,45 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                                   if (isAuthenticated != false) {
                                     if (!mounted) return;
                                     try {
+                                      final userController =
+                                          Get.find<UserController>();
+
                                       await checkBan(isAuthenticated)
                                           ? showDialogBox(
                                               context, '您已被開發者停權，請聯絡開發者')
-                                          : await SharedPreferences
-                                                  .getInstance()
-                                              .then((prefs) {
-                                              prefs.setString(
-                                                  'account', _account);
-                                              prefs.setString(
-                                                  'password', _password);
-                                              prefs.setString(
-                                                  'name', isAuthenticated);
-                                            });
+                                          : userController.username.value =
+                                              _account;
+                                      userController.password.value = _password;
+
+                                      await SharedPreferences.getInstance()
+                                          .then((prefs) {
+                                        // prefs.setString(
+                                        //     'account', _account);
+                                        // prefs.setString(
+                                        //     'password', _password);
+                                        prefs.setString(
+                                            'name', isAuthenticated);
+                                      });
+
                                       // TextInput.finishAutofillContext();
-
                                       if (!mounted) return;
-
                                       Navigator.of(context)
                                           .pushNamedAndRemoveUntil('/',
                                               (Route<dynamic> route) => false);
+                                      showDialogBox(
+                                          context, '歡迎回來，$isAuthenticated同學');
                                     } catch (e) {}
+
 // Save account and password in shared preferences
 // Go to main page
                                   } else {
                                     _showAlertDialog('錯誤提示');
-                                    setState(() {
-                                      _isLoading = false;
-                                    });
                                   }
                                   // }
                                 },
                               ),
 
                               const SizedBox(height: 50),
-
-                              // // or continue with
-                              // Padding(
-                              //   padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                              //   child: Row(
-                              //     children: [
-                              //       Expanded(
-                              //         child: Divider(
-                              //           thickness: 0.5,
-                              //           color: Colors.grey[400],
-                              //         ),
-                              //       ),
-                              //       Padding(
-                              //         padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                              //         child: Text(
-                              //           'Or continue with',
-                              //           style: TextStyle(color: Colors.grey[700]),
-                              //         ),
-                              //       ),
-                              //       Expanded(
-                              //         child: Divider(
-                              //           thickness: 0.5,
-                              //           color: Colors.grey[400],
-                              //         ),
-                              //       ),
-                              //     ],
-                              //   ),
-                              // ),
-
-                              // const SizedBox(height: 50),
-
-                              // // google + apple sign in buttons
-                              // Row(
-                              //   mainAxisAlignment: MainAxisAlignment.center,
-                              //   children: const [
-                              //     // google button
-                              //     SquareTile(imagePath: 'lib/images/google.png'),
-
-                              //     SizedBox(width: 25),
-
-                              //     // apple button
-                              //     SquareTile(imagePath: 'lib/images/apple.png')
-                              //   ],
-                              // ),
-
-                              // const SizedBox(height: 50),
 
                               // not a member? register now
                               Column(
@@ -496,7 +403,8 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                                     children: [
                                       Text(
                                         '是新生?',
-                                        style: TextStyle(color: Colors.grey[700]),
+                                        style:
+                                            TextStyle(color: Colors.grey[700]),
                                       ),
                                       const SizedBox(width: 4),
                                       InkWell(
@@ -518,12 +426,13 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                                     children: [
                                       Text(
                                         '擔心帳號安全?',
-                                        style: TextStyle(color: Colors.grey[700]),
+                                        style:
+                                            TextStyle(color: Colors.grey[700]),
                                       ),
                                       const SizedBox(width: 4),
                                       InkWell(
                                         onTap: () => showDialogBox(context,
-                                            '此App基於所有南台校網開發，以您的手機作為帳密暫存資料庫\n不會將您的密碼以任何方式/形式儲存在您手機以外的地方\n請放心使用，本APP也樂意接受任何第三方形式的檢測 (如: 網路封包檢測 / 程式碼檢測) \n在正常使用下是完全安全的 如您仍有疑慮，請勿使用本APP，在操作中若因任何原因造成您的損失，本APP概不負責'),
+                                            '此App基於所有南台校網開發，\n不會將您的密碼以任何方式/形式儲存在您手機以外的地方\n請放心使用，本APP也樂意接受任何第三方形式的檢測 (如: 網路封包檢測 / 程式碼檢測) \n在正常使用下是完全安全的 如您仍有疑慮，請勿使用本APP，在操作中若因任何原因造成您的損失，本APP概不負責'),
                                         child: const Text(
                                           '原理及責任說明',
                                           style: TextStyle(
@@ -537,8 +446,8 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                                 ],
                               )
                             ],
-                          ),)
-                        ),
+                          ),
+                        )),
                       ),
               ),
             )));

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as html_parser;
 import 'dart:convert';
 import 'package:convert/convert.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../main.dart';
+import '../utils/auto_logout.dart';
 import '../utils/check_connecion.dart';
 
 class AbsentPage extends StatefulWidget {
@@ -18,7 +21,8 @@ class AbsentPage extends StatefulWidget {
   _AbsentPageState createState() => _AbsentPageState();
 }
 
-class _AbsentPageState extends State<AbsentPage> {
+class _AbsentPageState extends State<AbsentPage>
+    with AutoLogoutMixin<AbsentPage> {
   // final _formKey = GlobalKey<FormState>();
   // final _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -28,7 +32,6 @@ class _AbsentPageState extends State<AbsentPage> {
   @override
   void initState() {
     super.initState();
-    _responseData = [];
     checkNetwork().then((isConnected) {
       if (isConnected == false) {
         return showDialog(
@@ -40,9 +43,13 @@ class _AbsentPageState extends State<AbsentPage> {
               title: const Text('偵測不到網路連線，請檢查網路連線後再試一次'),
               actions: [
                 TextButton(
-                  onPressed: () {
+                  onPressed: () async {
                     // Navigator.of(context).pop();
                     // SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                    final prefs = await SharedPreferences.getInstance();
+                    userController.username.value = '';
+                    userController.password.value = '';
+                    prefs.remove('name');
                     FlutterExitApp.exitApp();
                   },
                   child: const Text('OK'),
@@ -119,10 +126,14 @@ class _AbsentPageState extends State<AbsentPage> {
 
   _getlocal_UserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    _account = prefs.getString('account')!;
-    _password = prefs.getString('password')!;
+    final userController = Get.find<UserController>();
 
+    _account = userController.username.value;
+    _password = userController.password.value;
+
+    // Call _submitForm() method after retrieving and setting the values
     _submitForm();
+
     return [_account, _password];
   }
 
@@ -237,56 +248,7 @@ class _AbsentPageState extends State<AbsentPage> {
     }
     // }
   }
-  // void _submitForm() {
-  //   if (_formKey.currentState!.validate()) {
-  //     _formKey.currentState!.save();
 
-  //     setState(() {
-  //       _isLoading = true;
-  //     });
-
-  //     // Make POST request to the API
-  //     http
-  //         .get(
-  //       Uri.parse(
-  //           'http://api.xnor-development.com:70/absent?account=$_account&password=$_password'),
-  //     )
-  //         .then((response) {
-  //       final responseData = json.decode(response.body) as List;
-  //       //print(responseData);
-  //       setState(() {
-  //         _responseData = responseData;
-  //         _isLoading = false;
-  //       });
-  //     });
-  //   }
-  // }
-  // // void _submitForm() {
-  // //   if (_formKey.currentState!.validate()) {
-  // //     _formKey.currentState!.save();
-  // //     setState(() {
-  // //       _isLoading = true;
-  // //     });
-
-  // //     // Make POST request to the API
-  // //     http.post(
-  // //       Uri.parse('http://api.xnor-development.com:70/absent'),
-  // //       body: {
-  // //         'account': _account,
-  // //         'password': _password,
-  // //       },
-  // //     ).then((response) {
-  // //       // Parse response body into a list of maps
-  // //       final responseData = json.decode(response.body) as List;
-  // //       setState(() {
-  // //         _responseData = responseData;
-  // //         _isLoading = false;
-  // //       });
-  // //       // Handle response from the API here
-  // //       // Display alert dialog to the user
-  // //     });
-  // //   }
-  // // }
   Color statusColor = const Color.fromARGB(255, 11, 111, 14);
   @override
   Widget build(BuildContext context) {
@@ -294,17 +256,8 @@ class _AbsentPageState extends State<AbsentPage> {
       // key: _scaffoldKey,
       body: Stack(
         children: [
-          // Form(
-          // key: _formKey,
           Column(
             children: [
-              // TextButton(
-              //   onPressed: _submitForm,
-              //   child: const Text(
-              //     '查詢',
-              //     style: TextStyle(fontSize: 30),
-              //   ),
-              // ),
               if (_responseData != null)
                 Expanded(
                   child: SingleChildScrollView(
@@ -548,7 +501,6 @@ class _AbsentPageState extends State<AbsentPage> {
                 ),
             ],
           ),
-
           if (_isLoading)
             const Center(
               child: CircularProgressIndicator(),

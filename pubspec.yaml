@@ -63,6 +63,7 @@ dependencies:
   cached_network_image: any
   smooth_page_indicator: ^1.1.0
   font_awesome_flutter : any
+  get: ^4.6.5
   # googleapis: any
 
 

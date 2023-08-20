@@ -1,8 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../main.dart';
+import '../utils/auto_logout.dart';
 import '../utils/dialog_utils.dart';
 import 'package:http/http.dart' as http;
 
@@ -16,7 +19,7 @@ class CreateActivitiesPage extends StatefulWidget {
   _CreateActivitiesPageState createState() => _CreateActivitiesPageState();
 }
 
-class _CreateActivitiesPageState extends State<CreateActivitiesPage> {
+class _CreateActivitiesPageState extends State<CreateActivitiesPage> with AutoLogoutMixin<CreateActivitiesPage> {
   TextEditingController locationController = TextEditingController();
   TextEditingController topicController = TextEditingController();
   TextEditingController linkController = TextEditingController();
@@ -267,10 +270,12 @@ class _CreateActivitiesPageState extends State<CreateActivitiesPage> {
                   ),
                   ElevatedButton(
                     onPressed: () async {
+                            final userController = Get.find<UserController>();
+
                       SharedPreferences prefs =
                           await SharedPreferences.getInstance();
 
-                      String? account = prefs.getString('account');
+                      String? account = userController.username.value;
                       String? name = prefs.getString('name');
                       // if (_formKey.currentState!.validate()) {
                       // Submit your form

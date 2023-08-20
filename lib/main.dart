@@ -4,12 +4,14 @@ import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_neumorphic_null_safety/flutter_neumorphic.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 import 'package:stust_app/onBoard/on_board.dart';
 import 'package:stust_app/screens/create_activities.dart';
 import 'package:stust_app/screens/home_work.dart';
 import 'package:stust_app/screens/leave_request.dart';
 import 'package:stust_app/screens/Bulletins.dart';
 import 'package:stust_app/screens/Absent.dart';
+import 'package:stust_app/utils/auto_logout.dart';
 // import 'package:stust_app/unused/Reflection.dart';
 // import 'package:stust_app/unused/Send_homework.dart';
 import 'package:stust_app/utils/check_connecion.dart';
@@ -104,20 +106,9 @@ Future<void> main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  // NotificationService().initNotification();
-  // var notistatus = await Permission.notification.status;
+
   var mediaLibrarystatus = await Permission.mediaLibrary.status;
   var photosstatus = await Permission.photos.status;
-
-  // if (notistatus.isDenied ||
-  //     notistatus.isPermanentlyDenied ||
-  //     notistatus.isRestricted) {
-  //   // We didn't ask for permission yet or the permission has been denied before but not permanently.
-
-  //   Map<Permission, PermissionStatus> statuses = await [
-  //     Permission.notification,
-  //   ].request();
-  // }
 
   if (mediaLibrarystatus.isDenied ||
       mediaLibrarystatus.isPermanentlyDenied ||
@@ -170,64 +161,71 @@ Future<void> main() async {
     return isBanned;
   }
 
-  runApp(MaterialApp(
-    theme: ThemeData.light(),
-    debugShowCheckedModeBanner: false,
-    home: FutureBuilder(
-      future: SharedPreferences.getInstance(),
-      builder: (context, snapshot) {
-        EasyLoading.init();
-        if (snapshot.hasData) {
-          final prefs = snapshot.data;
-          final showHome = prefs?.getBool('alreadyshowHome') ?? false;
+  runApp(GetMaterialApp(
+      home: MaterialApp(
+        theme: ThemeData.light(),
+        debugShowCheckedModeBanner: false,
+        home: FutureBuilder(
+          future: SharedPreferences.getInstance(),
+          builder: (context, snapshot) {
+            EasyLoading.init();
+            if (snapshot.hasData) {
+              final userController = UserController();
 
-          final account = prefs?.getString('account');
-          final password = prefs?.getString('password');
-          final name = prefs?.getString('name');
+              final prefs = snapshot.data;
+              final showHome = prefs?.getBool('alreadyshowHome') ?? false;
 
-          if (showHome == false) {
-            return const OnboardingPage();
-          } else {
-            if (account != null && password != null) {
-              checkBan(name).then((isBanned) async {
-                // print({'name': name});
-                // print(isBanned);
-                if (isBanned) {
-                  try {
-                    final prefs = await SharedPreferences.getInstance();
-                    prefs.remove('account');
-                    prefs.remove('password');
-                    prefs.remove('name');
-                    // prefs.setBool('alreadyshowHome', false);
+              // final account = prefs?.getString('account');
+              // final password = prefs?.getString('password');
+              final name = prefs?.getString('name');
 
-                    Navigator.of(context).pushNamedAndRemoveUntil(
-                        '/', (Route<dynamic> route) => false);
-                    showDialogBox(context, '您已被開發者停權，請聯絡開發者');
-                  } catch (e) {
-                    print(e.toString());
-                  }
+              if (showHome == false) {
+                return const OnboardingPage();
+              } else {
+                if (name != null) {
+                  checkBan(name).then((isBanned) async {
+                    // print({'name': name});
+                    // print(isBanned);
+                    if (isBanned) {
+                      try {
+                        final prefs = await SharedPreferences.getInstance();
+                        // prefs.remove('account');
+                        // prefs.remove('password');
+                        prefs.remove('name');
+                        // prefs.setBool('alreadyshowHome', false);
 
-                  // ignore: use_build_context_synchronously
+                        // if (!mounted) return;
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                            '/login', (Route<dynamic> route) => false);
+                        showDialogBox(context, '您已被開發者停權，請聯絡開發者');
+                      } catch (e) {
+                        print(e.toString());
+                      }
+
+                      // ignore: use_build_context_synchronously
+                    }
+                  });
+
+                  return const MyApp();
+                } else {
+                  return const LoginPage();
                 }
-              });
-
-              return const MyApp();
+              }
             } else {
-              return const LoginPage();
+              return Container();
             }
-          }
-        } else {
-          return Container();
-        }
-      },
-    ),
-    localizationsDelegates: const [GlobalMaterialLocalizations.delegate],
-    supportedLocales: const [
-      //此处
-      Locale('en'),
-      Locale('zh', 'TW')
-    ],
-  ));
+          },
+        ),
+        localizationsDelegates: const [GlobalMaterialLocalizations.delegate],
+        supportedLocales: const [
+          //此处
+          Locale('en'),
+          Locale('zh', 'TW')
+        ],
+      ),
+      initialBinding: BindingsBuilder(() {
+        Get.put(UserController());
+      })));
 }
 
 class MyApp extends StatelessWidget {
@@ -250,64 +248,6 @@ class MyApp extends StatelessWidget {
         depth: 6,
       ),
       home: const MyHomePage(),
-      // onGenerateRoute: (settings) {  ///doesn't works as expected
-      //   switch (settings.name) {
-      //     // case '/homework':
-      //     //   return PageTransition(
-      //     //     child: const HomeworkPage(),
-      //     //     type: PageTransitionType.leftToRightWithFade,
-      //     //     settings: settings,
-      //     //     reverseDuration: const Duration(seconds: 3),
-      //     //   );
-      //     case '/bulletins':
-      //       return PageTransition(
-      //         child: const BulletinsPage(),
-      //         type: PageTransitionType.leftToRightWithFade,
-      //         settings: settings,
-      //         reverseDuration: const Duration(seconds: 3),
-      //       );
-      //     case '/leave_request':
-      //       return PageTransition(
-      //         child: const AbsentPage(),
-      //         type: PageTransitionType.leftToRightWithFade,
-      //         settings: settings,
-      //         reverseDuration: const Duration(seconds: 3),
-      //       );
-      //     // case '/reflection':
-      //     //   return PageTransition(
-      //     //     child: const ReflectionPage(),
-      //     //     type: PageTransitionType.leftToRightWithFade,
-      //     //     settings: settings,
-      //     //     reverseDuration: const Duration(seconds: 3),
-      //     //   );
-      //     //         case '/bulletins':
-      //     // return PageTransition(
-      //     //   child: BulletinsPage(),
-      //     //   type: PageTransitionType.leftToRightWithFade,
-      //     //   settings: settings,
-      //     //   reverseDuration: Duration(seconds: 3),
-      //     // );
-      //     // break;
-      //     case '/absent':
-      //       return PageTransition(
-      //         child: const LeaveRequestPage(),
-      //         type: PageTransitionType.leftToRightWithFade,
-      //         settings: settings,
-      //         reverseDuration: const Duration(seconds: 3),
-      //       );
-
-      //     ////
-      //     case '/homework-detail':
-      //       return PageTransition(
-      //         child: const HomeWorkDetailPage(),
-      //         type: PageTransitionType.leftToRightWithFade,
-      //         settings: settings,
-      //         reverseDuration: const Duration(seconds: 3),
-      //       );
-      //     default:
-      //       return null;
-      //   }
-      // },
       routes: {
         LoginPage.routeName: (context) => const LoginPage(),
         MyHomePage.routeName: (context) => const MyHomePage(),
@@ -340,16 +280,18 @@ class MyHomePage extends StatefulWidget {
 Future<Map<String, String>> getValuesFromSharedPreferences() async {
   // Get the SharedPreferences instance
   SharedPreferences prefs = await SharedPreferences.getInstance();
+  final userController = Get.find<UserController>();
 
   // Get the values for the keys
   String? name = prefs.getString('name');
-  String? account = prefs.getString('account');
-
+  // String? account = prefs.getString('account');
+  String? account = userController.username.value;
   // Return the values as a map
-  return {'name': name ?? '', 'account': account ?? ''};
+  return {'name': name ?? '', 'account': account};
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage>
+    with AutoLogoutMixin<MyHomePage> {
   var name = '姓名';
   var account = '學號';
   bool _isLoading = true;
@@ -369,6 +311,9 @@ class _MyHomePageState extends State<MyHomePage> {
   late List<Map<String, String>> StudentActivitiesList = [];
 
   @override
+  final userController = Get.find<UserController>();
+
+  @override
   void initState() {
     super.initState();
 
@@ -383,9 +328,13 @@ class _MyHomePageState extends State<MyHomePage> {
               title: const Text('偵測不到網路連線，請檢查網路連線後再試一次'),
               actions: [
                 TextButton(
-                  onPressed: () {
+                  onPressed: () async {
                     // Navigator.of(context).pop();
                     // SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                    final prefs = await SharedPreferences.getInstance();
+                    userController.username.value = '';
+                    userController.password.value = '';
+                    prefs.remove('name');
                     FlutterExitApp.exitApp();
                   },
                   child: const Text('OK'),
@@ -395,6 +344,7 @@ class _MyHomePageState extends State<MyHomePage> {
           },
         );
       }
+
       getProfile();
       // getProfile().then((value) {
       //   try {
@@ -599,7 +549,13 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     // Check that the request was successful
-    if (response.statusCode != 200 || jsonDecode(response.body) is String) {
+    try {
+      if (response.statusCode != 200 || jsonDecode(response.body) is String) {
+        _isVpsError = true;
+
+        return [];
+      }
+    } catch (e) {
       _isVpsError = true;
 
       return [];
@@ -1035,14 +991,19 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget foodListRow(BuildContext context) {
     return Column(
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 10),
-          child: Text(
-            '美食地圖',
-            style: TextStyle(
-                color: Color.fromARGB(255, 18, 18, 18),
-                fontSize: 17.5,
-                fontFamily: Bold),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: const [
+              Text(
+                '美食地圖',
+                style: TextStyle(
+                    color: Color.fromARGB(255, 18, 18, 18),
+                    fontSize: 17.5,
+                    fontFamily: Bold),
+              ),
+            ],
           ),
         ),
         if (_isFoodListError == false)
@@ -1077,12 +1038,17 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget siteActivity(BuildContext context) {
     return Column(
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 10),
-          child: Text(
-            '校網公告',
-            style: TextStyle(
-                color: Color(0xff323232), fontSize: 17.5, fontFamily: Bold),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: const [
+              Text(
+                '校網公告',
+                style: TextStyle(
+                    color: Color(0xff323232), fontSize: 17.5, fontFamily: Bold),
+              ),
+            ],
           ),
         ),
         if (_isActivitiesListError == false)
@@ -1114,369 +1080,367 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-
-  drawerWidget(BuildContext context){
+  drawerWidget(BuildContext context) {
     return Drawer(
-        width: 275,
-        elevation: 30,
-        backgroundColor: const Color.fromARGB(255, 236, 236, 236),
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.horizontal(right: Radius.circular(40))),
-        child: Container(
-          decoration: const BoxDecoration(
-              borderRadius: BorderRadius.horizontal(right: Radius.circular(40)),
-              boxShadow: [
-                BoxShadow(
-                    color: Color(0x3D000000), spreadRadius: 30, blurRadius: 20)
-              ]),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  children: [
-                    Row(
-                      children: [
-                        IconButton(
-                          onPressed: () => Navigator.pop(context),
-                          icon: const Icon(Icons.arrow_back_ios),
-                          color: const Color.fromARGB(255, 29, 33, 52),
-                          iconSize: 20,
-                        ),
-                        const SizedBox(
-                          width: 56,
-                        ),
-                        const Text(
-                          '南臺通APP',
-                          style: TextStyle(
-                              color: Color.fromARGB(255, 29, 33, 52),
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    Row(
-                      children: [
-                        const UserAvatar(
-                          filename: 'stust.png',
-                        ),
-                        const SizedBox(
-                          width: 15,
-                        ),
-                        Text(
-                          account,
-                          style: const TextStyle(
-                              color: Color.fromARGB(255, 29, 33, 52),
-                              fontSize: 18),
-                        ),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Text(
-                          name,
-                          style: const TextStyle(
-                              color: Color.fromARGB(255, 29, 33, 52),
-                              fontSize: 18),
-                        )
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    const Divider(
-                      height: 35,
-                      color: Color.fromARGB(255, 29, 33, 52),
-                      thickness: 1.5,
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    // const DrawerItem(
-                    //   title: '帳號',
-                    //   icon: Icons.key,
-                    // ),
-                    DrawerItem(
-                      title: '關於此APP',
-                      icon: Icons.help_outline,
-                      onTap: () {
-                        showDialogBox(context,
-                            '此App只負責協助獲取資料 並無存取您的密碼\n\n目前僅有一人維護+開發 \n\n因此若非重大bug 將不會有即時的更新 請見諒\n如熟悉Flutter與Dart，歡迎與我聯絡');
-                      },
-                    ),
-
-                    // DrawerItem(
-                    //   title: '通知設置',
-                    //   icon: Icons.notifications,
-                    //   onTap: () {
-                    //     showDialog(
-                    //         context: context,
-                    //         builder: (context) {
-                    //           return AlertDialog(
-                    //             shape: RoundedRectangleBorder(
-                    //                 borderRadius: BorderRadius.circular(15)),
-                    //             title: const Text('通知設置'),
-                    //             actions: [
-                    //               TextButton(
-                    //                 onPressed: () {
-                    //                   Navigator.of(context).pop();
-                    //                 },
-                    //                 child: const Text('確定'),
-                    //               ),
-                    //             ],
-                    //             content: Padding(
-                    //                 padding: const EdgeInsets.all(.0),
-                    //                 child: SizedBox(
-                    //                   width: width * .3,
-                    //                   height: height * .3,
-                    //                   child: Column(
-                    //                     crossAxisAlignment:
-                    //                         CrossAxisAlignment.center,
-                    //                     children: [
-                    //                       const SizedBox(
-                    //                         height: 30,
-                    //                       ),
-                    //                       Row(
-                    //                         mainAxisAlignment:
-                    //                             MainAxisAlignment.center,
-                    //                         children: [
-                    //                           SelectorWidget(
-                    //                             labelText: '開啟作業通知',
-                    //                             options: const ['關閉', '開啟'],
-                    //                             onChanged: (value) {
-                    //                               // Handle the value change
-                    //                               if (value == '開啟') {
-                    //                                 _ActivateHomeWorkNoti =
-                    //                                     true;
-
-                    //                                 Workmanager().initialize(
-                    //                                     callbackDispatcher, // The top level function, aka callbackDispatcher
-                    //                                     isInDebugMode:
-                    //                                         true // If enabled it will post a notification whenever the task is running. Handy for debugging tasks
-                    //                                     );
-                    //                                 Workmanager().registerPeriodicTask(
-                    //                                     "flipclass_homework",
-                    //                                     '作業監控中',
-                    //                                     // When no frequency is provided the default 15 minutes is set.
-                    //                                     // Minimum frequency is 15 min. Android will automatically change your frequency to 15 min if you have configured a lower frequency.
-                    //                                     constraints:
-                    //                                         Constraints(
-                    //                                       networkType:
-                    //                                           NetworkType
-                    //                                               .connected,
-                    //                                     ));
-                    //                               } else {
-                    //                                 _ActivateHomeWorkNoti =
-                    //                                     false;
-                    //                                 Workmanager()
-                    //                                     .cancelByUniqueName(
-                    //                                         'flipclass_homework');
-                    //                               }
-                    //                             },
-                    //                           ),
-                    //                         ],
-                    //                       ),
-
-                    //                       const SizedBox(
-                    //                         height: 30,
-                    //                       ),
-
-                    //                       Row(
-                    //                         mainAxisAlignment:
-                    //                             MainAxisAlignment.center,
-                    //                         children: [
-                    //                           SelectorWidget(
-                    //                             labelText: '開啟公告通知',
-                    //                             options: const ['關閉', '開啟'],
-                    //                             onChanged: (value) {
-                    //                               // Handle the value change
-                    //                               if (value == '開啟') {
-                    //                                 _ActivateBulletinsNoti =
-                    //                                     true;
-                    //                               } else {
-                    //                                 _ActivateBulletinsNoti =
-                    //                                     false;
-                    //                               }
-                    //                               print(_ActivateBulletinsNoti);
-                    //                             },
-                    //                           ),
-                    //                         ],
-                    //                       ),
-                    //                       // CheckboxListTile(
-                    //                       //   activeColor: Colors.red,
-                    //                       //   title: const Text('開啟作業通知'),
-                    //                       //   value: _ActivateHomeWorkNoti,
-                    //                       //   onChanged: (value) {
-                    //                       //     setState(() {
-                    //                       //       _ActivateHomeWorkNoti = value!;
-                    //                       //     });
-                    //                       //   },
-                    //                       // ),
-                    //                       // CheckboxListTile(
-                    //                       //   activeColor: Colors.red,
-                    //                       //   title: const Text('開啟公告通知'),
-                    //                       //   value: _ActivateHomeWorkNoti,
-                    //                       //   onChanged: (value) {
-                    //                       //     setState(() {
-                    //                       //       _ActivateBulletinsNoti = value!;
-                    //                       //       print(_ActivateBulletinsNoti);
-                    //                       //     });
-                    //                       //   },
-                    //                       // ),
-                    //                     ],
-                    //                   ),
-                    //                 )),
-                    //           );
-                    //         });
-                    //   },
-                    // ),
-
-                    // DrawerItem(
-                    //   title: '回報緊急重大bug',
-                    //   icon: Icons.perm_contact_calendar,
-                    //   onTap: () {
-                    //     showDialogBox(context, '');
-                    //   },
-                    // ),
-
-                    DrawerItem(
-                      title: '聯絡開發者',
-                      icon: Icons.help,
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                                insetPadding: const EdgeInsets.all(5),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15)),
-                                title: SafeArea(
-                                  child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        const Center(
-                                          child: Text(
-                                            '聯絡作者(點擊)',
-                                            style: TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          height: 20,
-                                        ),
-                                        Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            children: [
-                                              IconButton(
-                                                onPressed: () {
-                                                  Clipboard.setData(
-                                                    const ClipboardData(
-                                                        text: 'XNORGATE#3514'),
-                                                  );
-                                                },
-                                                icon: const FaIcon(
-                                                    FontAwesomeIcons.discord),
-                                              ),
-                                              const Text(
-                                                  'Discord: XNORGATE#3514'),
-                                            ]),
-                                        Row(children: [
-                                          IconButton(
-                                            onPressed: () {
-                                              Clipboard.setData(
-                                                const ClipboardData(
-                                                    text:
-                                                        'tsaidarius@gmail.com'),
-                                              );
-                                            },
-                                            icon: const FaIcon(
-                                                FontAwesomeIcons.envelope),
-                                          ),
-                                          const Text(
-                                              'Gmail: tsaidarius@gmail.com'),
-                                        ]),
-                                        Row(children: [
-                                          IconButton(
-                                            onPressed: () async {
-                                              await launchUrl(
-                                                  Uri.parse(
-                                                      'https://www.instagram.com/_thr8t_/'),
-                                                  mode: LaunchMode
-                                                      .externalApplication);
-                                            },
-                                            icon: const FaIcon(
-                                                FontAwesomeIcons.instagram),
-                                          ),
-                                          const Text('IG (緊急重大bug回報請使用IG)'),
-                                        ]),
-                                      ]),
-                                )
-                                // content:
-                                );
-                          },
-                        );
-                      },
-                    ),
-
-                    // const DrawerItem(
-                    //     title: 'Invite a friend', icon: Icons.people_outline),
-                  ],
-                ),
-                DrawerItem(
-                  title: '登出',
-                  icon: Icons.logout,
-                  onTap: () async {
-                    final confirmed = await showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15)),
-                        title: const Text(
-                          '登出',
-                          style: TextStyle(color: Colors.black),
-                        ),
-                        content: const Text('確定要登出 ?'),
-                        actions: [
-                          NeumorphicButton(
-                            onPressed: () => Navigator.pop(context, false),
-                            child: const Text('取消'),
-                          ),
-                          NeumorphicButton(
-                            onPressed: () => Navigator.pop(context, true),
-                            child: const Text('確認'),
-                          ),
-                        ],
+      width: 275,
+      elevation: 30,
+      backgroundColor: const Color.fromARGB(255, 236, 236, 236),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.horizontal(right: Radius.circular(40))),
+      child: Container(
+        decoration: const BoxDecoration(
+            borderRadius: BorderRadius.horizontal(right: Radius.circular(40)),
+            boxShadow: [
+              BoxShadow(
+                  color: Color(0x3D000000), spreadRadius: 30, blurRadius: 20)
+            ]),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                children: [
+                  Row(
+                    children: [
+                      IconButton(
+                        onPressed: () => Navigator.pop(context),
+                        icon: const Icon(Icons.arrow_back_ios),
+                        color: const Color.fromARGB(255, 29, 33, 52),
+                        iconSize: 20,
                       ),
-                    );
-                    if (confirmed == true) {
-// Clear 'account' and 'password' from SharedPreferences
-                      final prefs = await SharedPreferences.getInstance();
-                      prefs.remove('account');
-                      prefs.remove('password');
-                      prefs.remove('name');
-                      prefs.setBool('alreadyshowHome', false);
+                      const SizedBox(
+                        width: 56,
+                      ),
+                      const Text(
+                        '南臺通APP',
+                        style: TextStyle(
+                            color: Color.fromARGB(255, 29, 33, 52),
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  Row(
+                    children: [
+                      const UserAvatar(
+                        filename: 'stust.png',
+                      ),
+                      const SizedBox(
+                        width: 15,
+                      ),
+                      Text(
+                        account,
+                        style: const TextStyle(
+                            color: Color.fromARGB(255, 29, 33, 52),
+                            fontSize: 18),
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Text(
+                        name,
+                        style: const TextStyle(
+                            color: Color.fromARGB(255, 29, 33, 52),
+                            fontSize: 18),
+                      )
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  const Divider(
+                    height: 35,
+                    color: Color.fromARGB(255, 29, 33, 52),
+                    thickness: 1.5,
+                  ),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  // const DrawerItem(
+                  //   title: '帳號',
+                  //   icon: Icons.key,
+                  // ),
+                  DrawerItem(
+                    title: '關於此APP',
+                    icon: Icons.help_outline,
+                    onTap: () {
+                      showDialogBox(context,
+                          '此App只負責協助獲取資料 並無存取您的密碼\n\n目前僅有一人維護+開發 \n\n因此若非重大bug 將不會有即時的更新 請見諒\n如熟悉Flutter與Dart，歡迎與我聯絡');
+                    },
+                  ),
 
-                      // prefs.remove('oldHomeWorkList');
-                      // Workmanager().cancelAll();
+                  // DrawerItem(
+                  //   title: '通知設置',
+                  //   icon: Icons.notifications,
+                  //   onTap: () {
+                  //     showDialog(
+                  //         context: context,
+                  //         builder: (context) {
+                  //           return AlertDialog(
+                  //             shape: RoundedRectangleBorder(
+                  //                 borderRadius: BorderRadius.circular(15)),
+                  //             title: const Text('通知設置'),
+                  //             actions: [
+                  //               TextButton(
+                  //                 onPressed: () {
+                  //                   Navigator.of(context).pop();
+                  //                 },
+                  //                 child: const Text('確定'),
+                  //               ),
+                  //             ],
+                  //             content: Padding(
+                  //                 padding: const EdgeInsets.all(.0),
+                  //                 child: SizedBox(
+                  //                   width: width * .3,
+                  //                   height: height * .3,
+                  //                   child: Column(
+                  //                     crossAxisAlignment:
+                  //                         CrossAxisAlignment.center,
+                  //                     children: [
+                  //                       const SizedBox(
+                  //                         height: 30,
+                  //                       ),
+                  //                       Row(
+                  //                         mainAxisAlignment:
+                  //                             MainAxisAlignment.center,
+                  //                         children: [
+                  //                           SelectorWidget(
+                  //                             labelText: '開啟作業通知',
+                  //                             options: const ['關閉', '開啟'],
+                  //                             onChanged: (value) {
+                  //                               // Handle the value change
+                  //                               if (value == '開啟') {
+                  //                                 _ActivateHomeWorkNoti =
+                  //                                     true;
+
+                  //                                 Workmanager().initialize(
+                  //                                     callbackDispatcher, // The top level function, aka callbackDispatcher
+                  //                                     isInDebugMode:
+                  //                                         true // If enabled it will post a notification whenever the task is running. Handy for debugging tasks
+                  //                                     );
+                  //                                 Workmanager().registerPeriodicTask(
+                  //                                     "flipclass_homework",
+                  //                                     '作業監控中',
+                  //                                     // When no frequency is provided the default 15 minutes is set.
+                  //                                     // Minimum frequency is 15 min. Android will automatically change your frequency to 15 min if you have configured a lower frequency.
+                  //                                     constraints:
+                  //                                         Constraints(
+                  //                                       networkType:
+                  //                                           NetworkType
+                  //                                               .connected,
+                  //                                     ));
+                  //                               } else {
+                  //                                 _ActivateHomeWorkNoti =
+                  //                                     false;
+                  //                                 Workmanager()
+                  //                                     .cancelByUniqueName(
+                  //                                         'flipclass_homework');
+                  //                               }
+                  //                             },
+                  //                           ),
+                  //                         ],
+                  //                       ),
+
+                  //                       const SizedBox(
+                  //                         height: 30,
+                  //                       ),
+
+                  //                       Row(
+                  //                         mainAxisAlignment:
+                  //                             MainAxisAlignment.center,
+                  //                         children: [
+                  //                           SelectorWidget(
+                  //                             labelText: '開啟公告通知',
+                  //                             options: const ['關閉', '開啟'],
+                  //                             onChanged: (value) {
+                  //                               // Handle the value change
+                  //                               if (value == '開啟') {
+                  //                                 _ActivateBulletinsNoti =
+                  //                                     true;
+                  //                               } else {
+                  //                                 _ActivateBulletinsNoti =
+                  //                                     false;
+                  //                               }
+                  //                               print(_ActivateBulletinsNoti);
+                  //                             },
+                  //                           ),
+                  //                         ],
+                  //                       ),
+                  //                       // CheckboxListTile(
+                  //                       //   activeColor: Colors.red,
+                  //                       //   title: const Text('開啟作業通知'),
+                  //                       //   value: _ActivateHomeWorkNoti,
+                  //                       //   onChanged: (value) {
+                  //                       //     setState(() {
+                  //                       //       _ActivateHomeWorkNoti = value!;
+                  //                       //     });
+                  //                       //   },
+                  //                       // ),
+                  //                       // CheckboxListTile(
+                  //                       //   activeColor: Colors.red,
+                  //                       //   title: const Text('開啟公告通知'),
+                  //                       //   value: _ActivateHomeWorkNoti,
+                  //                       //   onChanged: (value) {
+                  //                       //     setState(() {
+                  //                       //       _ActivateBulletinsNoti = value!;
+                  //                       //       print(_ActivateBulletinsNoti);
+                  //                       //     });
+                  //                       //   },
+                  //                       // ),
+                  //                     ],
+                  //                   ),
+                  //                 )),
+                  //           );
+                  //         });
+                  //   },
+                  // ),
+
+                  // DrawerItem(
+                  //   title: '回報緊急重大bug',
+                  //   icon: Icons.perm_contact_calendar,
+                  //   onTap: () {
+                  //     showDialogBox(context, '');
+                  //   },
+                  // ),
+
+                  DrawerItem(
+                    title: '聯絡開發者',
+                    icon: Icons.help,
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                              insetPadding: const EdgeInsets.all(5),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15)),
+                              title: SafeArea(
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      const Center(
+                                        child: Text(
+                                          '聯絡作者(點擊)',
+                                          style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: 20,
+                                      ),
+                                      Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: [
+                                            IconButton(
+                                              onPressed: () {
+                                                Clipboard.setData(
+                                                  const ClipboardData(
+                                                      text: 'XNORGATE#3514'),
+                                                );
+                                              },
+                                              icon: const FaIcon(
+                                                  FontAwesomeIcons.discord),
+                                            ),
+                                            const Text(
+                                                'Discord: XNORGATE#3514'),
+                                          ]),
+                                      Row(children: [
+                                        IconButton(
+                                          onPressed: () {
+                                            Clipboard.setData(
+                                              const ClipboardData(
+                                                  text: 'tsaidarius@gmail.com'),
+                                            );
+                                          },
+                                          icon: const FaIcon(
+                                              FontAwesomeIcons.envelope),
+                                        ),
+                                        const Text(
+                                            'Gmail: tsaidarius@gmail.com'),
+                                      ]),
+                                      Row(children: [
+                                        IconButton(
+                                          onPressed: () async {
+                                            await launchUrl(
+                                                Uri.parse(
+                                                    'https://www.instagram.com/_thr8t_/'),
+                                                mode: LaunchMode
+                                                    .externalApplication);
+                                          },
+                                          icon: const FaIcon(
+                                              FontAwesomeIcons.instagram),
+                                        ),
+                                        const Text('IG (緊急重大bug回報請使用IG)'),
+                                      ]),
+                                    ]),
+                              )
+                              // content:
+                              );
+                        },
+                      );
+                    },
+                  ),
+
+                  // const DrawerItem(
+                  //     title: 'Invite a friend', icon: Icons.people_outline),
+                ],
+              ),
+              DrawerItem(
+                title: '登出',
+                icon: Icons.logout,
+                onTap: () async {
+                  final confirmed = await showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15)),
+                      title: const Text(
+                        '登出',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                      content: const Text('確定要登出 ?'),
+                      actions: [
+                        NeumorphicButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('取消'),
+                        ),
+                        NeumorphicButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text('確認'),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirmed == true) {
+// Clear 'account' and 'password' from SharedPreferences
+                    final prefs = await SharedPreferences.getInstance();
+                    userController.username.value = '';
+                    userController.password.value = '';
+                    prefs.remove('name');
+                    prefs.setBool('alreadyshowHome', false);
+
+                    // prefs.remove('oldHomeWorkList');
+                    // Workmanager().cancelAll();
 
 // Navigate to login page
-                      // ignore: use_build_context_synchronously
-                      Navigator.pushNamedAndRemoveUntil(
-                          context, LoginPage.routeName, (route) => false);
-                    }
-                  },
-                )
-              ],
-            ),
+                    // ignore: use_build_context_synchronously
+                    Navigator.pushNamedAndRemoveUntil(
+                        context, LoginPage.routeName, (route) => false);
+                  }
+                },
+              )
+            ],
           ),
         ),
-      );
+      ),
+    );
   }
 }
 
@@ -1520,7 +1484,6 @@ class DrawerItem extends StatelessWidget {
       ),
     );
   }
-  
 }
 
 class UserAvatar extends StatelessWidget {
@@ -1543,6 +1506,12 @@ class UserAvatar extends StatelessWidget {
   }
 }
 
+/////////////////get x
+// GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+class UserController extends GetxController {
+  var username = ''.obs;
+  var password = ''.obs;
+}
 
 // class NotificationService {
 //   final FlutterLocalNotificationsPlugin notificationsPlugin =

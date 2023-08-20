@@ -1,10 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/get_instance.dart';
 import 'package:http/http.dart' as http;
 // ignore: depend_on_referenced_packages
 import 'package:html/parser.dart' as html_parser;
 import 'package:photo_view/photo_view.dart';
+import '../main.dart';
+import '../utils/auto_logout.dart';
 import '../utils/check_connecion.dart';
 import '../utils/html_utils.dart';
 
@@ -46,7 +50,7 @@ class Pages {
 }
 
 class _StudentMiscPageState extends State<StudentMiscPage>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, AutoLogoutMixin<StudentMiscPage> {
   late TabController _tabController;
   late String _account = '0'; // Set account and password to 0 by default
   late String _password = '0';
@@ -66,9 +70,13 @@ class _StudentMiscPageState extends State<StudentMiscPage>
               title: const Text('偵測不到網路連線，請檢查網路連線後再試一次'),
               actions: [
                 TextButton(
-                  onPressed: () {
+                  onPressed: () async {
                     // Navigator.of(context).pop();
                     // SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                    final prefs = await SharedPreferences.getInstance();
+                    userController.username.value = '';
+                    userController.password.value = '';
+                    prefs.remove('name');
                     FlutterExitApp.exitApp();
                   },
                   child: const Text('OK'),
@@ -98,8 +106,10 @@ class _StudentMiscPageState extends State<StudentMiscPage>
 
   _getlocal_UserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    _account = prefs.getString('account')!;
-    _password = prefs.getString('password')!;
+    final userController = Get.find<UserController>();
+
+    _account = userController.username.value;
+    _password = userController.password.value;
 
     return [_account, _password];
   }
