@@ -5,12 +5,14 @@ class MyTextField extends StatelessWidget {
   final controller;
   final String hintText;
   final bool obscureText;
-
+  final List<String> autofillHints;
   const MyTextField({
     super.key,
     required this.controller,
     required this.hintText,
     required this.obscureText,
+    required this.autofillHints,
+
   });
 
   @override
@@ -20,15 +22,16 @@ class MyTextField extends StatelessWidget {
       child: TextField(
         controller: controller,
         obscureText: obscureText,
-        autofillHints: (hintText == '學號(大小寫皆可)')
-            ? [
-                AutofillHints.username,
-              ]
-            : [AutofillHints.password],
+        // autofillHints: (hintText == '學號(大小寫皆可)')
+        //     ? [
+        //         AutofillHints.username,
+        //       ]
+        //     : [AutofillHints.password],
                    onEditingComplete: () =>
            (hintText == '學號(大小寫皆可)')
             ? FocusScope.of(context).nextFocus()
             : TextInput.finishAutofillContext(),
+        autofillHints: autofillHints,
         decoration: InputDecoration(
             enabledBorder: const OutlineInputBorder(
               borderSide: BorderSide(color: Colors.white),

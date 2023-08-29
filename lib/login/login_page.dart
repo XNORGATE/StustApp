@@ -299,6 +299,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                         child: SingleChildScrollView(
                             // controller: ListViewController,
                             child: AutofillGroup(
+                              onDisposeAction :AutofillContextAction.commit,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -326,6 +327,8 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                                 controller: usernameController,
                                 hintText: '學號(大小寫皆可)',
                                 obscureText: false,
+                                autofillHints: const [
+                                  AutofillHints.username,],
                               ),
 
                               const SizedBox(height: 10),
@@ -334,6 +337,8 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                                 controller: passwordController,
                                 hintText: '密碼',
                                 obscureText: true,
+                                autofillHints: const [
+                                  AutofillHints.password,],
                               ),
 
                               const SizedBox(height: 10),

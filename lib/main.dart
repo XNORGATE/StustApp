@@ -163,7 +163,6 @@ Future<void> main() async {
 
   runApp(GetMaterialApp(
       debugShowCheckedModeBanner: false,
-
       home: MaterialApp(
         theme: ThemeData.light(),
         debugShowCheckedModeBanner: false,
@@ -637,7 +636,7 @@ class _MyHomePageState extends State<MyHomePage>
 
   String insertLineBreak(String text) {
     int midIndex =
-        text.length ~/ 1.6; // Calculate the middle index of the string
+        text.length ~/ 2.0; // Calculate the middle index of the string
     String firstHalf =
         text.substring(0, midIndex); // Extract the first half of the string
     String secondHalf =
@@ -1066,10 +1065,15 @@ class _MyHomePageState extends State<MyHomePage>
                         itemBuilder: (context, index) {
                           // PandaPickItemModel model =
                           final data = StustActivitiesList[index];
+                          // print((data['topic']!.length));
+                          // print(insertLineBreak(data['topic']!));
+                          if (data['topic']!.length > 25) {
+                          data['topic'] = "${data['topic']?.substring(0, 20)}...";
+                          }
                           return ActivitiesScreen(
                             href: data['href'] ?? '',
                             image: data['image'] ?? '',
-                            topic: (data['topic']!).length > 10
+                            topic: (data['topic']!).length > 8
                                 ? insertLineBreak(data['topic']!)
                                 : data['topic']!,
                           );
