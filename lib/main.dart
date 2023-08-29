@@ -162,6 +162,8 @@ Future<void> main() async {
   }
 
   runApp(GetMaterialApp(
+      debugShowCheckedModeBanner: false,
+
       home: MaterialApp(
         theme: ThemeData.light(),
         debugShowCheckedModeBanner: false,

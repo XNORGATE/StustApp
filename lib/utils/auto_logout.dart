@@ -37,6 +37,7 @@ mixin AutoLogoutMixin<T extends StatefulWidget> on State<T> {
       userController.password.value = '';
       final prefs = await SharedPreferences.getInstance();
       prefs.remove('name');
+      if (!mounted) return;
       Navigator.of(context)
           .pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
     });
