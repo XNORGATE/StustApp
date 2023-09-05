@@ -78,7 +78,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage>
   }
 
   _getlocal_UserData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    // SharedPreferences prefs = await SharedPreferences.getInstance();
     final userController = Get.find<UserController>();
 
     _account = userController.username.value;

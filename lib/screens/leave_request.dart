@@ -62,12 +62,13 @@ class _AbsentPageState extends State<AbsentPage>
 
       _responseData = [];
       _getlocal_UserData().then((data) {
-        _account = data[0];
-        _password = data[1];
         //print(_account);
         //print(_password);
 
-        setState(() {});
+        setState(() {
+          _account = data[0];
+          _password = data[1];
+        });
       });
     });
   }
@@ -125,7 +126,7 @@ class _AbsentPageState extends State<AbsentPage>
   // }
 
   _getlocal_UserData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    // SharedPreferences prefs = await SharedPreferences.getInstance();
     final userController = Get.find<UserController>();
 
     _account = userController.username.value;
@@ -208,7 +209,9 @@ class _AbsentPageState extends State<AbsentPage>
       // print(absentEvent);
 
       return LeaveRequest;
-    } catch (e) {}
+    } catch (e) {
+      return [];
+    }
     return LeaveRequest;
   }
 

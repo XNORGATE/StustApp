@@ -33,7 +33,7 @@ mixin AutoLogoutMixin<T extends StatefulWidget> on State<T> {
 
   void startTimer() {
     _timer?.cancel();
-    _timer = Timer(const Duration(minutes: 1), () async {
+    _timer = Timer(const Duration(minutes: 10), () async {
       userController.username.value = '';
       userController.password.value = '';
 
@@ -47,7 +47,7 @@ mixin AutoLogoutMixin<T extends StatefulWidget> on State<T> {
           return AlertDialog(
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-            title: const Text('app已閒置超過5分鐘，請重新登入'),
+            title: const Text('app已閒置超過10分鐘/暫存記憶已丟失，為保護您的資料安全，請重新登入'),
             actions: [
               TextButton(
                 onPressed: () {

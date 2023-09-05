@@ -150,7 +150,11 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
         _name = name!;
         return name;
       }
-    } catch (e) {}
+    } catch (e) {
+      if (e is SocketException) {
+        return 'error';
+      }
+    }
     return false; // do something else
   }
 
@@ -294,12 +298,21 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
               backgroundColor: Colors.grey[300],
               body: SafeArea(
                 child: _isLoading
-                    ? const Center(child: CircularProgressIndicator())
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            CircularProgressIndicator(),
+                            SizedBox(height: 20),
+                            Text('載入中...若等待時間過久可能是學校網站炸了:(',style: TextStyle(fontSize: 15),),
+                          ],
+                        ),
+                      )
                     : Center(
                         child: SingleChildScrollView(
                             // controller: ListViewController,
                             child: AutofillGroup(
-                              onDisposeAction :AutofillContextAction.commit,
+                          onDisposeAction: AutofillContextAction.commit,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -328,7 +341,8 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                                 hintText: '學號(大小寫皆可)',
                                 obscureText: false,
                                 autofillHints: const [
-                                  AutofillHints.username,],
+                                  AutofillHints.username,
+                                ],
                               ),
 
                               const SizedBox(height: 10),
@@ -338,7 +352,8 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                                 hintText: '密碼',
                                 obscureText: true,
                                 autofillHints: const [
-                                  AutofillHints.password,],
+                                  AutofillHints.password,
+                                ],
                               ),
 
                               const SizedBox(height: 10),
@@ -349,6 +364,9 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
 
                               MyButton(
                                 onTap: () async {
+                                  setState(() {
+                                    _isLoading = true;
+                                  });
                                   _account = usernameController.text;
                                   _password = passwordController.text;
                                   // if (_formKey.currentState!.validate()) {
@@ -357,42 +375,84 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                                       await authenticate(_account, _password);
 
                                   // print(isAuthenticated);
-                                  if (isAuthenticated != false) {
-                                    if (!mounted) return;
-                                    try {
-                                      final userController =
-                                          Get.find<UserController>();
+//                                   if (isAuthenticated != false &&
+//                                       isAuthenticated != 'error') {
+//                                     if (!mounted) return;
+//                                     try {
+//                                       final userController =
+//                                           Get.find<UserController>();
 
-                                      await checkBan(isAuthenticated)
-                                          ? showDialogBox(
-                                              context, '您已被開發者停權，請聯絡開發者')
-                                          : userController.username.value =
-                                              _account;
-                                      userController.password.value = _password;
+//                                       await checkBan(isAuthenticated)
+//                                           ? showDialogBox(
+//                                               context, '您已被開發者停權，請聯絡開發者')
+//                                           : userController.username.value =
+//                                               _account;
+//                                       userController.password.value = _password;
 
-                                      await SharedPreferences.getInstance()
-                                          .then((prefs) {
-                                        // prefs.setString(
-                                        //     'account', _account);
-                                        // prefs.setString(
-                                        //     'password', _password);
-                                        prefs.setString(
-                                            'name', isAuthenticated);
-                                      });
+//                                       await SharedPreferences.getInstance()
+//                                           .then((prefs) {
+//                                         // prefs.setString(
+//                                         //     'account', _account);
+//                                         // prefs.setString(
+//                                         //     'password', _password);
+//                                         prefs.setString(
+//                                             'name', isAuthenticated);
+//                                       });
 
-                                      // TextInput.finishAutofillContext();
-                                      if (!mounted) return;
-                                      Navigator.of(context)
-                                          .pushNamedAndRemoveUntil('/',
-                                              (Route<dynamic> route) => false);
-                                      showDialogBox(
-                                          context, '歡迎回來，$isAuthenticated同學');
-                                    } catch (e) {}
+//                                       // TextInput.finishAutofillContext();
+//                                       if (!mounted) return;
+//                                       Navigator.of(context)
+//                                           .pushNamedAndRemoveUntil('/',
+//                                               (Route<dynamic> route) => false);
+//                                       showDialogBox(
+//                                           context, '歡迎回來，$isAuthenticated同學');
+//                                     } catch (e) {}
 
-// Save account and password in shared preferences
-// Go to main page
-                                  } else {
-                                    _showAlertDialog('錯誤提示');
+// // Save account and password in shared preferences
+// // Go to main page
+//                                   } else if (isAuthenticated == false) {
+//                                     _showAlertDialog('錯誤提示');
+//                                   } else if (isAuthenticated == 'error') {
+//                                     showDialogBox(context, '學校伺服器異常，請稍後再試');
+//                                   }
+                                  switch (isAuthenticated) {
+                                    case false:
+                                      _showAlertDialog('錯誤提示');
+                                      break;
+                                    case 'error':
+                                      showDialogBox(context, '學校伺服器異常，請稍後再試');
+                                      break;
+                                    default:
+                                      try {
+                                        final userController =
+                                            Get.find<UserController>();
+                                        if (!mounted) return;
+
+                                        await checkBan(isAuthenticated)
+                                            ? showDialogBox(
+                                                context, '您已被開發者停權，請聯絡開發者')
+                                            : userController.username.value =
+                                                _account;
+                                        userController.password.value =
+                                            _password;
+
+                                        await SharedPreferences.getInstance()
+                                            .then((prefs) {
+                                          prefs.setString(
+                                              'name', isAuthenticated);
+                                        });
+
+                                        if (!mounted) return;
+                                        Navigator.of(context)
+                                            .pushNamedAndRemoveUntil(
+                                                '/',
+                                                (Route<dynamic> route) =>
+                                                    false);
+                                        showDialogBox(
+                                            context, '歡迎回來，$isAuthenticated同學');
+                                            
+                                      } catch (e) {}
+                                      break;
                                   }
                                   // }
                                 },
