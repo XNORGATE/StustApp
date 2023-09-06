@@ -33,7 +33,7 @@ mixin AutoLogoutMixin<T extends StatefulWidget> on State<T> {
 
   void startTimer() {
     _timer?.cancel();
-    _timer = Timer(const Duration(minutes: 10), () async {
+    _timer = Timer(const Duration(minutes: 15), () async {
       userController.username.value = '';
       userController.password.value = '';
 

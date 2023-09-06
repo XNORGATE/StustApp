@@ -92,21 +92,44 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
     try {
       final acc = account;
       final pwd = password;
-
+      // print(pwd);
       // Create an HTTP session
       final session = http.Client();
+      var headers = {
+        'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36'
+      };
+      // Dio dio = Dio();
 
       // Send a GET request to the login page
-      final r = await session
-          .get(Uri.parse('https://flipclass.stust.edu.tw/index/login'));
+      final r = await session.get(
+          Uri.parse('https://flipclass.stust.edu.tw/index/login'),
+          );
+      // print('response');
+      // print('res code${r.statusCode}');
 
-      // Parse the response HTML
+      var cookies = r.headers['set-cookie']!;
+
+
+      // final r = await dio.get(
+      //   'https://flipclass.stust.edu.tw/index/login',
+      //   options: Options(
+      //     // contentType: 'multipart/form-data',
+      //     followRedirects: true,
+      //   ),
+      // ); // 刪除作業
+      // // Parse the response HTML
+      // print(r.data);
+
       final soup = parse(r.body);
+      // print('soup');
+      // print(soup);
 
       // Find the value of the csrf-t hidden input
       final hiddenInput =
           soup.querySelector('input[name="csrf-t"]')?.attributes['value'];
 
+      // print('csrf-token${hiddenInput!}');
       // Set up the payload for the login POST request
       Map<String, String> payload = {
         '_fmSubmit': 'yes',
@@ -120,17 +143,12 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
         'csrf-t': hiddenInput ?? "error"
       };
 
-      var headers = {
-        'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
-      };
-
       // Send the login POST request
       final res = await session.post(
           Uri.parse('https://flipclass.stust.edu.tw/index/login'),
           body: payload);
-
-      String cookies = res.headers['set-cookie']!;
+//  print(res.body);
+       cookies = res.headers['set-cookie']!;
 
       final nameRequest = await session.get(
           Uri.parse('https://flipclass.stust.edu.tw/dashboard'),
@@ -138,14 +156,15 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
 
       // Parse the response HTML
       final nameSoup = parse(nameRequest.body);
-
       // Find the value of the csrf-t hidden input
       final name =
           nameSoup.querySelector('div.fs-text-center > span')?.text.trim();
+
       // print(name);
       Map<String, dynamic> responseMap = jsonDecode(res.body);
-      String status = responseMap['ret']['status'];
+      print('responseee$responseMap');
 
+      String status = responseMap['ret']['status'];
       if (status == "true") {
         _name = name!;
         return name;
@@ -304,7 +323,10 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                           children: const [
                             CircularProgressIndicator(),
                             SizedBox(height: 20),
-                            Text('載入中...若等待時間過久可能是學校網站炸了:(',style: TextStyle(fontSize: 15),),
+                            Text(
+                              '載入中...若等待時間過久可能是學校網站炸了:(',
+                              style: TextStyle(fontSize: 15),
+                            ),
                           ],
                         ),
                       )
@@ -373,7 +395,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                                   //   _formKey.currentState!.save();
                                   var isAuthenticated =
                                       await authenticate(_account, _password);
-
+                                  // print('isAuth$isAuthenticated');
                                   // print(isAuthenticated);
 //                                   if (isAuthenticated != false &&
 //                                       isAuthenticated != 'error') {
@@ -417,9 +439,15 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
 //                                   }
                                   switch (isAuthenticated) {
                                     case false:
+                                      setState(() {
+                                        _isLoading = false;
+                                      });
                                       _showAlertDialog('錯誤提示');
                                       break;
                                     case 'error':
+                                      setState(() {
+                                        _isLoading = false;
+                                      });
                                       showDialogBox(context, '學校伺服器異常，請稍後再試');
                                       break;
                                     default:
@@ -450,7 +478,6 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                                                     false);
                                         showDialogBox(
                                             context, '歡迎回來，$isAuthenticated同學');
-                                            
                                       } catch (e) {}
                                       break;
                                   }
