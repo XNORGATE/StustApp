@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_neumorphic_null_safety/flutter_neumorphic.dart';
@@ -130,6 +131,7 @@ Future<void> main() async {
 
   Future<bool> checkBan(name) async {
     var session = http.Client();
+      Dio dio = Dio();
 
     bool isBanned = false;
     dynamic response;
@@ -137,10 +139,14 @@ Future<void> main() async {
     //  print(name);
     try {
       //  print(name);
-      response = await session.post(
-        Uri.parse('http://api.xnor-development.com:70/stust_checkban'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
+      response = await dio.post(
+        ('http://api.xnor-development.com:70/stust_checkban'),
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        ),
+        data: json.encode({
           'name': name,
         }),
       );
@@ -428,7 +434,7 @@ class _MyHomePageState extends State<MyHomePage>
 
   @override
   void dispose() {
-    session.close();
+    // session.close();
     super.dispose();
   }
 
@@ -452,14 +458,19 @@ class _MyHomePageState extends State<MyHomePage>
   Future<bool> checkBan(name) async {
     bool isBanned = false;
     dynamic response;
+      Dio dio = Dio();
 
     //  print(name);
     try {
       //  print(name);
-      response = await session.post(
-        Uri.parse('http://api.xnor-development.com:70/stust_checkban'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
+      response = await dio.post(
+        ('http://api.xnor-development.com:70/stust_checkban'),
+        options: Options(
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        ),
+        data: json.encode({
           'name': name,
         }),
       );
@@ -486,14 +497,16 @@ class _MyHomePageState extends State<MyHomePage>
     // final response = await Dio().get(
     //   url,
     // );
+            Dio dio = Dio();
+
 
     try {
-      var response = await session.get(
-          Uri.parse(
+      var response = await dio.get(
+         (
               'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWoZnufjinYoSp0lQ9KOLuNRpxxMlOp9K2leRL7bNN4I2_wuvx-h7wWQJg4xOK4pTVv85qs3TbvyOG/pubhtml'),
-          headers: {...headers});
+          options: Options(headers: {...headers},responseType: ResponseType.bytes));
 
-      var responseBodyHex = hex.encode(response.bodyBytes);
+      var responseBodyHex = hex.encode(response.data);
       var document =
           html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
       // print(pressentScoreData.outerHtml);
@@ -538,9 +551,10 @@ class _MyHomePageState extends State<MyHomePage>
 
   Future<List<Map<String, String>>> getStudentActivitiesList() async {
     dynamic response;
+            Dio dio = Dio();
     try {
-      response = await session.get(
-        Uri.parse('http://api.xnor-development.com:70/stust_activities'),
+      response = await dio.get(
+        ('http://api.xnor-development.com:70/stust_activities'),
       );
     } catch (e) {
       if (e is SocketException) {
@@ -590,9 +604,10 @@ class _MyHomePageState extends State<MyHomePage>
     //   url,
     // );
     dynamic response;
+            Dio dio = Dio();
     try {
-      response = await session.get(
-        Uri.parse('https://www.stust.edu.tw/'),
+      response = await dio.get(
+        ('https://www.stust.edu.tw/'),
       );
     } catch (e) {
       if (e is SocketException) {

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:flutter_html/flutter_html.dart';
@@ -145,13 +146,13 @@ class _BulletinsPageState extends State<BulletinsPage>
   Future<List<Map<String, String>>> gen_bulletin() async {
     int bulletinPage = 1;
     List<Map<String, String>> Bulletin = [];
-
+    Dio dio = Dio();
     var session = http.Client();
     var loginUrl = 'https://flipclass.stust.edu.tw/index/login';
     try {
-      var response = await session.get(Uri.parse(loginUrl));
+      var response = await dio.get((loginUrl));
       http.Response detail;
-      var soup = parse(response.body);
+      var soup = parse(response.data);
 
       var hiddenInput =
           soup.querySelector('input[name="csrf-t"]')?.attributes['value'];
@@ -168,7 +169,7 @@ class _BulletinsPageState extends State<BulletinsPage>
       //   'csrf-t': hiddenInput
       // };
 
-      response = await session.get(Uri.parse(
+      response = await dio.get((
           '$loginUrl?_fmSubmit=yes&formVer=3.0&formId=login_form&next=/&act=keep&account=$_account&password=$_password&rememberMe=&csrf-t=$hiddenInput'));
       if (response.headers['set-cookie'] == null) {
         return [
@@ -176,7 +177,7 @@ class _BulletinsPageState extends State<BulletinsPage>
         ];
       }
 
-      String cookies = response.headers['set-cookie']!;
+      List<String> cookies = response.headers['set-cookie']!;
 
       var headers = {
         'User-Agent':
@@ -186,10 +187,10 @@ class _BulletinsPageState extends State<BulletinsPage>
           'https://flipclass.stust.edu.tw/dashboard/latestBulletin?&page=';
 
       void gen_bulletin(int bulletinPage) async {
-        response = await session.get(
-            Uri.parse('$url${bulletinPage.toString()}'),
-            headers: {...headers, 'cookie': cookies});
-        soup = parse(response.body);
+        response = await dio.get(
+            ('$url${bulletinPage.toString()}'),
+            options: Options(headers: {...headers, 'cookie': cookies}));
+        soup = parse(response.data);
 
         if (soup.querySelector('#noData > td') == null) {
           var hrefArr = soup.querySelectorAll(
@@ -221,9 +222,9 @@ class _BulletinsPageState extends State<BulletinsPage>
                 .trim();
 
             ////scrap into detail
-            var detail = await session
-                .get(Uri.parse(src), headers: {...headers, 'cookie': cookies});
-            var detailRes = parse(detail.body);
+            var detail = await dio
+                .get((src), options: Options(headers: {...headers, 'cookie': cookies}));
+            var detailRes = parse(detail.data);
             String? fileName;
             String? fileUrl;
             var bulletinContent =

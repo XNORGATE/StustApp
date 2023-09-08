@@ -132,11 +132,12 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> with AutoLogout
 
   Future<void> getHomework() async {
     // var homeworkCode = '';
-    var session = http.Client();
+    // var session = http.Client();
+    Dio dio =Dio();
     try {
-      var response = await session
-          .get(Uri.parse('https://flipclass.stust.edu.tw/index/login'));
-      var soup = html.parse(response.body);
+      var response = await dio
+          .get(('https://flipclass.stust.edu.tw/index/login'));
+      var soup = html.parse(response.data);
 
       var hiddenInput =
           soup.querySelector('input[name="csrf-t"]')!.attributes['value']!;
@@ -153,10 +154,10 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> with AutoLogout
         'csrf-t': hiddenInput,
       };
 
-      final uri =
-          Uri.https('flipclass.stust.edu.tw', '/index/login', queryParameters);
+      // final uri =
+      //     Uri.https('flipclass.stust.edu.tw', '/index/login', queryParameters);
 
-      response = await session.get(uri);
+      response = await dio.get('flipclass.stust.edu.tw/index/login', queryParameters: queryParameters);
 
       if (response.headers['set-cookie'] == null) {
         print('Authenticate error(帳號密碼錯誤)');
@@ -171,8 +172,8 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> with AutoLogout
         'cookie': cookies,
       };
 
-      response = await session.get(Uri.parse(href), headers: headers);
-      soup = html.parse(response.body);
+      response = await dio.get((href), options: Options(headers: headers));
+      soup = html.parse(response.data);
       // print(soup.outerHtml);
       // print(href);
       // print(src);
@@ -300,12 +301,12 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> with AutoLogout
             ?.querySelector('a')
             ?.attributes['href'];
 
-        var attachment = await session.get(
-            Uri.parse('https://flipclass.stust.edu.tw$attachmentUrl'),
-            headers: headers);
+        var attachment = await dio.get(
+            ('https://flipclass.stust.edu.tw$attachmentUrl'),
+            options: Options(headers: headers,responseType: ResponseType.bytes));
 
         if (attachment.headers['content-type']!.contains("image")) {
-          attachmentBytes = attachment.bodyBytes;
+          attachmentBytes = attachment.data;
         }
       } catch (e) {
         // Handle the error here

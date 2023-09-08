@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'dart:convert';
@@ -99,17 +100,16 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
         'User-Agent':
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36'
       };
-      // Dio dio = Dio();
+      Dio dio = Dio();
 
       // Send a GET request to the login page
-      final r = await session.get(
-          Uri.parse('https://flipclass.stust.edu.tw/index/login'),
-          );
+      final r = await dio.get(
+        ('https://flipclass.stust.edu.tw/index/login'),
+      );
       // print('response');
       // print('res code${r.statusCode}');
 
       var cookies = r.headers['set-cookie']!;
-
 
       // final r = await dio.get(
       //   'https://flipclass.stust.edu.tw/index/login',
@@ -121,7 +121,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
       // // Parse the response HTML
       // print(r.data);
 
-      final soup = parse(r.body);
+      final soup = parse(r.data);
       // print('soup');
       // print(soup);
 
@@ -144,25 +144,24 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
       };
 
       // Send the login POST request
-      final res = await session.post(
-          Uri.parse('https://flipclass.stust.edu.tw/index/login'),
-          body: payload);
+      final res = await dio.post(('https://flipclass.stust.edu.tw/index/login'),
+          data: payload);
 //  print(res.body);
-       cookies = res.headers['set-cookie']!;
+      cookies = res.headers['set-cookie']!;
 
-      final nameRequest = await session.get(
-          Uri.parse('https://flipclass.stust.edu.tw/dashboard'),
-          headers: {...headers, 'cookie': cookies});
+      final nameRequest = await dio.get(
+        ('https://flipclass.stust.edu.tw/dashboard'),
+        options: Options(headers: {...headers, 'cookie': cookies}),
+      );
 
       // Parse the response HTML
-      final nameSoup = parse(nameRequest.body);
+      final nameSoup = parse(nameRequest.data);
       // Find the value of the csrf-t hidden input
       final name =
           nameSoup.querySelector('div.fs-text-center > span')?.text.trim();
 
       // print(name);
-      Map<String, dynamic> responseMap = jsonDecode(res.body);
-      print('responseee$responseMap');
+      Map<String, dynamic> responseMap = jsonDecode(res.data);
 
       String status = responseMap['ret']['status'];
       if (status == "true") {
@@ -203,18 +202,17 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
 
   Future<bool> checkBan(name) async {
     try {
-      final session = http.Client();
-
-      final response = await session.post(
-        Uri.parse('http://api.xnor-development.com:70/stust_checkban'),
-        headers: {'Content-Type': 'application/json'},
-        body: {
+Dio dio = Dio();
+      final response = await dio.post(
+        ('http://api.xnor-development.com:70/stust_checkban'),
+        options: Options(headers: {'Content-Type': 'application/json'}),
+        data: {
           'name': name,
         },
       );
 
       if (response.statusCode == 200) {
-        Map<String, dynamic> responseMap = jsonDecode(response.body);
+        Map<String, dynamic> responseMap = jsonDecode(response.data);
         final bool isBanned = responseMap['banned'];
         if (isBanned) {
           return true;

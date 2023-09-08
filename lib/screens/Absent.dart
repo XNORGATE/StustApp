@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:http/http.dart' as http;
@@ -394,6 +395,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage>
       // });
 
       var session = http.Client();
+      Dio dio = Dio();
 
       final queryParameters = {
         'stud_no': _account,
