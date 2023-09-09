@@ -143,7 +143,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
     try {
       resp = await dio.post(
         'https://portal.stust.edu.tw/StudentPortfolio/Login.aspx',
-        data: formData,
+        queryParameters: formData,
         options: Options(
             contentType: Headers.formUrlEncodedContentType,
             followRedirects: true,
@@ -242,7 +242,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
         response = await dio.post(
            ('https://aura.stust.edu.tw/life/lostthing.aspx'),
            options: Options( headers: {...headers, 'cookie': cookies}),
-            data: queryParameters);
+            queryParameters: queryParameters);
         responseBodyHex = hex.encode(response.data);
 
         var lostAndFoundpage =

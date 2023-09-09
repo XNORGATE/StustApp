@@ -30,7 +30,6 @@ import 'screens/student_portfolio.dart';
 import './screens/misc.dart';
 import 'dart:convert';
 import 'package:convert/convert.dart';
-import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as html_parser;
 import 'dart:math';
 import './model/restuarent.dart';
@@ -131,7 +130,7 @@ Future<void> main() async {
 
   Future<bool> checkBan(name) async {
     // var session = http.Client();
-      Dio dio = Dio();
+    Dio dio = Dio();
 
     bool isBanned = false;
     dynamic response;
@@ -141,11 +140,9 @@ Future<void> main() async {
       //  print(name);
       response = await dio.post(
         ('http://api.xnor-development.com:70/stust_checkban'),
-        options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        ),
+        options: Options(headers: {
+          'Content-Type': 'application/json',
+        }, responseType: ResponseType.json),
         data: json.encode({
           'name': name,
         }),
@@ -154,7 +151,7 @@ Future<void> main() async {
       // print(response);
       // print(jsonDecode(response.body));
       if (response.statusCode == 200) {
-        Map<String, dynamic> responseMap = jsonDecode(response.body);
+        Map<String, dynamic> responseMap = response.data;
         final bool isBanned = responseMap['banned'];
         return isBanned;
       }
@@ -458,18 +455,16 @@ class _MyHomePageState extends State<MyHomePage>
   Future<bool> checkBan(name) async {
     bool isBanned = false;
     dynamic response;
-      Dio dio = Dio();
+    Dio dio = Dio();
 
     //  print(name);
     try {
       //  print(name);
       response = await dio.post(
         ('http://api.xnor-development.com:70/stust_checkban'),
-        options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        ),
+        options: Options(headers: {
+          'Content-Type': 'application/json',
+        }, responseType: ResponseType.json),
         data: json.encode({
           'name': name,
         }),
@@ -478,7 +473,7 @@ class _MyHomePageState extends State<MyHomePage>
       // print(response);
       // print(jsonDecode(response.body));
       if (response.statusCode == 200) {
-        Map<String, dynamic> responseMap = jsonDecode(response.body);
+        Map<String, dynamic> responseMap = response.data;
         final bool isBanned = responseMap['banned'];
         return isBanned;
       }
@@ -497,14 +492,13 @@ class _MyHomePageState extends State<MyHomePage>
     // final response = await Dio().get(
     //   url,
     // );
-            Dio dio = Dio();
-
+    Dio dio = Dio();
 
     try {
       var response = await dio.get(
-         (
-              'https://docs.google.com/spreadsheets/d/e/2PACX-1vRWoZnufjinYoSp0lQ9KOLuNRpxxMlOp9K2leRL7bNN4I2_wuvx-h7wWQJg4xOK4pTVv85qs3TbvyOG/pubhtml'),
-          options: Options(headers: {...headers},responseType: ResponseType.bytes));
+          ('https://docs.google.com/spreadsheets/d/e/2PACX-1vRWoZnufjinYoSp0lQ9KOLuNRpxxMlOp9K2leRL7bNN4I2_wuvx-h7wWQJg4xOK4pTVv85qs3TbvyOG/pubhtml'),
+          options:
+              Options(headers: {...headers}, responseType: ResponseType.bytes));
 
       var responseBodyHex = hex.encode(response.data);
       var document =
@@ -550,38 +544,57 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   Future<List<Map<String, String>>> getStudentActivitiesList() async {
-    dynamic response;
-            Dio dio = Dio();
+    var response;
+    Dio dio = Dio();
+    // print('getStudentActivitiesList');
+    // response = await dio.get(
+    //   ('http://api.xnor-development.com:70/stust_activities'),
+    //   options: Options(
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //   ),
+    // );
+
+    //     print(response.data);
+
     try {
       response = await dio.get(
         ('http://api.xnor-development.com:70/stust_activities'),
+        options: Options(headers: {
+          'Content-Type': 'application/json',
+        }, responseType: ResponseType.json),
       );
+      // print('getStudentActivitiesList'+ response.statusCode);
+      if (response.statusCode != 200 || (response.data) is String) {
+        _isVpsError = true;
+
+        return [];
+      }
     } catch (e) {
       if (e is SocketException) {
         _isVpsError = true;
         return [];
       }
     }
+    // print('getStudentActivitiesList'+_isVpsError.toString());
 
     // Check that the request was successful
-    try {
-      if (response.statusCode != 200 || jsonDecode(response.body) is String) {
-        _isVpsError = true;
-
-        return [];
-      }
-    } catch (e) {
-      _isVpsError = true;
-
-      return [];
-    }
+    // try {} catch (e) {
+    //   if (e is SocketException) {
+    //     _isVpsError = true;
+    //     return [];
+    //   }
+    // }
 
     // Parse the response body into a Map
-    Map<String, dynamic> responseBody = jsonDecode(response.body);
-
+    // print(response.data.runtimeType);
+    // var responseBody = (response.data);
+    // print(responseBody.runtimeType);
+    // print('resresponseBody' + responseBody.toString());
     // Extract the activities into a list
     // List<Map<String, String>> StudentActivitiesList = [];
-    responseBody.forEach((id, data) {
+    response.data.forEach((id, data) {
       // Add the data directly into the list
       StudentActivitiesList.add(Map<String, String>.from(data as Map));
     });
@@ -604,10 +617,11 @@ class _MyHomePageState extends State<MyHomePage>
     //   url,
     // );
     dynamic response;
-            Dio dio = Dio();
+    Dio dio = Dio();
     try {
       response = await dio.get(
         ('https://www.stust.edu.tw/'),
+        options: Options(responseType: ResponseType.bytes),
       );
     } catch (e) {
       if (e is SocketException) {
@@ -622,7 +636,7 @@ class _MyHomePageState extends State<MyHomePage>
       return [];
     }
 
-    var responseBodyHex = hex.encode(response.bodyBytes);
+    var responseBodyHex = hex.encode(response.data);
     var document = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
     // print(document.outerHtml);
 
@@ -1083,7 +1097,8 @@ class _MyHomePageState extends State<MyHomePage>
                           // print((data['topic']!.length));
                           // print(insertLineBreak(data['topic']!));
                           if (data['topic']!.length > 25) {
-                          data['topic'] = "${data['topic']?.substring(0, 20)}...";
+                            data['topic'] =
+                                "${data['topic']?.substring(0, 20)}...";
                           }
                           return ActivitiesScreen(
                             href: data['href'] ?? '',

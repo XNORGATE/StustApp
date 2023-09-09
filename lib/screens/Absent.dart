@@ -450,14 +450,14 @@ class _LeaveRequestPageState extends State<LeaveRequestPage>
       response = await dio.post(
         ('https://portal.stust.edu.tw/abs_stu/asking/confirm.asp'),
          options: Options( headers: {...headers, 'cookie': cookies}),
-          data: leaveRequestFormData);
+          queryParameters: leaveRequestFormData);
       // var responseBodyHex = hex.encode(response.bodyBytes);
       // var soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
       // print(soup.outerHtml);
       response = await dio.post(
           ('https://portal.stust.edu.tw/abs_stu/asking/list.asp'),
          options: Options( headers: {...headers, 'cookie': cookies}),
-          data: confirmData);
+          queryParameters: confirmData);
       response = await dio.get(
          ('https://portal.stust.edu.tw/abs_stu/query/query.asp'),
           options: Options(headers: {...headers, 'cookie': cookies},responseType: ResponseType.bytes));

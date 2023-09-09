@@ -8,7 +8,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart';
 import '../utils/auto_logout.dart';
 import '../utils/dialog_utils.dart';
-import 'package:http/http.dart' as http;
 
 class CreateActivitiesPage extends StatefulWidget {
   static const routeName = '/create_activities';
@@ -347,7 +346,9 @@ Dio dio =  Dio();
                                 if (res.statusCode == 200) {
                                   showDialogBox(context, '成功新增活動');
                                   var response = await dio.get(
-                                    ('https://ifconfig.co/json'),
+                                    ('https://ifconfig.co/json'),options: Options(
+                                      responseType: ResponseType.json,
+                                    )
                                   );
 
                                   // Check that the request was successful
@@ -358,7 +359,7 @@ Dio dio =  Dio();
 
                                   // Parse the response body into a Map
                                   Map<String, dynamic> responseBody =
-                                      jsonDecode(response.data);
+                                     response.data;
 
                                   final payload = {
                                     'student_number': account,

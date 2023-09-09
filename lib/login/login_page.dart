@@ -203,17 +203,17 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
 
   Future<bool> checkBan(name) async {
     try {
-Dio dio = Dio();
+      Dio dio = Dio();
       final response = await dio.post(
         ('http://api.xnor-development.com:70/stust_checkban'),
-        options: Options(headers: {'Content-Type': 'application/json'}),
+        options: Options(headers: {'Content-Type': 'application/json'},responseType: ResponseType.json),
         data: {
           'name': name,
         },
       );
 
       if (response.statusCode == 200) {
-        Map<String, dynamic> responseMap = jsonDecode(response.data);
+        Map<String, dynamic> responseMap = response.data;
         final bool isBanned = responseMap['banned'];
         if (isBanned) {
           return true;

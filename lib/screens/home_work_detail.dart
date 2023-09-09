@@ -500,7 +500,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> with AutoLogout
       response = await dio.post(
         ('https://flipclass.stust.edu.tw$finalUrl'),
           options: Options(headers: {...headers}),
-          data: formData);
+          queryParameters: formData);
 
       ///最終繳交
 
@@ -611,7 +611,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> with AutoLogout
       response = await dio.post(
          ('https://flipclass.stust.edu.tw$finalUrl'),
           options: Options(headers: {...headers}),
-          data: formData);
+          queryParameters: formData);
 
       ///最終繳交
 
