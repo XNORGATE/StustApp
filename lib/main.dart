@@ -130,7 +130,7 @@ Future<void> main() async {
   }
 
   Future<bool> checkBan(name) async {
-    var session = http.Client();
+    // var session = http.Client();
       Dio dio = Dio();
 
     bool isBanned = false;
@@ -453,7 +453,7 @@ class _MyHomePageState extends State<MyHomePage>
     'User-Agent':
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
   };
-  var session = http.Client();
+  // var session = http.Client();
 
   Future<bool> checkBan(name) async {
     bool isBanned = false;

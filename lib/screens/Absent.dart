@@ -191,7 +191,8 @@ class _LeaveRequestPageState extends State<LeaveRequestPage>
     List<Map<String, String>> absentEvent = [];
     List<Map<String, String>> ExistLeaveRequest = [];
 
-    var session = http.Client();
+    // var session = http.Client();
+    Dio dio = Dio();
     // print(_account);
     // print(_password);
     final queryParameters = {
@@ -201,21 +202,23 @@ class _LeaveRequestPageState extends State<LeaveRequestPage>
     };
     // print(_account);
     try {
-      final uri = Uri.https(
-          'portal.stust.edu.tw', '/abs_stu/verify.asp', queryParameters);
+      // final uri = Uri.https(
+      //     'portal.stust.edu.tw', '/abs_stu/verify.asp', queryParameters);
       //authenticate
-      var response = await session.post(uri);
+      var response = await dio.post(
+          'https://portal.stust.edu.tw/abs_stu/verify.asp',
+          queryParameters: queryParameters);
       String cookies = '${response.headers['set-cookie']!}; 3wave=1';
 
       final headers = {
         'User-Agent':
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
       };
-      response = await session.get(
-          Uri.parse('https://portal.stust.edu.tw/abs_stu/query/week.asp'),
-          headers: {...headers, 'cookie': cookies});
+      response = await dio.get(
+          ('https://portal.stust.edu.tw/abs_stu/query/week.asp'),
+         options: Options( headers: {...headers, 'cookie': cookies},responseType: ResponseType.bytes));
       // print(utf8.decode(response.bodyBytes));
-      var responseBodyHex = hex.encode(response.bodyBytes);
+      var responseBodyHex = hex.encode(response.data);
       var soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
       // print(utf8.decode(hex.decode(responseBodyHex)));
       // final absent_event = <Map<String, dynamic>>[];
@@ -248,10 +251,10 @@ class _LeaveRequestPageState extends State<LeaveRequestPage>
 
       ///  responseData載入後 先去載入假單查詢 然後將處理中的href 全部抓出來 依次載入所有href裡的節數與周次 與responseData 裡的week跟 section比對 看哪個假單處理中 卻還存在於responseData 將他們del掉 避免重複請假
 
-      response = await session.get(
-          Uri.parse('https://portal.stust.edu.tw/abs_stu/query/query.asp'),
-          headers: {...headers, 'cookie': cookies});
-      responseBodyHex = hex.encode(response.bodyBytes);
+      response = await dio.get(
+          ('https://portal.stust.edu.tw/abs_stu/query/query.asp'),
+         options: Options( headers: {...headers, 'cookie': cookies},responseType: ResponseType.bytes));
+      responseBodyHex = hex.encode(response.data);
       soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
       final rows =
           soup.querySelectorAll('tr[align="center"][bgcolor="#FFFF99"]');
@@ -264,9 +267,9 @@ class _LeaveRequestPageState extends State<LeaveRequestPage>
           String link =
               'https://portal.stust.edu.tw/abs_stu/query/${row.querySelector('a')!.attributes['href']!}';
 
-          response = await session
-              .get(Uri.parse(link), headers: {...headers, 'cookie': cookies});
-          responseBodyHex = hex.encode(response.bodyBytes);
+          response = await dio
+              .get((link), options: Options(headers: {...headers, 'cookie': cookies},responseType: ResponseType.bytes));
+          responseBodyHex = hex.encode(response.data);
           soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
           // print(soup.outerHtml);
 
@@ -394,7 +397,6 @@ class _LeaveRequestPageState extends State<LeaveRequestPage>
       //   _showAlertDialog('Success', 'Your request has been sent');
       // });
 
-      var session = http.Client();
       Dio dio = Dio();
 
       final queryParameters = {
@@ -413,51 +415,53 @@ class _LeaveRequestPageState extends State<LeaveRequestPage>
       };
       final confirmData = {'Submit': '確定送出Submit'};
 
-      final uri = Uri.https(
-          'portal.stust.edu.tw', '/abs_stu/verify.asp', queryParameters);
+      // final uri = Uri.https(
+      //     'portal.stust.edu.tw', '/abs_stu/verify.asp', queryParameters);
       //authenticate
-      var response = await session.post(uri);
+      var response = await dio.post(
+          'https://portal.stust.edu.tw/abs_stu/verify.asp',
+          queryParameters: queryParameters);
       String cookies = '${response.headers['set-cookie']!}; 3wave=1';
 
       final headers = {
         'User-Agent':
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
       };
-      response = await session.get(
-          Uri.parse('https://portal.stust.edu.tw/abs_stu/asking/select-p.asp'),
-          headers: {...headers, 'cookie': cookies});
-      var responseBodyHex = hex.encode(response.bodyBytes);
+      response = await dio.get(
+          ('https://portal.stust.edu.tw/abs_stu/asking/select-p.asp'),
+         options: Options( headers: {...headers, 'cookie': cookies},responseType: ResponseType.bytes));
+      var responseBodyHex = hex.encode(response.data);
       var soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
       // print(soup.outerHtml);
 
       if (absentType == '4') {
         //事假
         // print('absentType: $absentType');
-        response = await session.get(
-            Uri.parse(
+        response = await dio.get(
+           (
                 'https://portal.stust.edu.tw/abs_stu/asking/select-p.asp'),
-            headers: {...headers, 'cookie': cookies});
+           options: Options( headers: {...headers, 'cookie': cookies}));
       } else if (absentType == '3') {
         //病假
-        response = await session.get(
-            Uri.parse('https://portal.stust.edu.tw/abs_stu/asking/select.asp'),
-            headers: {...headers, 'cookie': cookies});
+        response = await dio.get(
+          ('https://portal.stust.edu.tw/abs_stu/asking/select.asp'),
+           options: Options( headers: {...headers, 'cookie': cookies}));
       }
-      response = await session.post(
-          Uri.parse('https://portal.stust.edu.tw/abs_stu/asking/confirm.asp'),
-          headers: {...headers, 'cookie': cookies},
-          body: leaveRequestFormData);
+      response = await dio.post(
+        ('https://portal.stust.edu.tw/abs_stu/asking/confirm.asp'),
+         options: Options( headers: {...headers, 'cookie': cookies}),
+          data: leaveRequestFormData);
       // var responseBodyHex = hex.encode(response.bodyBytes);
       // var soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
       // print(soup.outerHtml);
-      response = await session.post(
-          Uri.parse('https://portal.stust.edu.tw/abs_stu/asking/list.asp'),
-          headers: {...headers, 'cookie': cookies},
-          body: confirmData);
-      response = await session.get(
-          Uri.parse('https://portal.stust.edu.tw/abs_stu/query/query.asp'),
-          headers: {...headers, 'cookie': cookies});
-      responseBodyHex = hex.encode(response.bodyBytes);
+      response = await dio.post(
+          ('https://portal.stust.edu.tw/abs_stu/asking/list.asp'),
+         options: Options( headers: {...headers, 'cookie': cookies}),
+          data: confirmData);
+      response = await dio.get(
+         ('https://portal.stust.edu.tw/abs_stu/query/query.asp'),
+          options: Options(headers: {...headers, 'cookie': cookies},responseType: ResponseType.bytes));
+      responseBodyHex = hex.encode(response.data);
       soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
       // print(soup.outerHtml);
       ////請完假了 要去query.asp檢查是否成功
@@ -474,9 +478,9 @@ class _LeaveRequestPageState extends State<LeaveRequestPage>
 
           // print(link);
 
-          response = await session
-              .get(Uri.parse(link), headers: {...headers, 'cookie': cookies});
-          responseBodyHex = hex.encode(response.bodyBytes);
+          response = await dio
+              .get((link), options: Options(headers: {...headers, 'cookie': cookies},responseType: ResponseType.bytes));
+          responseBodyHex = hex.encode(response.data);
           soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
           // print(link);
 

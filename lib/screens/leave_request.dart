@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:get/get.dart';
@@ -145,7 +146,8 @@ class _AbsentPageState extends State<AbsentPage>
     // List<Map<String, String>> absentEvent = [];
     List<Map<String, String?>> LeaveRequest = [];
 
-    var session = http.Client();
+    // var session = http.Client();
+Dio dio = Dio();
     // print(_account);
     // print(_password);
     final queryParameters = {
@@ -154,11 +156,13 @@ class _AbsentPageState extends State<AbsentPage>
       'b1': '登入Login'
     };
     // print(_account);
-    final uri = Uri.https(
-        'portal.stust.edu.tw', '/abs_stu/verify.asp', queryParameters);
+    // final uri = Uri.https(
+    //     'portal.stust.edu.tw', '/abs_stu/verify.asp', queryParameters);
     //authenticate
     try {
-      var response = await session.post(uri);
+      var response = await dio.post(
+          'https://portal.stust.edu.tw/abs_stu/verify.asp',
+          queryParameters: queryParameters);
       String cookies = '${response.headers['set-cookie']!}; 3wave=1';
 
       final headers = {
@@ -166,10 +170,10 @@ class _AbsentPageState extends State<AbsentPage>
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
       };
 
-      response = await session.get(
-          Uri.parse('https://portal.stust.edu.tw/abs_stu/query/query.asp'),
-          headers: {...headers, 'cookie': cookies});
-      var responseBodyHex = hex.encode(response.bodyBytes);
+      response = await dio.get(
+        ('https://portal.stust.edu.tw/abs_stu/query/query.asp'),
+          options: Options(headers: {...headers, 'cookie': cookies}, responseType: ResponseType.bytes));
+      var responseBodyHex = hex.encode(response.data);
       var soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
 
       var trElement = soup.querySelectorAll(
@@ -321,7 +325,8 @@ class _AbsentPageState extends State<AbsentPage>
                                 onTap: () async {
                                   if (data['week'].contains('週次') != true) {
                                     print(data['href']);
-                                    var session = http.Client();
+                                    // var session = http.Client();
+                                    Dio dio = Dio();
                                     // print(_account);
                                     // print(_password);
                                     final queryParameters = {
@@ -330,11 +335,12 @@ class _AbsentPageState extends State<AbsentPage>
                                       'b1': '登入Login'
                                     };
                                     // print(_account);
-                                    final uri = Uri.https('portal.stust.edu.tw',
-                                        '/abs_stu/verify.asp', queryParameters);
+                                    // final uri = Uri.https('portal.stust.edu.tw',
+                                    //     '/abs_stu/verify.asp', queryParameters);
                                     //authenticate
                                     try {
-                                      var response = await session.post(uri);
+                                      var response = await dio.post( 'https://portal.stust.edu.tw/abs_stu/verify.asp',
+                                          queryParameters: queryParameters);
                                       String cookies =
                                           '${response.headers['set-cookie']!}; 3wave=1';
 
@@ -343,15 +349,15 @@ class _AbsentPageState extends State<AbsentPage>
                                             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
                                       };
                                       final link = data['href'];
-                                      response = await session.get(
-                                          Uri.parse(
+                                      response = await dio.get(
+                                          (
                                               'https://portal.stust.edu.tw/abs_stu//query/$link'),
-                                          headers: {
+                                          options: Options(headers: {
                                             ...headers,
                                             'cookie': cookies
-                                          });
+                                          }, responseType: ResponseType.bytes));
                                       var responseBodyHex =
-                                          hex.encode(response.bodyBytes);
+                                          hex.encode(response.data);
                                       var soup = html_parser.parse(utf8
                                           .decode(hex.decode(responseBodyHex)));
                                       _showAlertDialog(soup);

@@ -147,7 +147,7 @@ class _BulletinsPageState extends State<BulletinsPage>
     int bulletinPage = 1;
     List<Map<String, String>> Bulletin = [];
     Dio dio = Dio();
-    var session = http.Client();
+    // var session = http.Client();
     var loginUrl = 'https://flipclass.stust.edu.tw/index/login';
     try {
       var response = await dio.get((loginUrl));

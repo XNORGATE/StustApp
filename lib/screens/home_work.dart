@@ -1,9 +1,9 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
 import 'package:page_transition/page_transition.dart';
 
@@ -206,17 +206,18 @@ class _HomeworkPageState extends State<HomeworkPage>
     int homeworkPage = 1;
     List<Map<String, String>> homework = [];
 
-    var session = http.Client();
+    // var session = http.Client();
+    Dio dio = Dio();
     var loginUrl = 'https://flipclass.stust.edu.tw/index/login';
     try {
-      var response = await session.get(Uri.parse(loginUrl));
+      var response = await dio.get((loginUrl));
       print(response.statusCode);
-      var soup = parse(response.body);
+      var soup = parse(response.data);
 
       var hiddenInput =
           soup.querySelector('input[name="csrf-t"]')?.attributes['value'];
 
-      response = await session.get(Uri.parse(
+      response = await dio.get((
           '$loginUrl?_fmSubmit=yes&formVer=3.0&formId=login_form&next=/&act=keep&account=$_account&password=$_password&rememberMe=&csrf-t=$hiddenInput'));
       if (response.headers['set-cookie'] == null) {
         return [
@@ -224,7 +225,7 @@ class _HomeworkPageState extends State<HomeworkPage>
         ];
       }
 
-      String cookies = response.headers['set-cookie']!;
+      dynamic cookies = response.headers['set-cookie']!;
 
       var headers = {
         'User-Agent':
@@ -233,10 +234,10 @@ class _HomeworkPageState extends State<HomeworkPage>
       var url = 'https://flipclass.stust.edu.tw/dashboard/latestEvent?&page=';
 
       void genHomework(int homeworkPage) async {
-        response = await session.get(
-            Uri.parse('$url${homeworkPage.toString()}'),
-            headers: {...headers, 'cookie': cookies});
-        soup = parse(response.body);
+        var response = await dio.get(
+            ('$url${homeworkPage.toString()}'),
+            options: Options(headers: {...headers, 'cookie': cookies}));
+        soup = parse(response.data);
 
         if (soup.querySelector('#noData > td') == null) {
           var hrefArr = soup.querySelectorAll('div.sm-text-overflow > a');
@@ -256,10 +257,10 @@ class _HomeworkPageState extends State<HomeworkPage>
             var dateDiv = works[i]
                 .querySelector('td.text-center.col-date > div.text-overflow');
             var date = dateDiv?.attributes['title'];
-            var isDoneresponse = await session.get(
-                Uri.parse('https://flipclass.stust.edu.tw$href'),
-                headers: {...headers, 'cookie': cookies});
-            var isDonesoup = parse(isDoneresponse.body);
+            var isDoneresponse = await dio.get(
+               ('https://flipclass.stust.edu.tw$href'),
+                options: Options(headers: {...headers, 'cookie': cookies}));
+            var isDonesoup = parse(isDoneresponse.data);
 
             String isDone = '未繳交';
             // print(soup.outerHtml);

@@ -4,7 +4,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart';
@@ -95,7 +94,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
       final pwd = password;
       // print(pwd);
       // Create an HTTP session
-      final session = http.Client();
+      // final session = http.Client();
       var headers = {
         'User-Agent':
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36'
@@ -108,7 +107,8 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
       );
       // print('response');
       // print('res code${r.statusCode}');
-
+      print(r.headers['set-cookie']!);
+      print(r.statusCode);
       var cookies = r.headers['set-cookie']!;
 
       // final r = await dio.get(
@@ -129,7 +129,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
       final hiddenInput =
           soup.querySelector('input[name="csrf-t"]')?.attributes['value'];
 
-      // print('csrf-token${hiddenInput!}');
+      print('csrf-token${hiddenInput!}');
       // Set up the payload for the login POST request
       Map<String, String> payload = {
         '_fmSubmit': 'yes',
@@ -145,7 +145,7 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
 
       // Send the login POST request
       final res = await dio.post(('https://flipclass.stust.edu.tw/index/login'),
-          data: payload);
+          queryParameters: payload);
 //  print(res.body);
       cookies = res.headers['set-cookie']!;
 
@@ -156,11 +156,12 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
 
       // Parse the response HTML
       final nameSoup = parse(nameRequest.data);
+      // print(nameRequest.data);
       // Find the value of the csrf-t hidden input
       final name =
           nameSoup.querySelector('div.fs-text-center > span')?.text.trim();
 
-      // print(name);
+      print(name);
       Map<String, dynamic> responseMap = jsonDecode(res.data);
 
       String status = responseMap['ret']['status'];

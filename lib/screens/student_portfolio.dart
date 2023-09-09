@@ -113,7 +113,7 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
     dynamic pressentScoreData = '';
     dynamic pastScoreData = '';
     dynamic timeTableData = '';
-    var session = http.Client();
+    // var session = http.Client();
     // print(_account);
     // print(_password);
 
@@ -202,33 +202,33 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
       // print(resp.data);
 
       ///go to pressentScore
-      var response = await session.get(
-          Uri.parse(
+      var response = await dio.get(
+        (
               'https://course.stust.edu.tw/CourSel/Pages/PresentScore.aspx?role=S'),
-          headers: {...headers, 'cookie': cookies});
+          options: Options(headers: {...headers, 'cookie': cookies},responseType: ResponseType.bytes));
 
-      var responseBodyHex = hex.encode(response.bodyBytes);
+      var responseBodyHex = hex.encode(response.data);
       var pressentScoreData =
           html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
       // print(pressentScoreData.outerHtml);
 
       ///go to pastScore
-      response = await session.get(
-          Uri.parse(
+      response = await dio.get(
+          (
               'https://course.stust.edu.tw/CourSel/Pages/PastScore.aspx?role=S'),
-          headers: {...headers, 'cookie': cookies});
+          options: Options(headers: {...headers, 'cookie': cookies},responseType: ResponseType.bytes));
 
-      responseBodyHex = hex.encode(response.bodyBytes);
+      responseBodyHex = hex.encode(response.data);
       var pastScoreData =
           html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
 
       ///go to timeTable
-      response = await session.get(
-          Uri.parse(
+      response = await dio.get(
+          (
               'https://course.stust.edu.tw/CourSel/Pages/MyTimeTable.aspx?role=S'),
-          headers: {...headers, 'cookie': cookies});
+          options: Options(headers: {...headers, 'cookie': cookies},responseType: ResponseType.bytes));
 
-      responseBodyHex = hex.encode(response.bodyBytes);
+      responseBodyHex = hex.encode(response.data);
       var timeTableData =
           html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
 

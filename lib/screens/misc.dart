@@ -119,7 +119,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
   Future<Pages> getPages() async {
     // List<Map<String, String>> absentEvent = [];
     List fullPage = [];
-    var session = http.Client();
+    // var session = http.Client();
     final headers = {
       'User-Agent':
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
@@ -137,7 +137,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
     };
     // print(formData);
 
-    var dio = Dio();
+    Dio dio = Dio();
     Response resp;
     // try {
     try {
@@ -155,46 +155,36 @@ class _StudentMiscPageState extends State<StudentMiscPage>
       //   print("E");
       // }
 
-      String cookies = resp.headers['set-cookie']!.join(";");
+      dynamic cookies = resp.headers['set-cookie']!.join(";");
       // print(resp.data);
 
       ///go to departmentOfficeData
-      var response = await session.get(
-          Uri.parse('https://portal.stust.edu.tw/StudentPortfolio/Board.aspx'),
-          headers: {...headers, 'cookie': cookies});
+      var response = await dio.get(
+          ('https://portal.stust.edu.tw/StudentPortfolio/Board.aspx'),
+          options: Options(headers: {...headers, 'cookie': cookies},responseType: ResponseType.bytes));
 
-      var responseBodyHex = hex.encode(response.bodyBytes);
+      var responseBodyHex = hex.encode(response.data);
       var departmentOfficeData =
           html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
-      // print(pressentScoreData.outerHtml);
 
-      ///go to absentData
-      // response = await session.get(
-      //     Uri.parse(
-      //         'https://portal.stust.edu.tw/StudentPortfolio/Pages/Manager/DataBrowse.aspx?role=S'),
-      //     headers: {...headers, 'cookie': cookies});
-
-      // responseBodyHex = hex.encode(response.bodyBytes);
-      // var absentData =
-      //     html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
 
       ///go to foreignTestData
-      response = await session.get(
-          Uri.parse(
+      response = await dio.get(
+          (
               'https://portal.stust.edu.tw/StudentPortfolio/Pages/stud_lang_grad/stud_lang_grad.aspx'),
-          headers: {...headers, 'cookie': cookies});
+          options: Options(headers: {...headers, 'cookie': cookies},responseType: ResponseType.bytes));
 
-      responseBodyHex = hex.encode(response.bodyBytes);
+      responseBodyHex = hex.encode(response.data);
       var foreignTestData =
           html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
 
       //go to graduateData
-      response = await session.get(
-          Uri.parse(
+      response = await dio.get(
+        (
               'https://portal.stust.edu.tw/StudentPortfolio/Pages/Manager/Student_Score.aspx?role=S'),
-          headers: {...headers, 'cookie': cookies});
+          options: Options(headers: {...headers, 'cookie': cookies},responseType: ResponseType.bytes));
 
-      responseBodyHex = hex.encode(response.bodyBytes);
+      responseBodyHex = hex.encode(response.data);
       int totalcredit = 0;
       var graduateData =
           html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
@@ -226,13 +216,13 @@ class _StudentMiscPageState extends State<StudentMiscPage>
       // print(failedClass);
 
       //
-      response = await session.get(
-          Uri.parse('https://aura.stust.edu.tw/life/lostthing.aspx'),
-          headers: {...headers});
+      response = await dio.get(
+          ('https://aura.stust.edu.tw/life/lostthing.aspx'),
+          options: Options(headers: {...headers},responseType: ResponseType.bytes));
 
-      cookies = response.headers['set-cookie']!;
+       cookies = response.headers['set-cookie']!;
 
-      responseBodyHex = hex.encode(response.bodyBytes);
+      responseBodyHex = hex.encode(response.data);
       List fullPage = [];
 
       var lostAndFoundData =
@@ -249,11 +239,11 @@ class _StudentMiscPageState extends State<StudentMiscPage>
           '__VIEWSTATE': hiddenInput,
           '__VIEWSTATEGENERATOR': 'E8D08EA4'
         };
-        response = await session.post(
-            Uri.parse('https://aura.stust.edu.tw/life/lostthing.aspx'),
-            headers: {...headers, 'cookie': cookies},
-            body: queryParameters);
-        responseBodyHex = hex.encode(response.bodyBytes);
+        response = await dio.post(
+           ('https://aura.stust.edu.tw/life/lostthing.aspx'),
+           options: Options( headers: {...headers, 'cookie': cookies}),
+            data: queryParameters);
+        responseBodyHex = hex.encode(response.data);
 
         var lostAndFoundpage =
             html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
