@@ -29,6 +29,7 @@ class _AbsentPageState extends State<AbsentPage>
 
   late String _account = '0'; // Set account and password to 0 by default
   late String _password = '0';
+  late List _responseData = [];
 
   @override
   void initState() {
@@ -139,7 +140,7 @@ class _AbsentPageState extends State<AbsentPage>
     return [_account, _password];
   }
 
-  late List _responseData;
+  // late List _responseData;
   late bool _isLoading = false; // Flag to indicate if API request is being made
 
   Future<List<Map<String, String?>>> getLeaveRequest() async {
@@ -147,7 +148,7 @@ class _AbsentPageState extends State<AbsentPage>
     List<Map<String, String?>> LeaveRequest = [];
 
     // var session = http.Client();
-Dio dio = Dio();
+    Dio dio = Dio();
     // print(_account);
     // print(_password);
     final queryParameters = {
@@ -171,8 +172,10 @@ Dio dio = Dio();
       };
 
       response = await dio.get(
-        ('https://portal.stust.edu.tw/abs_stu/query/query.asp'),
-          options: Options(headers: {...headers, 'cookie': cookies}, responseType: ResponseType.bytes));
+          ('https://portal.stust.edu.tw/abs_stu/query/query.asp'),
+          options: Options(
+              headers: {...headers, 'cookie': cookies},
+              responseType: ResponseType.bytes));
       var responseBodyHex = hex.encode(response.data);
       var soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
 
@@ -339,7 +342,8 @@ Dio dio = Dio();
                                     //     '/abs_stu/verify.asp', queryParameters);
                                     //authenticate
                                     try {
-                                      var response = await dio.post( 'https://portal.stust.edu.tw/abs_stu/verify.asp',
+                                      var response = await dio.post(
+                                          'https://portal.stust.edu.tw/abs_stu/verify.asp',
                                           queryParameters: queryParameters);
                                       String cookies =
                                           '${response.headers['set-cookie']!}; 3wave=1';
@@ -350,8 +354,7 @@ Dio dio = Dio();
                                       };
                                       final link = data['href'];
                                       response = await dio.get(
-                                          (
-                                              'https://portal.stust.edu.tw/abs_stu//query/$link'),
+                                          ('https://portal.stust.edu.tw/abs_stu//query/$link'),
                                           options: Options(headers: {
                                             ...headers,
                                             'cookie': cookies

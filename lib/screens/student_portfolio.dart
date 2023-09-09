@@ -158,7 +158,7 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
       // try {
       resp = await dio.post(
         'https://course.stust.edu.tw/CourSel/Login.aspx',
-        queryParameters: formData,
+        data: formData,
         options: Options(
             contentType: Headers.formUrlEncodedContentType,
             followRedirects: true,

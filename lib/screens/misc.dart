@@ -151,7 +151,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
               return true;
             }),
       );
-      // } catch (ex) {
+      // } catch (e ) {
       //   print("E");
       // }
 
@@ -161,28 +161,31 @@ class _StudentMiscPageState extends State<StudentMiscPage>
       ///go to departmentOfficeData
       var response = await dio.get(
           ('https://portal.stust.edu.tw/StudentPortfolio/Board.aspx'),
-          options: Options(headers: {...headers, 'cookie': cookies},responseType: ResponseType.bytes));
+          options: Options(
+              headers: {...headers, 'cookie': cookies},
+              responseType: ResponseType.bytes));
 
       var responseBodyHex = hex.encode(response.data);
       var departmentOfficeData =
           html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
-
-
+print(departmentOfficeData.outerHtml.toString());
       ///go to foreignTestData
       response = await dio.get(
-          (
-              'https://portal.stust.edu.tw/StudentPortfolio/Pages/stud_lang_grad/stud_lang_grad.aspx'),
-          options: Options(headers: {...headers, 'cookie': cookies},responseType: ResponseType.bytes));
+          ('https://portal.stust.edu.tw/StudentPortfolio/Pages/stud_lang_grad/stud_lang_grad.aspx'),
+          options: Options(
+            headers: {...headers, 'cookie': cookies},
+          ));
 
       responseBodyHex = hex.encode(response.data);
       var foreignTestData =
           html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
-
+      print(foreignTestData.outerHtml.toString());
       //go to graduateData
       response = await dio.get(
-        (
-              'https://portal.stust.edu.tw/StudentPortfolio/Pages/Manager/Student_Score.aspx?role=S'),
-          options: Options(headers: {...headers, 'cookie': cookies},responseType: ResponseType.bytes));
+          ('https://portal.stust.edu.tw/StudentPortfolio/Pages/Manager/Student_Score.aspx?role=S'),
+          options: Options(
+              headers: {...headers, 'cookie': cookies},
+              responseType: ResponseType.bytes));
 
       responseBodyHex = hex.encode(response.data);
       int totalcredit = 0;
@@ -218,9 +221,10 @@ class _StudentMiscPageState extends State<StudentMiscPage>
       //
       response = await dio.get(
           ('https://aura.stust.edu.tw/life/lostthing.aspx'),
-          options: Options(headers: {...headers},responseType: ResponseType.bytes));
+          options:
+              Options(headers: {...headers}, responseType: ResponseType.bytes));
 
-       cookies = response.headers['set-cookie']!;
+      cookies = response.headers['set-cookie']!;
 
       responseBodyHex = hex.encode(response.data);
       List fullPage = [];
@@ -240,13 +244,15 @@ class _StudentMiscPageState extends State<StudentMiscPage>
           '__VIEWSTATEGENERATOR': 'E8D08EA4'
         };
         response = await dio.post(
-           ('https://aura.stust.edu.tw/life/lostthing.aspx'),
-           options: Options( headers: {...headers, 'cookie': cookies}),
+            ('https://aura.stust.edu.tw/life/lostthing.aspx'),
+            options: Options(
+                headers: {...headers, 'cookie': cookies},
+                responseType: ResponseType.bytes),
             queryParameters: queryParameters);
         responseBodyHex = hex.encode(response.data);
-
         var lostAndFoundpage =
             html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
+            print(lostAndFoundpage);
         fullPage.add(lostAndFoundpage);
       }
 
@@ -456,7 +462,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
                     FittedBox(
                       fit: BoxFit.contain,
                       child: HtmlWidget(
-                        extractHtmlContent(foreignTestData.outerHtml, 'div',
+                        extractHtmlContent(foreignTestData, 'div',
                             className: 'conplace', index: 0),
                         // onTapUrl: (url) => launchUrl(Uri.parse(url)),
                         textStyle: const TextStyle(
@@ -497,7 +503,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
                     child: Column(
                       children: [
                         HtmlWidget(
-                            extractHtmlContent(graduateData.outerHtml, 'div',
+                            extractHtmlContent(graduateData, 'div',
                                 // id: 'ctl00_ContentPlaceHolder1_ctl00_GridView2',
                                 index: 19),
                             textStyle: const TextStyle(fontSize: 25)),
@@ -554,7 +560,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
                     children: [
                       _infoRow(context, 0),
                       HtmlWidget(extractHtmlContent(
-                          lostAndFoundData[0].outerHtml, 'div',
+                          lostAndFoundData[0], 'div',
                           className: 'BOX', index: 1)),
                     ],
                   ),
@@ -569,7 +575,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
                 children: [
                   _infoRow(context, 1),
                   HtmlWidget(extractHtmlContent(
-                      lostAndFoundData[1].outerHtml, 'div',
+                      lostAndFoundData[1], 'div',
                       className: 'BOX', index: 1)),
                 ],
               ),
@@ -584,7 +590,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
                 children: [
                   _infoRow(context, 2),
                   HtmlWidget(extractHtmlContent(
-                      lostAndFoundData[2].outerHtml, 'div',
+                      lostAndFoundData[2], 'div',
                       className: 'BOX', index: 1)),
                 ],
               ),
@@ -599,7 +605,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
                 children: [
                   _infoRow(context, 3),
                   HtmlWidget(extractHtmlContent(
-                      lostAndFoundData[3].outerHtml, 'div',
+                      lostAndFoundData[3], 'div',
                       className: 'BOX', index: 1)),
                 ],
               ),
@@ -614,7 +620,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
                 children: [
                   _infoRow(context, 4),
                   HtmlWidget(extractHtmlContent(
-                      lostAndFoundData[4].outerHtml, 'div',
+                      lostAndFoundData[4], 'div',
                       className: 'BOX', index: 1)),
                 ],
               ),
@@ -646,7 +652,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
                 FittedBox(
                   fit: BoxFit.none,
                   child: HtmlWidget(
-                    extractHtmlContent(departmentOfficeData.outerHtml, 'div',
+                    extractHtmlContent(departmentOfficeData, 'div',
                         className: 'conplace', index: 0),
                     // textStyle: const TextStyle(fontSize: 50),
                     textStyle: const TextStyle(
