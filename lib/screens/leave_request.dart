@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as html_parser;
 import 'dart:convert';
 import 'package:convert/convert.dart';
@@ -77,7 +76,7 @@ class _AbsentPageState extends State<AbsentPage>
 
   @override
   void dispose() {
-    http.Client().close();
+    // http.Client().close();
     super.dispose();
   }
 

@@ -3,7 +3,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:url_launcher/url_launcher.dart';
@@ -151,7 +150,7 @@ class _BulletinsPageState extends State<BulletinsPage>
     var loginUrl = 'https://flipclass.stust.edu.tw/index/login';
     try {
       var response = await dio.get((loginUrl));
-      http.Response detail;
+      // http.Response detail;
       var soup = parse(response.data);
 
       var hiddenInput =

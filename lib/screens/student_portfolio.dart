@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:get/instance_manager.dart';
-import 'package:http/http.dart' as http;
 // ignore: depend_on_referenced_packages
 import 'package:html/parser.dart' as html_parser;
 import 'package:stust_app/utils/check_connecion.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../main.dart';
+import '../model/dio_cache_option.dart';
 import '../utils/auto_logout.dart';
 import '../utils/html_utils.dart';
 
@@ -42,7 +42,7 @@ class Pages {
 }
 
 class _StudentPortfolioPageState extends State<StudentPortfolioPage>
-    with SingleTickerProviderStateMixin, AutoLogoutMixin<StudentPortfolioPage> {
+    with SingleTickerProviderStateMixin, AutoLogoutMixin,DioCacheMixin<StudentPortfolioPage> {
   late TabController _tabController;
   late String _account = '0'; // Set account and password to 0 by default
   late String _password = '0';
@@ -92,7 +92,7 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
 
   @override
   void dispose() {
-    http.Client().close();
+    // http.Client().close();
     super.dispose();
   }
 
@@ -153,7 +153,7 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
     // print(formData);
 
     try {
-      var dio = Dio();
+      var dio = DioCache;
       Response resp;
       // try {
       resp = await dio.post(
