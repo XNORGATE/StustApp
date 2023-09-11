@@ -143,7 +143,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
     try {
       resp = await dio.post(
         'https://portal.stust.edu.tw/StudentPortfolio/Login.aspx',
-        queryParameters: formData,
+        data: formData,
         options: Options(
             contentType: Headers.formUrlEncodedContentType,
             followRedirects: true,
@@ -156,7 +156,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
       // }
 
       dynamic cookies = resp.headers['set-cookie']!.join(";");
-      // print(resp.data);
+      print(resp.data);
 
       ///go to departmentOfficeData
       var response = await dio.get(
@@ -168,7 +168,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
       var responseBodyHex = hex.encode(response.data);
       var departmentOfficeData =
           html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
-print(departmentOfficeData.outerHtml.toString());
+// print(departmentOfficeData.outerHtml.toString());
       ///go to foreignTestData
       response = await dio.get(
           ('https://portal.stust.edu.tw/StudentPortfolio/Pages/stud_lang_grad/stud_lang_grad.aspx'),
@@ -232,23 +232,25 @@ print(departmentOfficeData.outerHtml.toString());
       var lostAndFoundData =
           html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
       fullPage.add(lostAndFoundData);
+      print('test${lostAndFoundData.outerHtml}');
       for (int i = 1; i < 5; i++) {
         var hiddenInput = lostAndFoundData
             .querySelector('input[name="__VIEWSTATE"]')
             ?.attributes['value'];
 
         final queryParameters = {
-          '__EVENTTARGET': 'DataGrid1:_ctl1:_ctl$i', //從第二頁開始爬
-          '__EVENTARGUMENT': '_password',
+          '__EVENTTARGET': 'DataGrid1:_ctl1:_ctl$i', //i= 0 => page = 1 (i= 頁數減1)
+          '__EVENTARGUMENT': '',
           '__VIEWSTATE': hiddenInput,
-          '__VIEWSTATEGENERATOR': 'E8D08EA4'
+          '__VIEWSTATEGENERATOR': 'E8D08EA4',
+          'TextBox6': ''
         };
         response = await dio.post(
             ('https://aura.stust.edu.tw/life/lostthing.aspx'),
             options: Options(
                 headers: {...headers, 'cookie': cookies},
                 responseType: ResponseType.bytes),
-            queryParameters: queryParameters);
+            data: queryParameters);
         responseBodyHex = hex.encode(response.data);
         var lostAndFoundpage =
             html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
@@ -280,12 +282,6 @@ print(departmentOfficeData.outerHtml.toString());
   dynamic lostAndFoundData = '';
   int totalcredit = 0;
   void _submit() async {
-// String removeTags(String html) {
-//   RegExp exp = RegExp(r'<div align="right">|<tr class="PagerCss" align="Center">');
-//   String newHtml = html.replaceAll(exp, '');
-//   print(newHtml);
-//   return newHtml;
-// }
 
     setState(() {
       _isLoading = true;
