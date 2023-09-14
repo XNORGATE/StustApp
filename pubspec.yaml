@@ -39,7 +39,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter_rating_bar: ^4.0.0
   scrollable_list_tabview: ^0.2.0-nullsafety
-  http: ^0.13.5
+  # http: ^0.13.5
   flutter_html: any
   shared_preferences: ^2.0.15
   flutter_neumorphic_null_safety: ^3.2.4
@@ -64,6 +64,7 @@ dependencies:
   smooth_page_indicator: ^1.1.0
   font_awesome_flutter : any
   get: ^4.6.5
+  dio_cache_interceptor: any
   # googleapis: any
 
 
