@@ -150,7 +150,6 @@ class _BulletinsPageState extends State<BulletinsPage>
     var loginUrl = 'https://flipclass.stust.edu.tw/index/login';
     try {
       var response = await dio.get((loginUrl));
-      // http.Response detail;
       var soup = parse(response.data);
 
       var hiddenInput =

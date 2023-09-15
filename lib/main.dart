@@ -351,7 +351,8 @@ class _MyHomePageState extends State<MyHomePage>
 
       getProfile();
       // TODO: implement initState
-      getClasses().then((value) => getSwitchValues(),) ;
+      getClasses();
+      getSwitchValues();
       // getProfile().then((value) {
       //   try {
       //     checkBan(name).then((isBanned) async {
@@ -724,14 +725,23 @@ class _MyHomePageState extends State<MyHomePage>
       response = await dio.get(('https://flipclass.stust.edu.tw/dashboard'),
           options: Options(headers: {...headers, 'cookie': cookies}));
       soup = html_parser.parse(response.data);
-      var classes = soup.querySelectorAll('div[class="fs-label"]');
+      // print(soup.outerHtml);
+      var classes = soup.querySelectorAll('div.fs-label > a');
+      Set<String> duplicateClass = {}; 
       for (var element in classes) {
-        print(element.text.trim());
-        ClassesList.add({
-          'ClassName': element.text.trim(),
-        });
+        duplicateClass.add(element.text.trim());
       }
 
+      List<Map<String, dynamic>> uniqueClassesList = [];
+
+      for (var name in duplicateClass) {
+        uniqueClassesList.add({
+          'ClassName': name,
+          'notiState': false,
+        });
+      }
+      print(uniqueClassesList);
+      ClassesList = uniqueClassesList;
       return ClassesList;
     } catch (e) {
       if (e is SocketException) {
@@ -749,10 +759,16 @@ class _MyHomePageState extends State<MyHomePage>
 
   getSwitchValues() async {
     // isSwitchedFT = ()!;
+    if (ClassesList.isEmpty) {
+      await getClasses();
+    }
+    // ignore: avoid_function_literals_in_foreach_calls
+// Create a set to keep track of unique class names
+
 
     // ignore: avoid_function_literals_in_foreach_calls
     ClassesList.forEach((element) async {
-      bool? notiState = await getSwitchState(element['name']);
+      bool notiState = await getSwitchState(element['ClassName']);
       element['notiState'] = notiState;
     });
     setState(() {});
@@ -765,12 +781,12 @@ class _MyHomePageState extends State<MyHomePage>
     return prefs.setBool(ClassName, value);
   }
 
-  Future<bool?> getSwitchState(String ClassName) async {
+  Future<bool> getSwitchState(String ClassName) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool? isSwitchedFT = prefs.getBool(ClassName);
-    print(isSwitchedFT);
+    // print(isSwitchedFT);
 
-    return isSwitchedFT;
+    return isSwitchedFT ?? false;
   }
 
   @override
@@ -1333,8 +1349,8 @@ class _MyHomePageState extends State<MyHomePage>
                               content: Padding(
                                   padding: const EdgeInsets.all(.0),
                                   child: SizedBox(
-                                    width: width * .3,
-                                    height: height * .3,
+                                    width: width * .8,
+                                    height: height * .8,
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
@@ -1349,59 +1365,70 @@ class _MyHomePageState extends State<MyHomePage>
                                                         ClassesList.length,
                                                     itemBuilder:
                                                         (context, index) {
+                                                      print(ClassesList.length);
                                                       final data =
                                                           ClassesList[index];
+                                                      String lessonName =
+                                                          data['ClassName'] ??
+                                                              '';
+                                                      bool notiState =
+                                                          data['notiState'] ??
+                                                              false;
                                                       return Row(
                                                         mainAxisAlignment:
                                                             MainAxisAlignment
-                                                                .center,
+                                                                .spaceBetween,
                                                         children: [
-                                                          SelectorWidget(
-                                                            labelText: data[
-                                                                'ClassName']!,
-                                                            options: const [
-                                                              '關閉',
-                                                              '開啟'
-                                                            ],
-                                                            onChanged: (value) {
-                                                              setState(
-                                                                  () async {
-                                                                final prefs =
-                                                                    await SharedPreferences
-                                                                        .getInstance();
-                                                                // Handle the value change
-                                                                if (value ==
-                                                                    '開啟') {
-                                                                  // _ActivateHomeWorkNoti =
-                                                                  //     true;
-
-                                                                  // Workmanager().initialize(
-                                                                  //     callbackDispatcher, // The top level function, aka callbackDispatcher
-                                                                  //     isInDebugMode:
-                                                                  //         true // If enabled it will post a notification whenever the task is running. Handy for debugging tasks
-                                                                  //     );
-                                                                  // Workmanager().registerPeriodicTask(
-                                                                  //     "flipclass_homework",
-                                                                  //     '作業監控中',
-                                                                  //     // When no frequency is provided the default 15 minutes is set.
-                                                                  //     // Minimum frequency is 15 min. Android will automatically change your frequency to 15 min if you have configured a lower frequency.
-                                                                  //     constraints:
-                                                                  //         Constraints(
-                                                                  //       networkType:
-                                                                  //           NetworkType
-                                                                  //               .connected,
-                                                                  //     ));
-                                                                } else if (value ==
-                                                                    '關閉') {
-                                                                  // _ActivateHomeWorkNoti =
-                                                                  //     false;
-                                                                  // Workmanager()
-                                                                  //     .cancelByUniqueName(
-                                                                  //         'flipclass_homework');
-                                                                }
+                                                          lessonName.length > 14
+                                                              ? Text(
+                                                                  "${lessonName.substring(0, 12)}...",
+                                                                  style: const TextStyle(
+                                                                      fontSize:
+                                                                          15,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold),
+                                                                )
+                                                              : Text(
+                                                                  lessonName,
+                                                                  style: const TextStyle(
+                                                                      fontSize:
+                                                                          15,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold),
+                                                                ),
+                                                          Switch(
+                                                            value: notiState,
+                                                            onChanged:
+                                                                (bool value) {
+                                                              setState(() {
+                                                                notiState =
+                                                                    value;
+                                                                saveSwitchState(
+                                                                    lessonName,
+                                                                    notiState);
+                                                                print(
+                                                                    'Saved lesson: $lessonName is on state $notiState');
+                                                                //switch works
                                                               });
+                                                              // print(isSwitchedFT);
                                                             },
-                                                          ),
+                                                            activeTrackColor:
+                                                                const Color
+                                                                        .fromARGB(
+                                                                    255,
+                                                                    44,
+                                                                    130,
+                                                                    216),
+                                                            activeColor:
+                                                                const Color
+                                                                        .fromARGB(
+                                                                    255,
+                                                                    16,
+                                                                    14,
+                                                                    16),
+                                                          )
                                                         ],
                                                       );
                                                     }))
