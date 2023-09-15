@@ -29,7 +29,8 @@ class HomeWorkDetailPage extends StatefulWidget {
   _HomeWorkDetailPageState createState() => _HomeWorkDetailPageState();
 }
 
-class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> with AutoLogoutMixin<HomeWorkDetailPage> {
+class _HomeWorkDetailPageState extends State<HomeWorkDetailPage>
+    with AutoLogoutMixin<HomeWorkDetailPage> {
   late String topic;
   late String src;
   late String href;
@@ -72,7 +73,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> with AutoLogout
                   onPressed: () async {
                     // Navigator.of(context).pop();
                     // SystemChannels.platform.invokeMethod('SystemNavigator.pop');
-                                        final prefs = await SharedPreferences.getInstance();
+                    final prefs = await SharedPreferences.getInstance();
                     userController.username.value = '';
                     userController.password.value = '';
                     prefs.remove('name');
@@ -132,10 +133,10 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> with AutoLogout
   Future<void> getHomework() async {
     // var homeworkCode = '';
     // var session = http.Client();
-    Dio dio =Dio();
+    Dio dio = Dio();
     try {
-      var response = await dio
-          .get(('https://flipclass.stust.edu.tw/index/login'));
+      var response =
+          await dio.get(('https://flipclass.stust.edu.tw/index/login'));
       var soup = html.parse(response.data);
 
       var hiddenInput =
@@ -156,7 +157,8 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> with AutoLogout
       // final uri =
       //     Uri.https('flipclass.stust.edu.tw', '/index/login', queryParameters);
 
-      response = await dio.get('flipclass.stust.edu.tw/index/login', queryParameters: queryParameters);
+      response = await dio.get('flipclass.stust.edu.tw/index/login',
+          queryParameters: queryParameters);
 
       if (response.headers['set-cookie'] == null) {
         print('Authenticate error(帳號密碼錯誤)');
@@ -302,7 +304,8 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> with AutoLogout
 
         var attachment = await dio.get(
             ('https://flipclass.stust.edu.tw$attachmentUrl'),
-            options: Options(headers: headers,responseType: ResponseType.bytes));
+            options:
+                Options(headers: headers, responseType: ResponseType.bytes));
 
         if (attachment.headers['content-type']!.contains("image")) {
           attachmentBytes = attachment.data;
@@ -326,8 +329,8 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> with AutoLogout
     // var session = http.Client();
     Dio dio = Dio();
     try {
-      var response = await dio
-          .get(('https://flipclass.stust.edu.tw/index/login'));
+      var response =
+          await dio.get(('https://flipclass.stust.edu.tw/index/login'));
       var soup = html.parse(response.data);
 
       String? hiddenInput =
@@ -348,7 +351,8 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> with AutoLogout
       // final uri =
       //     Uri.https('flipclass.stust.edu.tw', '/index/login', queryParameters);
 
-      response = await dio.get('flipclass.stust.edu.tw/index/login', queryParameters: queryParameters);
+      response = await dio.get('flipclass.stust.edu.tw/index/login',
+          queryParameters: queryParameters);
 
       var cookies = response.headers['set-cookie']!;
 
@@ -359,8 +363,8 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> with AutoLogout
       };
 
       response = await dio.get(
-       (href),
-       options: Options( headers: {...headers}),
+        (href),
+        options: Options(headers: {...headers}),
       );
       soup = html.parse(response.data);
 
@@ -376,7 +380,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> with AutoLogout
       // print(iframeUrl);
 
       response = await dio.get(
-       (iframeUrl),
+        (iframeUrl),
         options: Options(headers: {...headers}),
       );
       soup = html.parse(response.data); // 進到iframe
@@ -497,17 +501,15 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> with AutoLogout
         'csrf-t': hiddenInput
       };
 
-      response = await dio.post(
-        ('https://flipclass.stust.edu.tw$finalUrl'),
-          options: Options(headers: {...headers}),
-          queryParameters: formData);
+      response = await dio.post(('https://flipclass.stust.edu.tw$finalUrl'),
+          options: Options(headers: {...headers}), queryParameters: formData);
 
       ///最終繳交
 
       var isDoneresponse = await dio.get(
           //確認繳交
           (href),
-         options: Options( headers: {...headers, 'cookie': cookies}));
+          options: Options(headers: {...headers, 'cookie': cookies}));
       var isDonesoup = html.parse(isDoneresponse.data);
 
       // bool isDone = false;
@@ -528,10 +530,10 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> with AutoLogout
   Future<dynamic> sendHomeworkOnlyText(String href, String content) async {
     // var homeworkCode = '';
     // var session = http.Client();
-      Dio dio = Dio();
+    Dio dio = Dio();
     try {
-      var response = await dio
-          .get(('https://flipclass.stust.edu.tw/index/login'));
+      var response =
+          await dio.get(('https://flipclass.stust.edu.tw/index/login'));
       var soup = html.parse(response.data);
 
       String? hiddenInput =
@@ -552,7 +554,8 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> with AutoLogout
       // final uri =
       //     Uri.https('flipclass.stust.edu.tw', '/index/login', queryParameters);
 
-      response = await dio.get('flipclass.stust.edu.tw/index/login', queryParameters: queryParameters);
+      response = await dio.get('flipclass.stust.edu.tw/index/login',
+          queryParameters: queryParameters);
 
       var cookies = response.headers['set-cookie']!;
 
@@ -563,7 +566,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> with AutoLogout
       };
 
       response = await dio.get(
-       (href),
+        (href),
         options: Options(headers: {...headers}),
       );
       soup = html.parse(response.data);
@@ -580,7 +583,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> with AutoLogout
       // print(iframeUrl);
 
       response = await dio.get(
-       (iframeUrl),
+        (iframeUrl),
         options: Options(headers: {...headers}),
       );
       soup = html.parse(response.data); // 進到iframe
@@ -608,10 +611,8 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> with AutoLogout
         'csrf-t': hiddenInput
       };
 
-      response = await dio.post(
-         ('https://flipclass.stust.edu.tw$finalUrl'),
-          options: Options(headers: {...headers}),
-          queryParameters: formData);
+      response = await dio.post(('https://flipclass.stust.edu.tw$finalUrl'),
+          options: Options(headers: {...headers}), queryParameters: formData);
 
       ///最終繳交
 
@@ -639,9 +640,10 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> with AutoLogout
     // var session = http.Client();
 
     try {
-            Dio dio = Dio();
+      Dio dio = Dio();
 
-      var response = await dio.get('https://flipclass.stust.edu.tw/index/login');
+      var response =
+          await dio.get('https://flipclass.stust.edu.tw/index/login');
       var soup = html.parse(response.data);
 
       String? hiddenInput =
@@ -662,7 +664,8 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> with AutoLogout
       // final uri =
       //     Uri.https('flipclass.stust.edu.tw', '/index/login', queryParameters);
 
-      response = await dio.get('flipclass.stust.edu.tw/index/login', queryParameters: queryParameters);
+      response = await dio.get('flipclass.stust.edu.tw/index/login',
+          queryParameters: queryParameters);
 
       var cookies = response.headers['set-cookie']!;
 
@@ -698,7 +701,6 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> with AutoLogout
 
       String url = extractURL(soup.outerHtml); //收回的URL
       print('retrieve_url: $url');
-
 
       var Dioresponse = await dio.post(
         'https://flipclass.stust.edu.tw$url',
@@ -789,7 +791,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage> with AutoLogout
 
       var isDoneresponse = await dio.get(
           //確認繳交
-        (href),
+          (href),
           options: Options(headers: {...headers, 'cookie': cookies}));
       var isDonesoup = html.parse(isDoneresponse.data);
 

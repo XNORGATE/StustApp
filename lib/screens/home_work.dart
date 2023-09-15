@@ -217,8 +217,8 @@ class _HomeworkPageState extends State<HomeworkPage>
       var hiddenInput =
           soup.querySelector('input[name="csrf-t"]')?.attributes['value'];
 
-      response = await dio.get((
-          '$loginUrl?_fmSubmit=yes&formVer=3.0&formId=login_form&next=/&act=keep&account=$_account&password=$_password&rememberMe=&csrf-t=$hiddenInput'));
+      response = await dio.get(
+          ('$loginUrl?_fmSubmit=yes&formVer=3.0&formId=login_form&next=/&act=keep&account=$_account&password=$_password&rememberMe=&csrf-t=$hiddenInput'));
       if (response.headers['set-cookie'] == null) {
         return [
           {'error': 'Authenticate error(帳號密碼錯誤)'}
@@ -234,8 +234,7 @@ class _HomeworkPageState extends State<HomeworkPage>
       var url = 'https://flipclass.stust.edu.tw/dashboard/latestEvent?&page=';
 
       void genHomework(int homeworkPage) async {
-        var response = await dio.get(
-            ('$url${homeworkPage.toString()}'),
+        var response = await dio.get(('$url${homeworkPage.toString()}'),
             options: Options(headers: {...headers, 'cookie': cookies}));
         soup = parse(response.data);
 
@@ -258,7 +257,7 @@ class _HomeworkPageState extends State<HomeworkPage>
                 .querySelector('td.text-center.col-date > div.text-overflow');
             var date = dateDiv?.attributes['title'];
             var isDoneresponse = await dio.get(
-               ('https://flipclass.stust.edu.tw$href'),
+                ('https://flipclass.stust.edu.tw$href'),
                 options: Options(headers: {...headers, 'cookie': cookies}));
             var isDonesoup = parse(isDoneresponse.data);
 
@@ -268,20 +267,27 @@ class _HomeworkPageState extends State<HomeworkPage>
                 .querySelector('div.text-center.fs-margin-default > a > span')
                 ?.text
                 .trim();
+            String? numberOfSubmissions = '';
 
-            var numberOfSubmissions = isDonesoup
-                .querySelectorAll('dt')
-                .firstWhere((element) => element.text == '已繳交')
-                .nextElementSibling
-                ?.text
-                .trim();
-            var submissionDeadline = isDonesoup
-                .querySelectorAll('dt')
-                .firstWhere((element) => element.text == '繳交期限')
-                .nextElementSibling
-                ?.querySelector('span')
-                ?.text
-                .trim();
+            try {
+              numberOfSubmissions = isDonesoup
+                  .querySelectorAll('dt')
+                  .firstWhere((element) => element.text == '已繳交')
+                  .nextElementSibling
+                  ?.text
+                  .trim();
+            } catch (e) {}
+            String? submissionDeadline = '';
+
+            try {
+              submissionDeadline = isDonesoup
+                  .querySelectorAll('dt')
+                  .firstWhere((element) => element.text == '繳交期限')
+                  .nextElementSibling
+                  ?.querySelector('span')
+                  ?.text
+                  .trim();
+            } catch (e) {}
             var remain = calculateRemainingTime(submissionDeadline!);
             var remainWithSpace =
                 calculateRemainingTimeWithSpace(submissionDeadline);

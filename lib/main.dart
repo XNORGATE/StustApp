@@ -727,7 +727,7 @@ class _MyHomePageState extends State<MyHomePage>
       soup = html_parser.parse(response.data);
       // print(soup.outerHtml);
       var classes = soup.querySelectorAll('div.fs-label > a');
-      Set<String> duplicateClass = {}; 
+      Set<String> duplicateClass = {};
       for (var element in classes) {
         duplicateClass.add(element.text.trim());
       }
@@ -757,14 +757,13 @@ class _MyHomePageState extends State<MyHomePage>
 
   // bool isSwitchedFT = false;
 
-  getSwitchValues() async {
+  getSwitchValues() async { 
     // isSwitchedFT = ()!;
     if (ClassesList.isEmpty) {
       await getClasses();
     }
     // ignore: avoid_function_literals_in_foreach_calls
-// Create a set to keep track of unique class names
-
+  // Create a set to keep track of unique class names
 
     // ignore: avoid_function_literals_in_foreach_calls
     ClassesList.forEach((element) async {
@@ -1235,6 +1234,7 @@ class _MyHomePageState extends State<MyHomePage>
   drawerWidget(BuildContext context) {
     final width = MediaQuery.of(context).size.width * 1;
     final height = MediaQuery.of(context).size.height * 1;
+    bool isGettingSwitch = false;
     return Drawer(
       width: 275,
       elevation: 30,
@@ -1330,10 +1330,13 @@ class _MyHomePageState extends State<MyHomePage>
                   DrawerItem(
                     title: '作業排程提醒設置',
                     icon: Icons.notifications,
-                    onTap: () {
+                    onTap: () async{
+                      isGettingSwitch = true;
+                      await getSwitchValues();
+                      if (!mounted) return;
                       showDialog(
                           context: context,
-                          builder: (context) {
+                          builder: (BuildContext context) {
                             return AlertDialog(
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(15)),
@@ -1374,62 +1377,75 @@ class _MyHomePageState extends State<MyHomePage>
                                                       bool notiState =
                                                           data['notiState'] ??
                                                               false;
-                                                      return Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        children: [
-                                                          lessonName.length > 14
-                                                              ? Text(
-                                                                  "${lessonName.substring(0, 12)}...",
-                                                                  style: const TextStyle(
-                                                                      fontSize:
-                                                                          15,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold),
-                                                                )
-                                                              : Text(
-                                                                  lessonName,
-                                                                  style: const TextStyle(
-                                                                      fontSize:
-                                                                          15,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold),
-                                                                ),
-                                                          Switch(
-                                                            value: notiState,
-                                                            onChanged:
-                                                                (bool value) {
-                                                              setState(() {
-                                                                notiState =
-                                                                    value;
-                                                                saveSwitchState(
-                                                                    lessonName,
-                                                                    notiState);
-                                                                print(
-                                                                    'Saved lesson: $lessonName is on state $notiState');
-                                                                //switch works
-                                                              });
-                                                              // print(isSwitchedFT);
-                                                            },
-                                                            activeTrackColor:
-                                                                const Color
-                                                                        .fromARGB(
-                                                                    255,
-                                                                    44,
-                                                                    130,
-                                                                    216),
-                                                            activeColor:
-                                                                const Color
-                                                                        .fromARGB(
-                                                                    255,
-                                                                    16,
-                                                                    14,
-                                                                    16),
-                                                          )
-                                                        ],
+                                                      StateSetter toSetState;
+
+                                                      return StatefulBuilder(
+                                                        builder: (BuildContext
+                                                                context,
+                                                            StateSetter
+                                                                setState) {
+                                                          toSetState = setState;
+
+                                                          return Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceBetween,
+                                                            children: [
+                                                              lessonName.length >
+                                                                      14
+                                                                  ? Text(
+                                                                      "${lessonName.substring(0, 12)}...",
+                                                                      style: const TextStyle(
+                                                                          fontSize:
+                                                                              15,
+                                                                          fontWeight:
+                                                                              FontWeight.bold),
+                                                                    )
+                                                                  : Text(
+                                                                      lessonName,
+                                                                      style: const TextStyle(
+                                                                          fontSize:
+                                                                              15,
+                                                                          fontWeight:
+                                                                              FontWeight.bold),
+                                                                    ),
+                                                              Switch(
+                                                                value:
+                                                                    notiState,
+                                                                onChanged: (bool
+                                                                    value) {
+                                                                  notiState =
+                                                                      value;
+                                                                  saveSwitchState(
+                                                                      lessonName,
+                                                                      notiState);
+
+                                                                  print(
+                                                                      'Saved lesson: $lessonName is on state $notiState');
+                                                                  toSetState(
+                                                                      () {
+                                                                    //switch works
+                                                                  });
+                                                                  // print(isSwitchedFT);
+                                                                },
+                                                                activeTrackColor:
+                                                                    const Color
+                                                                            .fromARGB(
+                                                                        255,
+                                                                        44,
+                                                                        130,
+                                                                        216),
+                                                                activeColor:
+                                                                    const Color
+                                                                            .fromARGB(
+                                                                        255,
+                                                                        16,
+                                                                        14,
+                                                                        16),
+                                                              )
+                                                            ],
+                                                          );
+                                                        },
                                                       );
                                                     }))
                                             : const Center(

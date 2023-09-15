@@ -198,9 +198,9 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
       // print(soup.outerHtml);
 
       // print(resp.headers['set-cookie']);
-      String cookies = resp.headers['set-cookie']!.join(";");
+      // String cookies = resp.headers['set-cookie']!.join(";");
       // print(resp.data);
-
+var cookies = resp.headers['set-cookie'];
       ///go to pressentScore
       var response = await dio.get(
         (
