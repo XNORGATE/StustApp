@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
@@ -152,8 +153,10 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
     };
     // print(formData);
 
-    try {
-      var dio = DioCache;
+    try { 
+      final dio =  
+      Dio( )..interceptors.add(
+        DioCacheInterceptor(options: options));
       Response resp;
       // try {
       resp = await dio.post(
@@ -200,8 +203,10 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
       // print(resp.headers['set-cookie']);
       // String cookies = resp.headers['set-cookie']!.join(";");
       // print(resp.data);
-var cookies = resp.headers['set-cookie'];
+      // var dio = DioCache;
+      String cookies = resp.headers['set-cookie']!.join(";");
       ///go to pressentScore
+      // print(resp.statusCode);
       var response = await dio.get(
         (
               'https://course.stust.edu.tw/CourSel/Pages/PresentScore.aspx?role=S'),

@@ -1,6 +1,5 @@
 // ignore_for_file: non_constant_identifier_names
 
-import 'package:dio/dio.dart';
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:flutter/material.dart';
 
@@ -16,7 +15,7 @@ final options = CacheOptions(
   // Returns a cached response on error but for statuses 401 & 403.
   // Also allows to return a cached response on network errors (e.g. offline usage).
   // Defaults to [null].
-  hitCacheOnErrorExcept: [401, 403],
+  hitCacheOnErrorExcept: [],
   // Overrides any HTTP directive to delete entry past this duration.
   // Useful only when origin server has no cache config or custom behaviour is desired.
   // Defaults to [null].
@@ -51,7 +50,7 @@ final options = CacheOptions(
 mixin DioCacheMixin<T extends StatefulWidget> on State<T> {
   late CacheStore cacheStore;
   late CacheOptions cacheOptions;
-  late Dio DioCache;
+  // late Dio DioCache;
   // late Caller caller;
 
   @override
@@ -68,7 +67,7 @@ mixin DioCacheMixin<T extends StatefulWidget> on State<T> {
       // Returns a cached response on error but for statuses 401 & 403.
       // Also allows to return a cached response on network errors (e.g. offline usage).
       // Defaults to [null].
-      hitCacheOnErrorExcept: [401, 403],
+      hitCacheOnErrorExcept: [],
       // Overrides any HTTP directive to delete entry past this duration.
       // Useful only when origin server has no cache config or custom behaviour is desired.
       // Defaults to [null].
@@ -81,13 +80,13 @@ mixin DioCacheMixin<T extends StatefulWidget> on State<T> {
       keyBuilder: CacheOptions.defaultCacheKeyBuilder,
       // Default. Allows to cache POST requests.
       // Overriding [keyBuilder] is strongly recommended when [true].
-      allowPostMethod: true,
+      allowPostMethod: false,
     );
 
-    DioCache = Dio()
-      ..interceptors.add(
-        DioCacheInterceptor(options: cacheOptions),
-      );
+    // DioCache = Dio( )
+    //   ..interceptors.add(
+    //     DioCacheInterceptor(options: cacheOptions),
+    //   );
 
     // caller = Caller(
     //   cacheStore: cacheStore,

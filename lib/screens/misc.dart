@@ -1,5 +1,6 @@
 
 import 'package:dio/dio.dart';
+import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -121,7 +122,9 @@ class _StudentMiscPageState extends State<StudentMiscPage>
     // List<Map<String, String>> absentEvent = [];
     List fullPage = [];
     // var session = http.Client();
-    Dio dio = DioCache;
+    Dio dio = Dio( )..interceptors.add(
+        DioCacheInterceptor(options: cacheOptions),
+      ) ;
     final headers = {
       'User-Agent':
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
@@ -139,7 +142,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
     };
     // print(formData);
 
-    // var dio = Dio();
+    // Dio dio = DioCache;
     Response resp;
     // try {
     try {
