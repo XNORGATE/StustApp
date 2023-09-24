@@ -372,7 +372,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage>
       var iframeUrl = soup
           .querySelector("a[data-modal-title='交作業' ]")!
           .attributes['data-url']!;
-
+      
       ///取得iframe的網址
       iframeUrl = "https://flipclass.stust.edu.tw$iframeUrl&fs_no_foot_js=1";
       // iframeUrl = iframeUrl;
@@ -854,7 +854,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage>
         ? '${mb.toStringAsFixed(2)} MB'
         : '${kb.toStringAsFixed(2)} KB';
     return InkWell(
-      onTap: () => null,
+      onTap: () {},
       child: ListTile(
         leading: (file.extension == 'jpg' || file.extension == 'png')
             ? Image.file(
@@ -1013,9 +1013,9 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage>
                         return AlertDialog(
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15)),
-                          content: Column(
+                          content: const Column(
                             mainAxisSize: MainAxisSize.min,
-                            children: const <Widget>[
+                            children: <Widget>[
                               CircularProgressIndicator(),
                               SizedBox(height: 16.0),
                               Text('正在送出...'),
@@ -1368,9 +1368,9 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
+                            const Row(
                               mainAxisAlignment: MainAxisAlignment.start,
-                              children: const [
+                              children: [
                                 Text(
                                   '說明',
                                   style: TextStyle(
@@ -1541,10 +1541,10 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage>
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             15)),
-                                                content: Column(
+                                                content: const Column(
                                                   mainAxisSize:
                                                       MainAxisSize.min,
-                                                  children: const <Widget>[
+                                                  children: <Widget>[
                                                     CircularProgressIndicator(),
                                                     SizedBox(height: 16.0),
                                                     Text('功課已過期無法繳交'),
@@ -1582,10 +1582,10 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage>
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             15)),
-                                                content: Column(
+                                                content: const Column(
                                                   mainAxisSize:
                                                       MainAxisSize.min,
-                                                  children: const <Widget>[
+                                                  children: <Widget>[
                                                     CircularProgressIndicator(),
                                                     SizedBox(height: 16.0),
                                                     Text('正在送出...'),
@@ -1715,9 +1715,9 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage>
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
+                              const Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
-                                children: const [
+                                children: [
                                   Text(
                                     '附件',
                                     style: TextStyle(
@@ -1772,10 +1772,10 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage>
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             15)),
-                                                content: Column(
+                                                content: const Column(
                                                   mainAxisSize:
                                                       MainAxisSize.min,
-                                                  children: const <Widget>[
+                                                  children: <Widget>[
                                                     CircularProgressIndicator(),
                                                     SizedBox(height: 16.0),
                                                     Text('功課已過期無法繳交'),
@@ -1813,10 +1813,10 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage>
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             15)),
-                                                content: Column(
+                                                content: const Column(
                                                   mainAxisSize:
                                                       MainAxisSize.min,
-                                                  children: const <Widget>[
+                                                  children: <Widget>[
                                                     CircularProgressIndicator(),
                                                     SizedBox(height: 16.0),
                                                     Text('正在送出...'),

@@ -106,26 +106,6 @@ class _AbsentPageState extends State<AbsentPage>
     );
   }
 
-  // void _showDialog(String text) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: Text(text),
-  //         // content: Text(href),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //             },
-  //             child: const Text('OK'),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
-
   _getlocal_UserData() async {
     // SharedPreferences prefs = await SharedPreferences.getInstance();
     final userController = Get.find<UserController>();
@@ -161,8 +141,15 @@ class _AbsentPageState extends State<AbsentPage>
     //authenticate
     try {
       var response = await dio.post(
-          'https://portal.stust.edu.tw/abs_stu/verify.asp',
-          queryParameters: queryParameters);
+        'https://portal.stust.edu.tw/abs_stu/verify.asp',
+        options: Options(
+            contentType: Headers.formUrlEncodedContentType,
+            followRedirects: true,
+            validateStatus: (status) {
+              return true;
+            }),
+        data: queryParameters,
+      );
       String cookies = '${response.headers['set-cookie']!}; 3wave=1';
 
       final headers = {
@@ -267,113 +254,136 @@ class _AbsentPageState extends State<AbsentPage>
         children: [
           Column(
             children: [
-              if (_responseData != null)
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Table(
-                      columnWidths: const {
-                        0: FlexColumnWidth(),
-                        1: FlexColumnWidth(),
-                        2: FlexColumnWidth(),
-                        3: FlexColumnWidth(),
-                      },
-                      children: _responseData.map((data) {
-                        if (data['status'].contains('處理中') == true) {
-                          statusColor = Colors.red;
-                        } else {
-                          statusColor = Colors.green;
-                        }
-                        return TableRow(
-                          decoration: const BoxDecoration(
-                            border: Border(
-                              bottom: BorderSide(
-                                width: 3,
-                                color: Colors.grey,
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Table(
+                    columnWidths: const {
+                      0: FlexColumnWidth(),
+                      1: FlexColumnWidth(),
+                      2: FlexColumnWidth(),
+                      3: FlexColumnWidth(),
+                    },
+                    children: _responseData.map((data) {
+                      if (data['status'].contains('處理中') == true) {
+                        statusColor = Colors.red;
+                      } else {
+                        statusColor = Colors.green;
+                      }
+                      return TableRow(
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              width: 3,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+                        children: [
+                          TableCell(
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.fromLTRB(1.5, 5, 1.5, 7),
+                              child: Text(
+                                data['leaveType']!,
+                                style: _responseData.indexOf(data) == 0
+                                    ? const TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold)
+                                    : const TextStyle(fontSize: 8),
                               ),
                             ),
                           ),
-                          children: [
-                            TableCell(
+                          TableCell(
+                            child: InkWell(
                               child: Padding(
                                 padding:
                                     const EdgeInsets.fromLTRB(1.5, 5, 1.5, 7),
                                 child: Text(
-                                  data['leaveType']!,
+                                  data['week']!,
                                   style: _responseData.indexOf(data) == 0
                                       ? const TextStyle(
                                           color: Colors.black,
                                           fontSize: 10,
                                           fontWeight: FontWeight.bold)
-                                      : const TextStyle(fontSize: 8),
+                                      : const TextStyle(
+                                          color: Colors.blue, fontSize: 11),
                                 ),
                               ),
-                            ),
-                            TableCell(
-                              child: InkWell(
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(1.5, 5, 1.5, 7),
-                                  child: Text(
-                                    data['week']!,
-                                    style: _responseData.indexOf(data) == 0
-                                        ? const TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold)
-                                        : const TextStyle(
-                                            color: Colors.blue, fontSize: 11),
-                                  ),
-                                ),
-                                onTap: () async {
-                                  if (data['week'].contains('週次') != true) {
-                                    print(data['href']);
-                                    // var session = http.Client();
-                                    Dio dio = Dio();
-                                    // print(_account);
-                                    // print(_password);
-                                    final queryParameters = {
-                                      'stud_no': _account,
-                                      'passwd': _password,
-                                      'b1': '登入Login'
-                                    };
-                                    // print(_account);
-                                    // final uri = Uri.https('portal.stust.edu.tw',
-                                    //     '/abs_stu/verify.asp', queryParameters);
-                                    //authenticate
-                                    try {
-                                      var response = await dio.post(
-                                          'https://portal.stust.edu.tw/abs_stu/verify.asp',
-                                          queryParameters: queryParameters);
-                                      String cookies =
-                                          '${response.headers['set-cookie']!}; 3wave=1';
+                              onTap: () async {
+                                if (data['week'].contains('週次') != true) {
+                                  print(data['href']);
+                                  // var session = http.Client();
+                                  Dio dio = Dio();
+                                  // print(_account);
+                                  // print(_password);
+                                  final queryParameters = {
+                                    'stud_no': _account,
+                                    'passwd': _password,
+                                    'b1': '登入Login'
+                                  };
+                                  // print(_account);
+                                  // final uri = Uri.https('portal.stust.edu.tw',
+                                  //     '/abs_stu/verify.asp', queryParameters);
+                                  //authenticate
+                                  try {
+                                    var response = await dio.post(
+                                      'https://portal.stust.edu.tw/abs_stu/verify.asp',
+                                      options: Options(
+                                          contentType:
+                                              Headers.formUrlEncodedContentType,
+                                          followRedirects: true,
+                                          validateStatus: (status) {
+                                            return true;
+                                          }),
+                                      data: queryParameters,
+                                    );
+                                    String cookies =
+                                        '${response.headers['set-cookie']!}; 3wave=1';
 
-                                      final headers = {
-                                        'User-Agent':
-                                            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
-                                      };
-                                      final link = data['href'];
-                                      response = await dio.get(
-                                          ('https://portal.stust.edu.tw/abs_stu//query/$link'),
-                                          options: Options(headers: {
-                                            ...headers,
-                                            'cookie': cookies
-                                          }, responseType: ResponseType.bytes));
-                                      var responseBodyHex =
-                                          hex.encode(response.data);
-                                      var soup = html_parser.parse(utf8
-                                          .decode(hex.decode(responseBodyHex)));
-                                      _showAlertDialog(soup);
-                                    } catch (e) {}
-                                  }
-                                },
+                                    final headers = {
+                                      'User-Agent':
+                                          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
+                                    };
+                                    final link = data['href'];
+                                    response = await dio.get(
+                                        ('https://portal.stust.edu.tw/abs_stu//query/$link'),
+                                        options: Options(headers: {
+                                          ...headers,
+                                          'cookie': cookies
+                                        }, responseType: ResponseType.bytes));
+                                    var responseBodyHex =
+                                        hex.encode(response.data);
+                                    var soup = html_parser.parse(utf8
+                                        .decode(hex.decode(responseBodyHex)));
+                                    _showAlertDialog(soup);
+                                  } catch (e) {}
+                                }
+                              },
+                            ),
+                          ),
+                          TableCell(
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.fromLTRB(1.5, 5, 1.5, 7),
+                              child: Text(
+                                data['date'].toString(),
+                                style: _responseData.indexOf(data) == 0
+                                    ? const TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold)
+                                    : const TextStyle(fontSize: 11),
                               ),
                             ),
-                            TableCell(
+                          ),
+                          TableCell(
+                            child: InkWell(
                               child: Padding(
                                 padding:
                                     const EdgeInsets.fromLTRB(1.5, 5, 1.5, 7),
                                 child: Text(
-                                  data['date'].toString(),
+                                  data['teacher']!,
                                   style: _responseData.indexOf(data) == 0
                                       ? const TextStyle(
                                           color: Colors.black,
@@ -383,133 +393,117 @@ class _AbsentPageState extends State<AbsentPage>
                                 ),
                               ),
                             ),
-                            TableCell(
-                              child: InkWell(
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(1.5, 5, 1.5, 7),
-                                  child: Text(
-                                    data['teacher']!,
-                                    style: _responseData.indexOf(data) == 0
-                                        ? const TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold)
-                                        : const TextStyle(fontSize: 11),
-                                  ),
+                          ),
+                          TableCell(
+                            child: InkWell(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(1.5, 5, 1.5, 7),
+                                child: Text(
+                                  data['instructor']!,
+                                  style: _responseData.indexOf(data) == 0
+                                      ? const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold)
+                                      : const TextStyle(fontSize: 11),
                                 ),
                               ),
                             ),
-                            TableCell(
-                              child: InkWell(
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(1.5, 5, 1.5, 7),
-                                  child: Text(
-                                    data['instructor']!,
-                                    style: _responseData.indexOf(data) == 0
-                                        ? const TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold)
-                                        : const TextStyle(fontSize: 11),
-                                  ),
+                          ),
+                          // if (_responseData.indexOf(data) == 0)
+                          TableCell(
+                            child: InkWell(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(1.5, 5, 1.5, 7),
+                                child: Text(
+                                  data['chairman']!,
+                                  style: _responseData.indexOf(data) == 0
+                                      ? const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold)
+                                      : const TextStyle(fontSize: 11),
                                 ),
                               ),
                             ),
-                            // if (_responseData.indexOf(data) == 0)
-                            TableCell(
-                              child: InkWell(
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(1.5, 5, 1.5, 7),
-                                  child: Text(
-                                    data['chairman']!,
-                                    style: _responseData.indexOf(data) == 0
-                                        ? const TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold)
-                                        : const TextStyle(fontSize: 11),
-                                  ),
+                          ),
+                          TableCell(
+                            child: InkWell(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(1.5, 5, 1.5, 7),
+                                child: Text(
+                                  data['chief']!,
+                                  style: _responseData.indexOf(data) == 0
+                                      ? const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold)
+                                      : const TextStyle(fontSize: 11),
                                 ),
                               ),
                             ),
-                            TableCell(
-                              child: InkWell(
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(1.5, 5, 1.5, 7),
-                                  child: Text(
-                                    data['chief']!,
-                                    style: _responseData.indexOf(data) == 0
-                                        ? const TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold)
-                                        : const TextStyle(fontSize: 11),
-                                  ),
+                          ),
+                          TableCell(
+                            child: InkWell(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(1.5, 5, 1.5, 7),
+                                child: Text(
+                                  data['dean']!,
+                                  style: _responseData.indexOf(data) == 0
+                                      ? const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold)
+                                      : const TextStyle(fontSize: 11),
                                 ),
                               ),
                             ),
-                            TableCell(
-                              child: InkWell(
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(1.5, 5, 1.5, 7),
-                                  child: Text(
-                                    data['dean']!,
-                                    style: _responseData.indexOf(data) == 0
-                                        ? const TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold)
-                                        : const TextStyle(fontSize: 11),
-                                  ),
+                          ),
+                          TableCell(
+                            child: InkWell(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(1.5, 5, 1.5, 7),
+                                child: Text(
+                                  data['guidance']!,
+                                  style: _responseData.indexOf(data) == 0
+                                      ? const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold)
+                                      : const TextStyle(fontSize: 11),
                                 ),
                               ),
                             ),
-                            TableCell(
-                              child: InkWell(
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(1.5, 5, 1.5, 7),
-                                  child: Text(
-                                    data['guidance']!,
-                                    style: _responseData.indexOf(data) == 0
-                                        ? const TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold)
-                                        : const TextStyle(fontSize: 11),
-                                  ),
+                          ),
+                          TableCell(
+                            child: InkWell(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(1.5, 5, 1.5, 7),
+                                child: Text(
+                                  data['status']!,
+                                  style: _responseData.indexOf(data) == 0
+                                      ? const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold)
+                                      : TextStyle(
+                                          color: statusColor, fontSize: 11),
                                 ),
                               ),
                             ),
-                            TableCell(
-                              child: InkWell(
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(1.5, 5, 1.5, 7),
-                                  child: Text(
-                                    data['status']!,
-                                    style: _responseData.indexOf(data) == 0
-                                        ? const TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold)
-                                        : TextStyle(
-                                            color: statusColor, fontSize: 11),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      }).toList(),
-                    ),
+                          ),
+                        ],
+                      );
+                    }).toList(),
                   ),
                 ),
+              ),
             ],
           ),
           if (_isLoading)

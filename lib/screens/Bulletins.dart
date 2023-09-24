@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:url_launcher/url_launcher.dart';
 
-import 'package:flutter_neumorphic_null_safety/flutter_neumorphic.dart';
+import 'package:flutter/material.dart';
 
 import '../main.dart';
 import '../utils/auto_logout.dart';
@@ -302,108 +302,84 @@ class _BulletinsPageState extends State<BulletinsPage>
               //     style: TextStyle(fontSize: 30),
               //   ),
               // ),
-              if (_responseData != null) // Add this check here
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: _responseData.length,
-                    // separatorBuilder: (context, index) => const Divider(
-                    //   height: 5,
-                    // ),
-                    itemBuilder: (context, index) {
-                      final data = _responseData[index];
+              // Add this check here
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _responseData.length,
+                  // separatorBuilder: (context, index) => const Divider(
+                  //   height: 5,
+                  // ),
+                  itemBuilder: (context, index) {
+                    final data = _responseData[index];
 
-                      return InkWell(
-                          onTap: () async {
-                            final confirmed = await showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15)),
-                                title: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
+                    return InkWell(
+                        onTap: () async {
+                          final confirmed = await showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15)),
+                              title: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    data['topic']!,
+                                    style:
+                                        const TextStyle(color: Colors.black),
+                                  ),
+                                  const Divider(
+                                    thickness: 1.5,
+                                  )
+                                ],
+                              ),
+                              content: SingleChildScrollView(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Text(
-                                      data['topic']!,
-                                      style:
-                                          const TextStyle(color: Colors.black),
-                                    ),
-                                    const Divider(
-                                      thickness: 1.5,
-                                    )
-                                  ],
-                                ),
-                                content: SingleChildScrollView(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      RichText(
-                                        text: TextSpan(
-                                          style: const TextStyle(
-                                              fontSize: 16.0,
-                                              color: Colors.black),
-                                          children: () {
-                                            final RegExp regex = RegExp(
-                                              r"(?:(?:https?|ftp):\/\/|www\.)[^\s/$.?#].[^\s]*|[\s\S]+?(?=(?:(?:https?|ftp):\/\/|www\.)[^\s/$.?#].[^\s]*|$)",
-                                              caseSensitive: false,
-                                            );
-                                            final RegExp urlSeparatorRegex =
-                                                RegExp(
-                                              r'(?<=[^/])(?=https?://)',
-                                            );
-                                            final Iterable<Match> matches =
-                                                regex.allMatches(
-                                                    data['content']!);
-                                            List<InlineSpan> children = [];
-                                            for (Match match in matches) {
-                                              if (match
-                                                      .group(0)!
-                                                      .startsWith('http') ||
-                                                  match
-                                                      .group(0)!
-                                                      .startsWith('www') ||
-                                                  match
-                                                      .group(0)!
-                                                      .startsWith('ftp')) {
-                                                Iterable<Match>
-                                                    separatedUrlMatches =
-                                                    urlSeparatorRegex
-                                                        .allMatches(
-                                                            match.group(0)!);
-                                                int previousUrlEnd = 0;
-                                                for (Match separatedUrlMatch
-                                                    in separatedUrlMatches) {
-                                                  String url = match
-                                                      .group(0)!
-                                                      .substring(
-                                                          previousUrlEnd,
-                                                          separatedUrlMatch
-                                                              .start);
-                                                  children.add(TextSpan(
-                                                    text: url,
-                                                    style: const TextStyle(
-                                                      decoration: TextDecoration
-                                                          .underline,
-                                                      color: Colors.blue,
-                                                    ),
-                                                    recognizer:
-                                                        TapGestureRecognizer()
-                                                          ..onTap = () async {
-                                                            launchUrl(
-                                                                Uri.parse(url),
-                                                                mode: LaunchMode
-                                                                    .externalNonBrowserApplication);
-                                                          },
-                                                  ));
-                                                  children.add(const TextSpan(
-                                                      text: '\n'));
-                                                  previousUrlEnd =
-                                                      separatedUrlMatch.start;
-                                                }
-                                                String lastUrl = match
+                                    RichText(
+                                      text: TextSpan(
+                                        style: const TextStyle(
+                                            fontSize: 16.0,
+                                            color: Colors.black),
+                                        children: () {
+                                          final RegExp regex = RegExp(
+                                            r"(?:(?:https?|ftp):\/\/|www\.)[^\s/$.?#].[^\s]*|[\s\S]+?(?=(?:(?:https?|ftp):\/\/|www\.)[^\s/$.?#].[^\s]*|$)",
+                                            caseSensitive: false,
+                                          );
+                                          final RegExp urlSeparatorRegex =
+                                              RegExp(
+                                            r'(?<=[^/])(?=https?://)',
+                                          );
+                                          final Iterable<Match> matches =
+                                              regex.allMatches(
+                                                  data['content']!);
+                                          List<InlineSpan> children = [];
+                                          for (Match match in matches) {
+                                            if (match
                                                     .group(0)!
-                                                    .substring(previousUrlEnd);
+                                                    .startsWith('http') ||
+                                                match
+                                                    .group(0)!
+                                                    .startsWith('www') ||
+                                                match
+                                                    .group(0)!
+                                                    .startsWith('ftp')) {
+                                              Iterable<Match>
+                                                  separatedUrlMatches =
+                                                  urlSeparatorRegex
+                                                      .allMatches(
+                                                          match.group(0)!);
+                                              int previousUrlEnd = 0;
+                                              for (Match separatedUrlMatch
+                                                  in separatedUrlMatches) {
+                                                String url = match
+                                                    .group(0)!
+                                                    .substring(
+                                                        previousUrlEnd,
+                                                        separatedUrlMatch
+                                                            .start);
                                                 children.add(TextSpan(
-                                                  text: lastUrl,
+                                                  text: url,
                                                   style: const TextStyle(
                                                     decoration: TextDecoration
                                                         .underline,
@@ -413,140 +389,166 @@ class _BulletinsPageState extends State<BulletinsPage>
                                                       TapGestureRecognizer()
                                                         ..onTap = () async {
                                                           launchUrl(
-                                                              Uri.parse(
-                                                                  lastUrl),
+                                                              Uri.parse(url),
                                                               mode: LaunchMode
                                                                   .externalNonBrowserApplication);
                                                         },
                                                 ));
-                                              } else {
-                                                children.add(TextSpan(
-                                                  text: match.group(0),
-                                                ));
+                                                children.add(const TextSpan(
+                                                    text: '\n'));
+                                                previousUrlEnd =
+                                                    separatedUrlMatch.start;
                                               }
-                                              children.add(const TextSpan(
-                                                text: "\n",
+                                              String lastUrl = match
+                                                  .group(0)!
+                                                  .substring(previousUrlEnd);
+                                              children.add(TextSpan(
+                                                text: lastUrl,
+                                                style: const TextStyle(
+                                                  decoration: TextDecoration
+                                                      .underline,
+                                                  color: Colors.blue,
+                                                ),
+                                                recognizer:
+                                                    TapGestureRecognizer()
+                                                      ..onTap = () async {
+                                                        launchUrl(
+                                                            Uri.parse(
+                                                                lastUrl),
+                                                            mode: LaunchMode
+                                                                .externalNonBrowserApplication);
+                                                      },
+                                              ));
+                                            } else {
+                                              children.add(TextSpan(
+                                                text: match.group(0),
                                               ));
                                             }
-                                            return children;
-                                          }(),
-                                        ),
+                                            children.add(const TextSpan(
+                                              text: "\n",
+                                            ));
+                                          }
+                                          return children;
+                                        }(),
                                       ),
-                                      if (data['filename'] != '0' &&
-                                          data['url'] != '0')
-                                        InkWell(
-                                          onTap: () => launchUrl(
-                                              Uri.parse(data['url']!),
-                                              mode: LaunchMode
-                                                  .externalNonBrowserApplication),
-                                          child: Text(
-                                            '附件: ${data['filename']!}',
-                                            style: const TextStyle(
-                                                color: Colors.blue),
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                                actions: [
-                                  NeumorphicButton(
-                                    // style: const NeumorphicStyle(
-                                    //   color: Color.fromARGB(255, 171, 245, 167),
-                                    //   shape: NeumorphicShape.flat,
-                                    // ),
-                                    onPressed: () =>
-                                        Navigator.pop(context, false),
-                                    child: const Text('退出'),
-                                  ),
-                                  NeumorphicButton(
-                                    style: const NeumorphicStyle(
-                                      color: Color.fromARGB(255, 188, 250, 185),
-                                      shape: NeumorphicShape.flat,
                                     ),
-                                    onPressed: () =>
-                                        Navigator.pop(context, true),
-                                    child: const Text('前往課程'),
-                                  ),
-                                ],
-                              ),
-                            );
-                            if (confirmed == true) {
-                              launchUrl(Uri.parse(data['href']!),
-                                  mode:
-                                      LaunchMode.externalNonBrowserApplication);
-                            }
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 1.5, horizontal: 8),
-                            child: Card(
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8)),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(5),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(left: 10),
+                                    if (data['filename'] != '0' &&
+                                        data['url'] != '0')
+                                      InkWell(
+                                        onTap: () => launchUrl(
+                                            Uri.parse(data['url']!),
+                                            mode: LaunchMode
+                                                .externalNonBrowserApplication),
                                         child: Text(
-                                          data['class']!,
+                                          '附件: ${data['filename']!}',
                                           style: const TextStyle(
-                                            fontSize: 15.0,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                              color: Colors.blue),
                                         ),
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            16.0, 16, 16, 8),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              extractMonthAndDay(data['date']!),
-                                              style: const TextStyle(
-                                                fontSize: 18.0,
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                  ],
+                                ),
+                              ),
+                              actions: [
+                                TextButton(
+                                  // style: const NeumorphicStyle(
+                                  //   color: Color.fromARGB(255, 171, 245, 167),
+                                  //   shape: NeumorphicShape.flat,
+                                  // ),
+                                  onPressed: () =>
+                                      Navigator.pop(context, false),
+                                  child: const Text('退出'),
+                                ),
+                                TextButton(
+                                  style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.resolveWith<Color?>(
+                                      (states) => Colors.lightGreen,
+                                    ),
+
+                                  ),
+                                  onPressed: () =>
+                                      Navigator.pop(context, true),
+                                  child: const Text('前往課程'),
+                                ),
+                              ],
+                            ),
+                          );
+                          if (confirmed == true) {
+                            launchUrl(Uri.parse(data['href']!),
+                                mode:
+                                    LaunchMode.externalNonBrowserApplication);
+                          }
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 1.5, horizontal: 8),
+                          child: Card(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8)),
+                              child: Padding(
+                                padding: const EdgeInsets.all(5),
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding:
+                                          const EdgeInsets.only(left: 10),
+                                      child: Text(
+                                        data['class']!,
+                                        style: const TextStyle(
+                                          fontSize: 15.0,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          16.0, 16, 16, 8),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            extractMonthAndDay(data['date']!),
+                                            style: const TextStyle(
+                                              fontSize: 18.0,
+                                              fontWeight: FontWeight.bold,
                                             ),
-                                            const SizedBox(
-                                              width: 20,
-                                            ),
-                                            const Icon(
-                                              Icons.feed_outlined,
-                                              color: Color.fromARGB(
-                                                  255, 11, 167, 245),
-                                            ),
-                                            const SizedBox(
-                                              width: 20,
-                                            ),
-                                            Expanded(
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    left: 30.0),
-                                                child: Text(
-                                                  data['topic']!,
-                                                  style: const TextStyle(
-                                                    fontSize: 18.0,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
+                                          ),
+                                          const SizedBox(
+                                            width: 20,
+                                          ),
+                                          const Icon(
+                                            Icons.feed_outlined,
+                                            color: Color.fromARGB(
+                                                255, 11, 167, 245),
+                                          ),
+                                          const SizedBox(
+                                            width: 20,
+                                          ),
+                                          Expanded(
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 30.0),
+                                              child: Text(
+                                                data['topic']!,
+                                                style: const TextStyle(
+                                                  fontSize: 18.0,
+                                                  fontWeight: FontWeight.bold,
                                                 ),
                                               ),
                                             ),
-                                          ],
-                                        ),
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                )),
-                          ));
-                    },
-                  ),
-                )
+                                    ),
+                                  ],
+                                ),
+                              )),
+                        ));
+                  },
+                ),
+              )
             ],
           ),
 

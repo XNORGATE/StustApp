@@ -1,9 +1,9 @@
 import 'dart:io';
-
+import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_neumorphic_null_safety/flutter_neumorphic.dart';
+// import 'package:flutter_neumorphic_null_safety/flutter_neumorphic.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:stust_app/onBoard/on_board.dart';
@@ -237,19 +237,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return NeumorphicApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: '南台通',
       themeMode: ThemeMode.light,
-      theme: const NeumorphicThemeData(
-        baseColor: Color.fromARGB(255, 236, 236, 236),
-        lightSource: LightSource.topLeft,
-        depth: 10,
+      theme:  ThemeData(
+        primaryColor: const Color.fromARGB(255, 236, 236, 236),
       ),
-      darkTheme: const NeumorphicThemeData(
-        baseColor: Color(0xFF3E3E3E),
-        lightSource: LightSource.topLeft,
-        depth: 6,
+      darkTheme:  ThemeData(
+        primaryColor: const Color(0xFF3E3E3E),
+
       ),
       home: const MyHomePage(),
       routes: {
@@ -393,7 +390,8 @@ class _MyHomePageState extends State<MyHomePage>
 
       try {
         getStudentActivitiesList().then((data) {
-          setState(() {
+           if (mounted) {
+             setState(() {
             // if (data.isEmpty) {
             //   _isActivitiesListError = true;
             // } else {
@@ -402,6 +400,7 @@ class _MyHomePageState extends State<MyHomePage>
             _isStudentActivitiesLoading = false;
             // }
           });
+           }
         });
       } catch (e) {}
       try {
@@ -740,7 +739,7 @@ class _MyHomePageState extends State<MyHomePage>
           'notiState': false,
         });
       }
-      print(uniqueClassesList);
+      // print(uniqueClassesList);
       ClassesList = uniqueClassesList;
       return ClassesList;
     } catch (e) {
@@ -882,18 +881,18 @@ class _MyHomePageState extends State<MyHomePage>
           decoration: BoxDecoration(
               color: const Color.fromARGB(255, 5, 5, 5),
               borderRadius: BorderRadius.circular(10)),
-          child: Stack(
+          child: const Stack(
             alignment: Alignment.bottomLeft,
             children: [
               Padding(
-                padding: const EdgeInsets.all(6.0),
+                padding: EdgeInsets.all(6.0),
                 child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: EdgeInsets.all(8.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
-                    children: const [
+                    children: [
                       Text(
                         'Flipclass',
                         style: TextStyle(
@@ -939,11 +938,11 @@ class _MyHomePageState extends State<MyHomePage>
                 decoration: BoxDecoration(
                     color: const Color(0xfffed271),
                     borderRadius: BorderRadius.circular(10)),
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
+                child: const Padding(
+                  padding: EdgeInsets.all(10.0),
                   child: Stack(
                     alignment: Alignment.center,
-                    children: const [
+                    children: [
                       CircleAvatar(
                         radius: 50,
                         // backgroundImage:
@@ -1000,12 +999,12 @@ class _MyHomePageState extends State<MyHomePage>
                       // image: const DecorationImage(
                       //     image: AssetImage('assets/food.jpg'))
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
+                    child: const Padding(
+                      padding: EdgeInsets.all(10.0),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.end,
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children: [
                           Text(
                             '課程事項',
                             style: TextStyle(
@@ -1041,12 +1040,12 @@ class _MyHomePageState extends State<MyHomePage>
                     decoration: BoxDecoration(
                         color: const Color(0xff85bfff),
                         borderRadius: BorderRadius.circular(10)),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
+                    child: const Padding(
+                      padding: EdgeInsets.all(10.0),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.end,
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children: [
                           Text(
                             '學生其他事項',
                             style: TextStyle(
@@ -1136,11 +1135,11 @@ class _MyHomePageState extends State<MyHomePage>
   Widget foodListRow(BuildContext context) {
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
-            children: const [
+            children: [
               Text(
                 '美食地圖',
                 style: TextStyle(
@@ -1183,11 +1182,11 @@ class _MyHomePageState extends State<MyHomePage>
   Widget siteActivity(BuildContext context) {
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
-            children: const [
+            children: [
               Text(
                 '校網公告',
                 style: TextStyle(
@@ -1611,11 +1610,11 @@ class _MyHomePageState extends State<MyHomePage>
                       ),
                       content: const Text('確定要登出 ?'),
                       actions: [
-                        NeumorphicButton(
+                        TextButton(
                           onPressed: () => Navigator.pop(context, false),
                           child: const Text('取消'),
                         ),
-                        NeumorphicButton(
+                        TextButton(
                           onPressed: () => Navigator.pop(context, true),
                           child: const Text('確認'),
                         ),

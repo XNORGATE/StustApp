@@ -33,7 +33,9 @@ class _HomeworkPageState extends State<HomeworkPage>
 
   late String _account = '0'; // Set account and password to 0 by default
   late String _password = '0';
-
+  late String doneButtonText;
+  late String questionnaire;
+  // late String submissionDeadline ;
   @override
   void initState() {
     super.initState();
@@ -167,33 +169,75 @@ class _HomeworkPageState extends State<HomeworkPage>
   //   List<String> segments = url.split("/");
   //   return segments.last;
   // }
+
   String calculateRemainingTime(String dateString) {
-    DateTime targetDate = DateTime.parse(dateString)
-        .add(const Duration(seconds: 86399)); // Add one day
-    DateTime now = DateTime.now();
-    Duration difference = targetDate.difference(now);
-    if (difference.inSeconds < 0) {
-      print('targetDate :$targetDate now :$now difference :$difference');
-      return '已過期';
-    } else if (difference.inDays < 1) {
-      return '${difference.inHours}小時';
-    } else {
-      return '${difference.inDays}天';
+    if (dateString.isEmpty) {
+      return 'Invalid input: dateString is null or empty';
+    }
+
+    if (dateString.contains('~')) {
+      List<String> parts = dateString.split('~');
+      if (parts.length > 1) {
+        String endDate = parts[1].trim();
+                print(endDate);
+
+        endDate = '${endDate.replaceAll(' ', 'T')}:00';
+        dateString = endDate;
+      } else {
+        return "Invalid input format";
+      }
+    }
+
+    try {
+      DateTime targetDate =
+          DateTime.parse(dateString).add(const Duration(seconds: 86399));
+      DateTime now = DateTime.now();
+      Duration difference = targetDate.difference(now);
+
+      if (difference.inSeconds < 0) {
+        return '已過期';
+      } else if (difference.inDays < 1) {
+        return '${difference.inHours}小時';
+      } else {
+        return '${difference.inDays}天';
+      }
+    } catch (e) {
+      return 'Error parsing date: $e';
     }
   }
 
   String calculateRemainingTimeWithSpace(String dateString) {
-    DateTime targetDate = DateTime.parse(dateString)
-        .add(const Duration(seconds: 86399)); // Add one day
-    DateTime now = DateTime.now();
-    Duration difference = targetDate.difference(now);
-    if (difference.inSeconds < 0) {
-      print('targetDate :$targetDate now :$now difference :$difference');
-      return '已過期';
-    } else if (difference.inDays < 1) {
-      return '${difference.inHours} 小時';
-    } else {
-      return '${difference.inDays} 天';
+    if (dateString.isEmpty) {
+      return 'Invalid input: dateString is null or empty';
+    }
+
+    if (dateString.contains('~')) {
+      List<String> parts = dateString.split('~');
+      if (parts.length > 1) {
+        String endDate = parts[1].trim();
+        print(endDate);
+        endDate = '${endDate.replaceAll(' ', 'T')}:00';
+        dateString = endDate;
+      } else {
+        return "Invalid input format";
+      }
+    }
+
+    try {
+      DateTime targetDate =
+          DateTime.parse(dateString).add(const Duration(seconds: 86399));
+      DateTime now = DateTime.now();
+      Duration difference = targetDate.difference(now);
+
+      if (difference.inSeconds < 0) {
+        return '已過期';
+      } else if (difference.inDays < 1) {
+        return '${difference.inHours}小時';
+      } else {
+        return '${difference.inDays}天';
+      }
+    } catch (e) {
+      return 'Error parsing date: $e';
     }
   }
 
@@ -261,54 +305,125 @@ class _HomeworkPageState extends State<HomeworkPage>
                 options: Options(headers: {...headers, 'cookie': cookies}));
             var isDonesoup = parse(isDoneresponse.data);
 
-            String isDone = '未繳交';
-            // print(soup.outerHtml);
-            var doneButtonText = isDonesoup
-                .querySelector('div.text-center.fs-margin-default > a > span')
-                ?.text
-                .trim();
-            String? numberOfSubmissions = '';
+            // try {
+            //   questionnaire = isDonesoup
+            //       .querySelector(
+            //           'div.text-center.fs-margin-default > button > span')!
+            //       .text
+            //       .trim();
+            // } catch (e) {}
 
-            try {
-              numberOfSubmissions = isDonesoup
-                  .querySelectorAll('dt')
-                  .firstWhere((element) => element.text == '已繳交')
-                  .nextElementSibling
-                  ?.text
-                  .trim();
-            } catch (e) {}
-            String? submissionDeadline = '';
+            if (href!.contains('questionnaire')) {
+              String? submissionDeadline = '';
 
-            try {
-              submissionDeadline = isDonesoup
-                  .querySelectorAll('dt')
-                  .firstWhere((element) => element.text == '繳交期限')
-                  .nextElementSibling
-                  ?.querySelector('span')
-                  ?.text
-                  .trim();
-            } catch (e) {}
-            var remain = calculateRemainingTime(submissionDeadline!);
-            var remainWithSpace =
-                calculateRemainingTimeWithSpace(submissionDeadline);
-            // print(doneButtonText);
-            if (doneButtonText!.contains('檢視')) {
-              isDone = '已繳交';
+              try {
+                submissionDeadline = isDonesoup
+                    .querySelectorAll('dt')
+                    .firstWhere((element) => element.text == '開放期間')
+                    .nextElementSibling
+                    // ?.querySelector('span')
+                    ?.text
+                    .trim();
+              } catch (e) {}
+              var remain = calculateRemainingTime(submissionDeadline!);
+              var remainWithSpace =
+                  calculateRemainingTimeWithSpace(submissionDeadline);
+              // print(doneButtonText);
+
+              newData.add({
+                'topic': topic ?? '',
+                'src': src ?? '',
+                'href': 'https://flipclass.stust.edu.tw%24href/',
+                'date': date ?? '',
+                'isDone': '',
+                'numberOfSubmissions': '問卷不計',
+                'submissionDeadline': submissionDeadline,
+                'remain': remain,
+                'remainWithSpace': remainWithSpace
+              });
+            } else if (href.contains('exam')) {
+              String? submissionDeadline = '';
+
+              try {
+                submissionDeadline = isDonesoup
+                    .querySelectorAll('dt')
+                    .firstWhere((element) => element.text == '測驗期間')
+                    .nextElementSibling
+                    // ?.querySelector('span')
+                    ?.text
+                    .trim();
+              } catch (e) {}
+              var remain = calculateRemainingTime(submissionDeadline!);
+              var remainWithSpace =
+                  calculateRemainingTimeWithSpace(submissionDeadline);
+              // print(doneButtonText);
+
+              newData.add({
+                'topic': topic ?? '',
+                'src': src ?? '',
+                'href': 'https://flipclass.stust.edu.tw%24href/',
+                'date': date ?? '',
+                'isDone': '',
+                'numberOfSubmissions': '測驗不計',
+                'submissionDeadline': submissionDeadline,
+                'remain': remain,
+                'remainWithSpace': remainWithSpace
+              });
+            } else {
+              String isDone = '未繳交';
+
+              // print(soup.outerHtml);
+              try {
+                doneButtonText = isDonesoup
+                    .querySelector(
+                        'div.text-center.fs-margin-default > a > span')!
+                    .text
+                    .trim();
+              } catch (e) {}
+              print(doneButtonText);
+              String? numberOfSubmissions = '';
+
+              try {
+                numberOfSubmissions = isDonesoup
+                    .querySelectorAll('dt')
+                    .firstWhere((element) => element.text == '已繳交')
+                    .nextElementSibling
+                    ?.text
+                    .trim();
+                    print('總共$numberOfSubmissions人已繳交');
+              } catch (e) {}
+              String? submissionDeadline = '';
+
+              try {
+                submissionDeadline = isDonesoup
+                    .querySelectorAll('dt')
+                    .firstWhere((element) => element.text == '繳交期限')
+                    .nextElementSibling
+                    ?.querySelector('span')
+                    ?.text
+                    .trim();
+              } catch (e) {}
+              var remain = calculateRemainingTime(submissionDeadline!);
+              var remainWithSpace =
+                  calculateRemainingTimeWithSpace(submissionDeadline);
+              // print(doneButtonText);
+              if (doneButtonText.contains('檢視')) {
+                isDone = '已繳交';
+              }
+
+              newData.add({
+                'topic': topic ?? '',
+                'src': src ?? '',
+                'href': 'https://flipclass.stust.edu.tw$href',
+                'date': date ?? '',
+                'isDone': isDone,
+                'numberOfSubmissions': numberOfSubmissions ?? '',
+                'submissionDeadline': submissionDeadline,
+                'remain': remain,
+                'remainWithSpace': remainWithSpace
+              });
             }
-
-            newData.add({
-              'topic': topic ?? '',
-              'src': src ?? '',
-              'href': 'https://flipclass.stust.edu.tw$href',
-              'date': date ?? '',
-              'isDone': isDone,
-              'numberOfSubmissions': numberOfSubmissions ?? '',
-              'submissionDeadline': submissionDeadline,
-              'remain': remain,
-              'remainWithSpace': remainWithSpace
-            });
           }
-
           // if (mounted && !_cancelToken) {
           //   try {
           //     setState(() {
@@ -374,19 +489,21 @@ class _HomeworkPageState extends State<HomeworkPage>
 
                 return InkWell(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const HomeWorkDetailPage(),
-                        settings: RouteSettings(arguments: {
-                          'topic': data['topic'],
-                          'src': data['src'],
-                          'href': data['href'],
-                          'account': _account,
-                          'password': _password,
-                        }),
-                      ),
-                    );
+                    if (!(data['numberOfSubmissions'] == '問卷' || data['numberOfSubmissions'] == '測驗')) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const HomeWorkDetailPage(),
+                          settings: RouteSettings(arguments: {
+                            'topic': data['topic'],
+                            'src': data['src'],
+                            'href': data['href'],
+                            'account': _account,
+                            'password': _password,
+                          }),
+                        ),
+                      );
+                    }
                   },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
@@ -414,7 +531,8 @@ class _HomeworkPageState extends State<HomeworkPage>
                                   //   width: 20,
                                   // ),
 
-                                  data['isDone'] == '未繳交'
+
+                                  data['isDone'] == '未繳交' || data['numberOfSubmissions']!.contains('問卷')|| data['numberOfSubmissions']!.contains('測驗')
                                       ? const Icon(
                                           Icons.assignment,
                                           size: 18,
@@ -507,7 +625,7 @@ class _HomeworkPageState extends State<HomeworkPage>
                                       '期限: ${data['submissionDeadline']}',
                                       style: const TextStyle(
                                         color: Colors.grey,
-                                        fontSize: 13.0,
+                                        fontSize: 11.0,
                                         fontWeight: FontWeight.w400,
                                       ),
                                     ),

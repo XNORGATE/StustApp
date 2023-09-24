@@ -152,26 +152,26 @@ class _LeaveRequestPageState extends State<LeaveRequestPage>
     );
   }
 
-  void _showSendingDialog() {
-    showDialog(
-      context: context,
-      // barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: const <Widget>[
-              CircularProgressIndicator(),
-              SizedBox(height: 16.0),
-              Text('正在執行請假動作 待結果顯示即可關閉...'),
-            ],
-          ),
-        );
-      },
-    );
-  }
+  // void _showSendingDialog() {
+  //   showDialog(
+  //     context: context,
+  //     // barrierDismissible: false,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         shape:
+  //             RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+  //         content: const Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: <Widget>[
+  //             CircularProgressIndicator(),
+  //             SizedBox(height: 16.0),
+  //             Text('正在執行請假動作 待結果顯示即可關閉...'),
+  //           ],
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   // void _hideSendingDialog() {
   //   Navigator.popUntil(context, ModalRoute.withName('leave_request'));
@@ -199,23 +199,32 @@ class _LeaveRequestPageState extends State<LeaveRequestPage>
       'passwd': _password,
       'b1': '登入Login'
     };
-    // print(_account);
+    final headers = {
+      'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
+    };
+
+    // print('verify res.data start :');
     try {
-      // final uri = Uri.https(
-      //     'portal.stust.edu.tw', '/abs_stu/verify.asp', queryParameters);
-      //authenticate
       var response = await dio.post(
-          'https://portal.stust.edu.tw/abs_stu/verify.asp',
-          queryParameters: queryParameters);
+        'https://portal.stust.edu.tw/abs_stu/verify.asp',
+        options: Options(
+            contentType: Headers.formUrlEncodedContentType,
+            followRedirects: true,
+            validateStatus: (status) {
+              return true;
+            }),
+        data: queryParameters,
+      );
+      print('verify res.data :${response.data}');
+
       String cookies = '${response.headers['set-cookie']!}; 3wave=1';
 
-      final headers = {
-        'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
-      };
       response = await dio.get(
           ('https://portal.stust.edu.tw/abs_stu/query/week.asp'),
-         options: Options( headers: {...headers, 'cookie': cookies},responseType: ResponseType.bytes));
+          options: Options(
+              headers: {...headers, 'cookie': cookies},
+              responseType: ResponseType.bytes));
       // print(utf8.decode(response.bodyBytes));
       var responseBodyHex = hex.encode(response.data);
       var soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
@@ -252,7 +261,9 @@ class _LeaveRequestPageState extends State<LeaveRequestPage>
 
       response = await dio.get(
           ('https://portal.stust.edu.tw/abs_stu/query/query.asp'),
-         options: Options( headers: {...headers, 'cookie': cookies},responseType: ResponseType.bytes));
+          options: Options(
+              headers: {...headers, 'cookie': cookies},
+              responseType: ResponseType.bytes));
       responseBodyHex = hex.encode(response.data);
       soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
       final rows =
@@ -266,8 +277,10 @@ class _LeaveRequestPageState extends State<LeaveRequestPage>
           String link =
               'https://portal.stust.edu.tw/abs_stu/query/${row.querySelector('a')!.attributes['href']!}';
 
-          response = await dio
-              .get((link), options: Options(headers: {...headers, 'cookie': cookies},responseType: ResponseType.bytes));
+          response = await dio.get((link),
+              options: Options(
+                  headers: {...headers, 'cookie': cookies},
+                  responseType: ResponseType.bytes));
           responseBodyHex = hex.encode(response.data);
           soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
           // print(soup.outerHtml);
@@ -330,7 +343,9 @@ class _LeaveRequestPageState extends State<LeaveRequestPage>
       // print(absentEvent);
 
       return absentEvent;
-    } catch (e) {}
+    } catch (e) {
+      print(e.toString());
+    }
     return absentEvent;
   }
 
@@ -350,6 +365,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage>
           'reason': '假別'
         };
 
+        print('getAbsent  $responseData');
         responseData.insert(0, newItem);
         _responseData = responseData;
         // print(responseData);
@@ -418,8 +434,15 @@ class _LeaveRequestPageState extends State<LeaveRequestPage>
       //     'portal.stust.edu.tw', '/abs_stu/verify.asp', queryParameters);
       //authenticate
       var response = await dio.post(
-          'https://portal.stust.edu.tw/abs_stu/verify.asp',
-          queryParameters: queryParameters);
+        'https://portal.stust.edu.tw/abs_stu/verify.asp',
+        options: Options(
+            contentType: Headers.formUrlEncodedContentType,
+            followRedirects: true,
+            validateStatus: (status) {
+              return true;
+            }),
+        data: queryParameters,
+      );
       String cookies = '${response.headers['set-cookie']!}; 3wave=1';
 
       final headers = {
@@ -428,7 +451,9 @@ class _LeaveRequestPageState extends State<LeaveRequestPage>
       };
       response = await dio.get(
           ('https://portal.stust.edu.tw/abs_stu/asking/select-p.asp'),
-         options: Options( headers: {...headers, 'cookie': cookies},responseType: ResponseType.bytes));
+          options: Options(
+              headers: {...headers, 'cookie': cookies},
+              responseType: ResponseType.bytes));
       var responseBodyHex = hex.encode(response.data);
       var soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
       // print(soup.outerHtml);
@@ -437,29 +462,30 @@ class _LeaveRequestPageState extends State<LeaveRequestPage>
         //事假
         // print('absentType: $absentType');
         response = await dio.get(
-           (
-                'https://portal.stust.edu.tw/abs_stu/asking/select-p.asp'),
-           options: Options( headers: {...headers, 'cookie': cookies}));
+            ('https://portal.stust.edu.tw/abs_stu/asking/select-p.asp'),
+            options: Options(headers: {...headers, 'cookie': cookies}));
       } else if (absentType == '3') {
         //病假
         response = await dio.get(
-          ('https://portal.stust.edu.tw/abs_stu/asking/select.asp'),
-           options: Options( headers: {...headers, 'cookie': cookies}));
+            ('https://portal.stust.edu.tw/abs_stu/asking/select.asp'),
+            options: Options(headers: {...headers, 'cookie': cookies}));
       }
       response = await dio.post(
-        ('https://portal.stust.edu.tw/abs_stu/asking/confirm.asp'),
-         options: Options( headers: {...headers, 'cookie': cookies}),
+          ('https://portal.stust.edu.tw/abs_stu/asking/confirm.asp'),
+          options: Options(headers: {...headers, 'cookie': cookies}),
           queryParameters: leaveRequestFormData);
       // var responseBodyHex = hex.encode(response.bodyBytes);
       // var soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
       // print(soup.outerHtml);
       response = await dio.post(
           ('https://portal.stust.edu.tw/abs_stu/asking/list.asp'),
-         options: Options( headers: {...headers, 'cookie': cookies}),
+          options: Options(headers: {...headers, 'cookie': cookies}),
           queryParameters: confirmData);
       response = await dio.get(
-         ('https://portal.stust.edu.tw/abs_stu/query/query.asp'),
-          options: Options(headers: {...headers, 'cookie': cookies},responseType: ResponseType.bytes));
+          ('https://portal.stust.edu.tw/abs_stu/query/query.asp'),
+          options: Options(
+              headers: {...headers, 'cookie': cookies},
+              responseType: ResponseType.bytes));
       responseBodyHex = hex.encode(response.data);
       soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
       // print(soup.outerHtml);
@@ -477,8 +503,10 @@ class _LeaveRequestPageState extends State<LeaveRequestPage>
 
           // print(link);
 
-          response = await dio
-              .get((link), options: Options(headers: {...headers, 'cookie': cookies},responseType: ResponseType.bytes));
+          response = await dio.get((link),
+              options: Options(
+                  headers: {...headers, 'cookie': cookies},
+                  responseType: ResponseType.bytes));
           responseBodyHex = hex.encode(response.data);
           soup = html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
           // print(link);
@@ -519,8 +547,9 @@ class _LeaveRequestPageState extends State<LeaveRequestPage>
                     isSending = false;
                   });
                   // _hideSendingDialog();
+                  return [link, soup];
 
-                  _showAlertDialog('請假成功', link, soup);
+                  // _showAlertDialog('請假成功', link, soup);
                 } else if (shijiaElement.contains('病假') &&
                     absentType == '3' &&
                     weekElement?.text.trim() == week &&
@@ -530,7 +559,7 @@ class _LeaveRequestPageState extends State<LeaveRequestPage>
                     isSending = false;
                   });
                   // _hideSendingDialog();
-                  _showAlertDialog('請假成功', link, soup);
+                  return [link, soup];
                 } else {
                   // print('失敗');
                   setState(() {
@@ -538,11 +567,8 @@ class _LeaveRequestPageState extends State<LeaveRequestPage>
                   });
                   // _hideSendingDialog();
                   // Navigator.of(context).pop();
-                  if (!mounted) return;
-                  showDialogBox(context, '此操作未達成，請重試');
+                  return false;
                 }
-
-                return;
               }
             }
           }
@@ -597,33 +623,75 @@ class _LeaveRequestPageState extends State<LeaveRequestPage>
               //     style: TextStyle(fontSize: 30),
               //   ),
               // ),
-              if (_responseData != null)
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Table(
-                      columnWidths: const {
-                        0: FlexColumnWidth(),
-                        1: FlexColumnWidth(),
-                        2: FlexColumnWidth(),
-                        3: FlexColumnWidth(),
-                      },
-                      children: _responseData.map((data) {
-                        return TableRow(
-                          decoration: const BoxDecoration(
-                            border: Border(
-                              bottom: BorderSide(
-                                width: 3,
-                                color: Colors.grey,
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Table(
+                    columnWidths: const {
+                      0: FlexColumnWidth(),
+                      1: FlexColumnWidth(),
+                      2: FlexColumnWidth(),
+                      3: FlexColumnWidth(),
+                    },
+                    children: _responseData.map((data) {
+                      return TableRow(
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              width: 3,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+                        children: [
+                          TableCell(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(7, 10, 7, 10),
+                              child: Text(
+                                data['date']!,
+                                style: _responseData.indexOf(data) == 0
+                                    ? const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color.fromARGB(255, 8, 8, 8))
+                                    : const TextStyle(fontSize: 16),
                               ),
                             ),
                           ),
-                          children: [
-                            TableCell(
+                          TableCell(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(7, 10, 7, 10),
+                              child: Text(
+                                data['week'].toString(),
+                                style: _responseData.indexOf(data) == 0
+                                    ? const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color.fromARGB(255, 8, 8, 8))
+                                    : const TextStyle(fontSize: 16),
+                              ),
+                            ),
+                          ),
+                          TableCell(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(7, 10, 7, 10),
+                              child: Text(
+                                data['section'].toString(),
+                                style: _responseData.indexOf(data) == 0
+                                    ? const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color.fromARGB(255, 8, 8, 8))
+                                    : const TextStyle(fontSize: 16),
+                              ),
+                            ),
+                          ),
+                          TableCell(
+                            child: InkWell(
                               child: Padding(
                                 padding:
                                     const EdgeInsets.fromLTRB(7, 10, 7, 10),
                                 child: Text(
-                                  data['date']!,
+                                  splitLesson(data['lesson']!),
                                   style: _responseData.indexOf(data) == 0
                                       ? const TextStyle(
                                           fontSize: 20,
@@ -633,163 +701,141 @@ class _LeaveRequestPageState extends State<LeaveRequestPage>
                                 ),
                               ),
                             ),
-                            TableCell(
+                          ),
+                          TableCell(
+                            child: InkWell(
                               child: Padding(
                                 padding:
                                     const EdgeInsets.fromLTRB(7, 10, 7, 10),
                                 child: Text(
-                                  data['week'].toString(),
+                                  data['reason']!,
                                   style: _responseData.indexOf(data) == 0
                                       ? const TextStyle(
                                           fontSize: 20,
                                           fontWeight: FontWeight.bold,
                                           color: Color.fromARGB(255, 8, 8, 8))
-                                      : const TextStyle(fontSize: 16),
+                                      : const TextStyle(
+                                          fontSize: 16, color: Colors.red),
                                 ),
                               ),
                             ),
-                            TableCell(
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(7, 10, 7, 10),
-                                child: Text(
-                                  data['section'].toString(),
-                                  style: _responseData.indexOf(data) == 0
-                                      ? const TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color.fromARGB(255, 8, 8, 8))
-                                      : const TextStyle(fontSize: 16),
-                                ),
-                              ),
-                            ),
-                            TableCell(
-                              child: InkWell(
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(7, 10, 7, 10),
-                                  child: Text(
-                                    splitLesson(data['lesson']!),
-                                    style: _responseData.indexOf(data) == 0
-                                        ? const TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
-                                            color: Color.fromARGB(255, 8, 8, 8))
-                                        : const TextStyle(fontSize: 16),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            TableCell(
-                              child: InkWell(
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(7, 10, 7, 10),
-                                  child: Text(
-                                    data['reason']!,
-                                    style: _responseData.indexOf(data) == 0
-                                        ? const TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
-                                            color: Color.fromARGB(255, 8, 8, 8))
-                                        : const TextStyle(
-                                            fontSize: 16, color: Colors.red),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            // if (_responseData.indexOf(data) == 0)
-                            TableCell(
-                              child: IconButton(
-                                icon: _responseData.indexOf(data) == 0
-                                    ? const Icon(Icons.info_outline,
-                                        color: Color.fromARGB(255, 92, 90, 90),
-                                        size: 30)
-                                    : const Icon(Icons.assignment,
-                                        color: Color.fromARGB(255, 92, 90, 90),
-                                        size: 30),
-                                onPressed: () {
-                                  if (_responseData.indexOf(data) == 0) {
-                                    showDialogBox(context,
-                                        '1.此系統僅提供事假/病假申請\n2.所有請假需在缺課1個月內完成申請\n3.此表格僅會顯示已被紀錄缺席之課堂\n4.若缺課無出現表示已超過請假時限或已完成請假');
-                                  } else {
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return Dialog(
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(16.0),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                const Text(
-                                                  '送出假單:',
-                                                  style: TextStyle(
-                                                      fontSize: 18.0,
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                ),
-                                                const SizedBox(height: 16.0),
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: [
-                                                    SelectorWidget(
-                                                      labelText: '假別',
-                                                      options: const [
-                                                        '事假',
-                                                        '病假'
-                                                      ],
-                                                      onChanged: (value) {
-                                                        // Handle the value change
-                                                        if (value == '病假') {
-                                                          absentType = '3';
-                                                        } else {
-                                                          absentType = '4';
-                                                        }
-                                                      },
-                                                    ),
-                                                  ],
-                                                ),
-                                                const SizedBox(height: 16.0),
-                                                TextField(
-                                                  decoration:
-                                                      const InputDecoration(
-                                                    hintText: '請假事由',
-                                                    border:
-                                                        OutlineInputBorder(),
-                                                  ),
-                                                  onChanged: (value) {
-                                                    absentReason = value;
-                                                    // Handle the value change
-                                                  },
-                                                ),
-                                                const SizedBox(height: 16.0),
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.end,
-                                                  children: [
-                                                    TextButton(
-                                                      onPressed: () {
-                                                        Navigator.of(context)
-                                                            .pop();
-                                                      },
-                                                      child: const Text('取消'),
-                                                    ),
-                                                    isSending
-                                                        ? const CircularProgressIndicator()
-                                                        : ElevatedButton(
-                                                            onPressed:
-                                                                () async {
-                                                              isSending = true;
-                                                              // Handle the form submission
+                          ),
+                          // if (_responseData.indexOf(data) == 0)
+                          TableCell(
+                            child: IconButton(
+                              icon: _responseData.indexOf(data) == 0
+                                  ? const Icon(Icons.info_outline,
+                                      color: Color.fromARGB(255, 92, 90, 90),
+                                      size: 30)
+                                  : const Icon(Icons.assignment,
+                                      color: Color.fromARGB(255, 92, 90, 90),
+                                      size: 30),
+                              onPressed: () {
+                                if (_responseData.indexOf(data) == 0) {
+                                  showDialogBox(context,
+                                      '1.此系統僅提供事假/病假申請\n2.所有請假需在缺課1個月內完成申請\n3.此表格僅會顯示已被紀錄缺席之課堂\n4.若缺課無出現表示已超過請假時限或已完成請假');
+                                } else {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      StateSetter toSetState;
+
+                                      return Dialog(
+                                        // insetPadding:
+                                        //     const EdgeInsets.symmetric(
+                                        //         horizontal: 50.0,
+                                        //         vertical: 24.0),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(15.0),
+                                          child: StatefulBuilder(builder:
+                                              (BuildContext context,
+                                                  StateSetter setState) {
+                                            toSetState = setState;
+
+                                            return isSending
+                                                ? const CircularProgressIndicator()
+                                                : Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      const Text(
+                                                        '送出假單:',
+                                                        style: TextStyle(
+                                                            fontSize: 18.0,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                      ),
+                                                      const SizedBox(
+                                                          height: 16.0),
+                                                      Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          SelectorWidget(
+                                                            labelText: '假別',
+                                                            options: const [
+                                                              '事假',
+                                                              '病假'
+                                                            ],
+                                                            onChanged: (value) {
+                                                              // Handle the value change
+                                                              if (value ==
+                                                                  '病假') {
+                                                                absentType =
+                                                                    '3';
+                                                              } else {
+                                                                absentType =
+                                                                    '4';
+                                                              }
+                                                            },
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      const SizedBox(
+                                                          height: 16.0),
+                                                      TextField(
+                                                        decoration:
+                                                            const InputDecoration(
+                                                          hintText:
+                                                              '請假事由(空白即自動帶入身體不適)',
+                                                          border:
+                                                              OutlineInputBorder(),
+                                                        ),
+                                                        onChanged: (value) {
+                                                          absentReason = value;
+                                                          // Handle the value change
+                                                        },
+                                                      ),
+                                                      const SizedBox(
+                                                          height: 16.0),
+                                                      Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .end,
+                                                        children: [
+                                                          TextButton(
+                                                            onPressed: () {
                                                               Navigator.of(
                                                                       context)
                                                                   .pop();
+                                                            },
+                                                            child: const Text(
+                                                                '取消'),
+                                                          ),
+                                                          ElevatedButton(
+                                                            onPressed:
+                                                                () async {
+                                                              isSending = true;
+                                                              toSetState(() {});
+                                                              // Handle the form submission
+
                                                               try {
-                                                                await _sendleave_request(
+                                                               final result =  await _sendleave_request(
                                                                     data['week']
                                                                         .toString(),
                                                                     absentType,
@@ -799,30 +845,47 @@ class _LeaveRequestPageState extends State<LeaveRequestPage>
                                                                     dateToWeekDay(
                                                                             data['date']!)
                                                                         .toString());
+                                                              if (result != false) {
+                                                                if (!mounted) {
+                                                                  showDialogBox(context,'請假失敗請稍後再試一次');
+                                                                }
+                                                              }else{
+                                                                 _showAlertDialog('請假成功', result[0],  result[1]);
+                                                              }
+
+                                                                toSetState(
+                                                                    () {});
+                                                                if (!mounted) {
+                                                                  return;
+                                                                }
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop();
                                                               } catch (e) {}
                                                             },
                                                             child: const Text(
                                                                 '送出'),
                                                           ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    );
-                                  }
-                                  // ...
-                                },
-                              ),
+                                                        ],
+                                                      )
+                                                    ],
+                                                  );
+                                          }),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                }
+                                // ...
+                              },
                             ),
-                          ],
-                        );
-                      }).toList(),
-                    ),
+                          ),
+                        ],
+                      );
+                    }).toList(),
                   ),
                 ),
+              ),
             ],
           ),
           if (_isLoading)

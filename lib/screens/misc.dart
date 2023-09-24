@@ -20,7 +20,7 @@ import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:flutter_neumorphic_null_safety/flutter_neumorphic.dart';
+// import 'package:flutter_neumorphic_null_safety/flutter_neumorphic.dart';
 
 class StudentMiscPage extends StatefulWidget {
   static const routeName = '/student_misc';
@@ -703,8 +703,8 @@ Widget _infoRow(BuildContext context, int index) {
         ),
       ),
       const SizedBox(height: 10),
-      Row(
-        children: const [
+      const Row(
+        children: [
           Text(
             '編號',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
