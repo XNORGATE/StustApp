@@ -66,6 +66,8 @@ dependencies:
   get: ^4.6.5
   dio_cache_interceptor: any
   chewie: ^1.7.0
+  add_2_calendar: ^2.2.4
+  flutter_slidable: ^3.0.0
   # googleapis: any
 
 

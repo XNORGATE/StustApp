@@ -6,6 +6,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:get/get.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:page_transition/page_transition.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stust_app/screens/Bulletins.dart';
@@ -179,7 +180,7 @@ class _HomeworkPageState extends State<HomeworkPage>
       List<String> parts = dateString.split('~');
       if (parts.length > 1) {
         String endDate = parts[1].trim();
-                print(endDate);
+        print(endDate);
 
         endDate = '${endDate.replaceAll(' ', 'T')}:00';
         dateString = endDate;
@@ -390,7 +391,7 @@ class _HomeworkPageState extends State<HomeworkPage>
                     .nextElementSibling
                     ?.text
                     .trim();
-                    print('總共$numberOfSubmissions人已繳交');
+                print('總共$numberOfSubmissions人已繳交');
               } catch (e) {}
               String? submissionDeadline = '';
 
@@ -487,178 +488,207 @@ class _HomeworkPageState extends State<HomeworkPage>
                 final data = _responseData[index];
                 // bool isStringTooLong = data['topic']!.length > 13;
 
-                return InkWell(
-                  onTap: () {
-                    if (!(data['numberOfSubmissions'] == '問卷' || data['numberOfSubmissions'] == '測驗')) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const HomeWorkDetailPage(),
-                          settings: RouteSettings(arguments: {
-                            'topic': data['topic'],
-                            'src': data['src'],
-                            'href': data['href'],
-                            'account': _account,
-                            'password': _password,
-                          }),
+                return Slidable(
+                    // Specify a key if the Slidable is dismissible.
+                    key: ValueKey(index),
+                    endActionPane: ActionPane(
+                      motion: const StretchMotion(),
+                      children: [
+                        SlidableAction(
+                          // An action can be bigger than the others.
+                          flex: 2,
+                          onPressed: (_) {
+                            debugPrint('Button Save Clicked');
+                          },
+                          backgroundColor: const Color(0xFF7BC043),
+                          foregroundColor: Colors.white,
+                          icon: Icons.notification_add,
+                          label: '加入行事曆提醒',
                         ),
-                      );
-                    }
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 1.5, horizontal: 8),
-                    child: Card(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 8, horizontal: 8),
-                          child: Column(
-                            children: [
-                              Row(
-                                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.center,
+
+                      ],
+                    ),
+
+                    // The child of the Slidable is what the user sees when the
+                    // component is not dragged.
+                    child: InkWell(
+                      onTap: () {
+                        if (!(data['numberOfSubmissions'] == '問卷' ||
+                            data['numberOfSubmissions'] == '測驗')) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const HomeWorkDetailPage(),
+                              settings: RouteSettings(arguments: {
+                                'topic': data['topic'],
+                                'src': data['src'],
+                                'href': data['href'],
+                                'account': _account,
+                                'password': _password,
+                              }),
+                            ),
+                          );
+                        }
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 1.5, horizontal: 8),
+                        child: Card(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8)),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 8, horizontal: 8),
+                              child: Column(
                                 children: [
-                                  // Text(
-                                  //   extractMonthAndDay(data['date']!),
-                                  //   style: const TextStyle(
-                                  //     fontSize: 18.0,
-                                  //     fontWeight: FontWeight.bold,
-                                  //   ),
-                                  // ),
-                                  // const SizedBox(
-                                  //   width: 20,
-                                  // ),
+                                  Row(
+                                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      // Text(
+                                      //   extractMonthAndDay(data['date']!),
+                                      //   style: const TextStyle(
+                                      //     fontSize: 18.0,
+                                      //     fontWeight: FontWeight.bold,
+                                      //   ),
+                                      // ),
+                                      // const SizedBox(
+                                      //   width: 20,
+                                      // ),
 
-
-                                  data['isDone'] == '未繳交' || data['numberOfSubmissions']!.contains('問卷')|| data['numberOfSubmissions']!.contains('測驗')
-                                      ? const Icon(
-                                          Icons.assignment,
-                                          size: 18,
-                                          color:
-                                              Color.fromARGB(255, 243, 29, 29),
-                                        )
-                                      : const Icon(
-                                          Icons.done,
-                                          size: 18,
-                                          color:
-                                              Color.fromARGB(255, 11, 167, 245),
+                                      data['isDone'] == '未繳交' ||
+                                              data['numberOfSubmissions']!
+                                                  .contains('問卷') ||
+                                              data['numberOfSubmissions']!
+                                                  .contains('測驗')
+                                          ? const Icon(
+                                              Icons.assignment,
+                                              size: 18,
+                                              color: Color.fromARGB(
+                                                  255, 243, 29, 29),
+                                            )
+                                          : const Icon(
+                                              Icons.done,
+                                              size: 18,
+                                              color: Color.fromARGB(
+                                                  255, 11, 167, 245),
+                                            ),
+                                      const SizedBox(
+                                        width: 3,
+                                      ),
+                                      Text(
+                                        data['isDone']?.replaceAll("交", "") ??
+                                            "",
+                                        strutStyle: const StrutStyle(
+                                          forceStrutHeight: true,
+                                          leading: 0.5,
                                         ),
-                                  const SizedBox(
-                                    width: 3,
-                                  ),
-                                  Text(
-                                    data['isDone']?.replaceAll("交", "") ?? "",
-                                    strutStyle: const StrutStyle(
-                                      forceStrutHeight: true,
-                                      leading: 0.5,
-                                    ),
-                                  ),
+                                      ),
 
-                                  Container(
-                                    width: 3,
-                                    height: 3,
-                                    margin: const EdgeInsets.all(6),
-                                    decoration: BoxDecoration(
-                                        color: Colors.black,
-                                        borderRadius:
-                                            BorderRadius.circular(99)),
-                                    child: const SizedBox.shrink(),
+                                      Container(
+                                        width: 3,
+                                        height: 3,
+                                        margin: const EdgeInsets.all(6),
+                                        decoration: BoxDecoration(
+                                            color: Colors.black,
+                                            borderRadius:
+                                                BorderRadius.circular(99)),
+                                        child: const SizedBox.shrink(),
+                                      ),
+                                      Text(
+                                        data['src']!,
+                                        strutStyle: const StrutStyle(
+                                          forceStrutHeight: true,
+                                          leading: 0.5,
+                                        ),
+                                      )
+                                      // Text(
+                                      //   "${extractMonthAndDay(data['date']!)} 前",
+                                      //   strutStyle: const StrutStyle(
+                                      //     forceStrutHeight: true,
+                                      //     leading: 0.5,
+                                      //   ),
+                                      // ),
+                                      // Container(
+                                      //   width: 3,
+                                      //   height: 3,
+                                      //   margin: const EdgeInsets.all(8),
+                                      //   decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(99)),
+                                      //   child: const SizedBox.shrink(),
+                                      // ),
+                                      // if (data['isDone'] == '未繳交')
+                                      //   Text(
+                                      //     '剩下${data['remain']}',
+                                      //     strutStyle: const StrutStyle(
+                                      //       forceStrutHeight: true,
+                                      //       leading: 0.5,
+                                      //     ),
+                                      //   ),
+                                    ],
                                   ),
-                                  Text(
-                                    data['src']!,
-                                    strutStyle: const StrutStyle(
-                                      forceStrutHeight: true,
-                                      leading: 0.5,
-                                    ),
-                                  )
                                   // Text(
-                                  //   "${extractMonthAndDay(data['date']!)} 前",
-                                  //   strutStyle: const StrutStyle(
-                                  //     forceStrutHeight: true,
-                                  //     leading: 0.5,
+                                  //   data['src']!,
+                                  //   style: const TextStyle(
+                                  //     fontSize: 15.0,
+                                  //     // fontWeight: FontWeight.bold,
                                   //   ),
                                   // ),
-                                  // Container(
-                                  //   width: 3,
-                                  //   height: 3,
-                                  //   margin: const EdgeInsets.all(8),
-                                  //   decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(99)),
-                                  //   child: const SizedBox.shrink(),
-                                  // ),
-                                  // if (data['isDone'] == '未繳交')
-                                  //   Text(
-                                  //     '剩下${data['remain']}',
-                                  //     strutStyle: const StrutStyle(
-                                  //       forceStrutHeight: true,
-                                  //       leading: 0.5,
-                                  //     ),
-                                  //   ),
-                                ],
-                              ),
-                              // Text(
-                              //   data['src']!,
-                              //   style: const TextStyle(
-                              //     fontSize: 15.0,
-                              //     // fontWeight: FontWeight.bold,
-                              //   ),
-                              // ),
-                              Text(
-                                data['topic']!,
-                                style: const TextStyle(
-                                  // overflow: TextOverflow.ellipsis,
-                                  fontSize: 18.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(
-                                height: 5,
-                              ),
-                              Row(
-                                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    flex: 3,
-                                    child: Text(
-                                      '期限: ${data['submissionDeadline']}',
-                                      style: const TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 11.0,
-                                        fontWeight: FontWeight.w400,
-                                      ),
+                                  Text(
+                                    data['topic']!,
+                                    style: const TextStyle(
+                                      // overflow: TextOverflow.ellipsis,
+                                      fontSize: 18.0,
+                                      fontWeight: FontWeight.bold,
                                     ),
+                                    textAlign: TextAlign.center,
                                   ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: Text(
-                                      '已交: ${data['numberOfSubmissions']}',
-                                      style: const TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 13.0,
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                    ),
+                                  const SizedBox(
+                                    height: 5,
                                   ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: Text(
-                                      '剩餘: ${data['remain']}',
-                                      style: const TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 13.0,
-                                        fontWeight: FontWeight.w400,
+                                  Row(
+                                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        flex: 3,
+                                        child: Text(
+                                          '期限: ${data['submissionDeadline']}',
+                                          style: const TextStyle(
+                                            color: Colors.grey,
+                                            fontSize: 11.0,
+                                            fontWeight: FontWeight.w400,
+                                          ),
+                                        ),
                                       ),
-                                    ),
+                                      Expanded(
+                                        flex: 2,
+                                        child: Text(
+                                          '已交: ${data['numberOfSubmissions']}',
+                                          style: const TextStyle(
+                                            color: Colors.grey,
+                                            fontSize: 13.0,
+                                            fontWeight: FontWeight.w400,
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        flex: 2,
+                                        child: Text(
+                                          '剩餘: ${data['remain']}',
+                                          style: const TextStyle(
+                                            color: Colors.grey,
+                                            fontSize: 13.0,
+                                            fontWeight: FontWeight.w400,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
-                            ],
-                          ),
-                        )),
-                  ),
-                );
+                            )),
+                      ),
+                    ));
               },
             ),
       bottomNavigationBar: BottomNavigationBar(
