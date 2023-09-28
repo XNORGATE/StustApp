@@ -206,7 +206,9 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
       Dio dio = Dio();
       final response = await dio.post(
         ('http://api.xnor-development.com:70/stust_checkban'),
-        options: Options(headers: {'Content-Type': 'application/json'},responseType: ResponseType.json),
+        options: Options(
+            headers: {'Content-Type': 'application/json'},
+            responseType: ResponseType.json),
         data: {
           'name': name,
         },
@@ -316,10 +318,10 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
               backgroundColor: Colors.grey[300],
               body: SafeArea(
                 child: _isLoading
-                    ? Center(
+                    ? const Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
+                          children: [
                             CircularProgressIndicator(),
                             SizedBox(height: 20),
                             Text(
@@ -468,7 +470,9 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                                           prefs.setString(
                                               'name', isAuthenticated);
                                         });
-
+                                        setState(() {
+                                          _isLoading = false;
+                                        });
                                         if (!mounted) return;
                                         Navigator.of(context)
                                             .pushNamedAndRemoveUntil(
