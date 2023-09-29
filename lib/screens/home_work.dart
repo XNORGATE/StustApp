@@ -498,6 +498,17 @@ class _HomeworkPageState extends State<HomeworkPage>
                           // An action can be bigger than the others.
                           flex: 2,
                           onPressed: (_) {
+                            debugPrint('Button del Clicked');
+                          },
+                          backgroundColor: Color.fromARGB(255, 218, 26, 26),
+                          foregroundColor: Colors.white,
+                          icon: Icons.notifications_off,
+                          label: '刪除行事曆提醒',
+                        ),
+                        SlidableAction(
+                          // An action can be bigger than the others.
+                          flex: 2,
+                          onPressed: (_) {
                             debugPrint('Button Save Clicked');
                           },
                           backgroundColor: const Color(0xFF7BC043),
@@ -505,7 +516,6 @@ class _HomeworkPageState extends State<HomeworkPage>
                           icon: Icons.notification_add,
                           label: '加入行事曆提醒',
                         ),
-
                       ],
                     ),
 

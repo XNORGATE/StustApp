@@ -74,7 +74,7 @@ class _CreateActivitiesPageState extends State<CreateActivitiesPage>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: isSending
-                    ? [const CircularProgressIndicator()]
+                    ? [const Center(child: CircularProgressIndicator())]
                     : [
                         Container(
                             decoration: BoxDecoration(
