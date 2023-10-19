@@ -37,7 +37,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage>
   late String account;
   late String password;
 
-  late Future<void> _homeworkFuture;
+  // late Future<void> _homeworkFuture;
   var typeOfHomework = '';
   var openForSubmission = '';
   String? submissionDeadline = '';
@@ -53,7 +53,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage>
   Uint8List? attachmentBytes;
   List EmbedYTList = [];
   int thumbnailCounter = 0;
-  bool isLoaded = false;
+  bool isloading = false;
   String isDone = '交作業';
 
   @override
@@ -88,7 +88,13 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage>
       }
 
       try {
-        _homeworkFuture = getHomework();
+        setState(() {
+          isloading = true;
+        });
+       getHomework();
+       setState(() {
+          isloading = false;
+       });
       } catch (e) {
         print(e);
       }
@@ -314,12 +320,11 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage>
         // Handle the error here
       }
 
+      setState(() {
+        isloading = false;
+      });
+
       // sleep(const Duration(seconds: 1));
-      try {
-        setState(() {
-          isLoaded = true;
-        });
-      } catch (e) {}
     } catch (e) {}
   }
 
@@ -372,7 +377,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage>
       var iframeUrl = soup
           .querySelector("a[data-modal-title='交作業' ]")!
           .attributes['data-url']!;
-      
+
       ///取得iframe的網址
       iframeUrl = "https://flipclass.stust.edu.tw$iframeUrl&fs_no_foot_js=1";
       // iframeUrl = iframeUrl;
@@ -1118,8 +1123,9 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage>
         backgroundColor: Colors.green[200],
       ),
       body: SizedBox(
-        child: isLoaded
-            ? ListView(
+        child: isloading
+            ? const Center(child: CircularProgressIndicator())
+            : ListView(
                 children: [
                   Padding(
                     padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
@@ -1913,8 +1919,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage>
                       ),
                     ),
                 ],
-              )
-            : const Center(child: CircularProgressIndicator()),
+              ),
       ),
     );
   }
