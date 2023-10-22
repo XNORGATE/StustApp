@@ -608,520 +608,551 @@ class _LeaveRequestPageState extends State<LeaveRequestPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              const SizedBox(
-                height: 30,
-              ),
-              // TextButton(
-              //   onPressed: _submitForm,
-              //   child: const Text(
-              //     '查詢',
-              //     style: TextStyle(fontSize: 30),
-              //   ),
-              // ),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Table(
-                    columnWidths: const {
-                      0: FlexColumnWidth(),
-                      1: FlexColumnWidth(),
-                      2: FlexColumnWidth(),
-                      3: FlexColumnWidth(),
-                    },
-                    children: _responseData.map((data) {
-                      return TableRow(
-                        decoration: const BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                              width: 3,
-                              color: Colors.grey,
-                            ),
+    return HeroControllerScope(
+        controller: HeroController(),
+        child: Hero(
+            tag: 'leave_request',
+            child: Scaffold(
+              body: Stack(
+                children: [
+                  Column(
+                    children: [
+                      const SizedBox(
+                        height: 30,
+                      ),
+                      // TextButton(
+                      //   onPressed: _submitForm,
+                      //   child: const Text(
+                      //     '查詢',
+                      //     style: TextStyle(fontSize: 30),
+                      //   ),
+                      // ),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Table(
+                            columnWidths: const {
+                              0: FlexColumnWidth(),
+                              1: FlexColumnWidth(),
+                              2: FlexColumnWidth(),
+                              3: FlexColumnWidth(),
+                            },
+                            children: _responseData.map((data) {
+                              return TableRow(
+                                decoration: const BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      width: 3,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ),
+                                children: [
+                                  TableCell(
+                                    child: Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          7, 10, 7, 10),
+                                      child: Text(
+                                        data['date']!,
+                                        style: _responseData.indexOf(data) == 0
+                                            ? const TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                                color: Color.fromARGB(
+                                                    255, 8, 8, 8))
+                                            : const TextStyle(fontSize: 16),
+                                      ),
+                                    ),
+                                  ),
+                                  TableCell(
+                                    child: Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          7, 10, 7, 10),
+                                      child: Text(
+                                        data['week'].toString(),
+                                        style: _responseData.indexOf(data) == 0
+                                            ? const TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                                color: Color.fromARGB(
+                                                    255, 8, 8, 8))
+                                            : const TextStyle(fontSize: 16),
+                                      ),
+                                    ),
+                                  ),
+                                  TableCell(
+                                    child: Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          7, 10, 7, 10),
+                                      child: Text(
+                                        data['section'].toString(),
+                                        style: _responseData.indexOf(data) == 0
+                                            ? const TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                                color: Color.fromARGB(
+                                                    255, 8, 8, 8))
+                                            : const TextStyle(fontSize: 16),
+                                      ),
+                                    ),
+                                  ),
+                                  TableCell(
+                                    child: InkWell(
+                                      child: Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            7, 10, 7, 10),
+                                        child: Text(
+                                          splitLesson(data['lesson']!),
+                                          style: _responseData.indexOf(data) ==
+                                                  0
+                                              ? const TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Color.fromARGB(
+                                                      255, 8, 8, 8))
+                                              : const TextStyle(fontSize: 16),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  TableCell(
+                                    child: InkWell(
+                                      child: Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            7, 10, 7, 10),
+                                        child: Text(
+                                          data['reason']!,
+                                          style: _responseData.indexOf(data) ==
+                                                  0
+                                              ? const TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Color.fromARGB(
+                                                      255, 8, 8, 8))
+                                              : const TextStyle(
+                                                  fontSize: 16,
+                                                  color: Colors.red),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  // if (_responseData.indexOf(data) == 0)
+                                  TableCell(
+                                    child: IconButton(
+                                      icon: _responseData.indexOf(data) == 0
+                                          ? const Icon(Icons.info_outline,
+                                              color: Color.fromARGB(
+                                                  255, 92, 90, 90),
+                                              size: 30)
+                                          : const Icon(Icons.assignment,
+                                              color: Color.fromARGB(
+                                                  255, 92, 90, 90),
+                                              size: 30),
+                                      onPressed: () {
+                                        if (_responseData.indexOf(data) == 0) {
+                                          showDialogBox(context,
+                                              '1.此系統僅提供事假/病假申請\n2.所有請假需在缺課1個月內完成申請\n3.此表格僅會顯示已被紀錄缺席之課堂\n4.若缺課無出現表示已超過請假時限或已完成請假');
+                                        } else {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              StateSetter toSetState;
+
+                                              return Dialog(
+                                                // insetPadding:
+                                                //     const EdgeInsets.symmetric(
+                                                //         horizontal: 50.0,
+                                                //         vertical: 24.0),
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(
+                                                      15.0),
+                                                  child: StatefulBuilder(
+                                                      builder:
+                                                          (BuildContext context,
+                                                              StateSetter
+                                                                  setState) {
+                                                    toSetState = setState;
+
+                                                    return isSending
+                                                        ? const CircularProgressIndicator()
+                                                        : Column(
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .center,
+                                                            children: [
+                                                              const Text(
+                                                                '送出假單:',
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        18.0,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold),
+                                                              ),
+                                                              const SizedBox(
+                                                                  height: 16.0),
+                                                              Row(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .center,
+                                                                children: [
+                                                                  SelectorWidget(
+                                                                    labelText:
+                                                                        '假別',
+                                                                    options: const [
+                                                                      '事假',
+                                                                      '病假'
+                                                                    ],
+                                                                    onChanged:
+                                                                        (value) {
+                                                                      // Handle the value change
+                                                                      if (value ==
+                                                                          '病假') {
+                                                                        absentType =
+                                                                            '3';
+                                                                      } else {
+                                                                        absentType =
+                                                                            '4';
+                                                                      }
+                                                                    },
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              const SizedBox(
+                                                                  height: 16.0),
+                                                              TextField(
+                                                                decoration:
+                                                                    const InputDecoration(
+                                                                  hintText:
+                                                                      '請假事由(空白即自動帶入身體不適)',
+                                                                  border:
+                                                                      OutlineInputBorder(),
+                                                                ),
+                                                                onChanged:
+                                                                    (value) {
+                                                                  absentReason =
+                                                                      value;
+                                                                  // Handle the value change
+                                                                },
+                                                              ),
+                                                              const SizedBox(
+                                                                  height: 16.0),
+                                                              Row(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .end,
+                                                                children: [
+                                                                  TextButton(
+                                                                    onPressed:
+                                                                        () {
+                                                                      Navigator.of(
+                                                                              context)
+                                                                          .pop();
+                                                                    },
+                                                                    child:
+                                                                        const Text(
+                                                                            '取消'),
+                                                                  ),
+                                                                  ElevatedButton(
+                                                                    onPressed:
+                                                                        () async {
+                                                                      isSending =
+                                                                          true;
+                                                                      toSetState(
+                                                                          () {});
+                                                                      // Handle the form submission
+
+                                                                      try {
+                                                                        final result = await _sendleave_request(
+                                                                            data['week'].toString(),
+                                                                            absentType,
+                                                                            absentReason,
+                                                                            data['section'].toString(),
+                                                                            dateToWeekDay(data['date']!).toString());
+                                                                        if (result !=
+                                                                            false) {
+                                                                          if (!mounted) {
+                                                                            showDialogBox(context,
+                                                                                '請假失敗請稍後再試一次');
+                                                                          }
+                                                                        } else {
+                                                                          _showAlertDialog(
+                                                                              '請假成功',
+                                                                              result[0],
+                                                                              result[1]);
+                                                                        }
+
+                                                                        toSetState(
+                                                                            () {});
+                                                                        if (!mounted) {
+                                                                          return;
+                                                                        }
+                                                                        Navigator.of(context)
+                                                                            .pop();
+                                                                      } catch (e) {}
+                                                                    },
+                                                                    child:
+                                                                        const Text(
+                                                                            '送出'),
+                                                                  ),
+                                                                ],
+                                                              )
+                                                            ],
+                                                          );
+                                                  }),
+                                                ),
+                                              );
+                                            },
+                                          );
+                                        }
+                                        // ...
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }).toList(),
                           ),
                         ),
-                        children: [
-                          TableCell(
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(7, 10, 7, 10),
-                              child: Text(
-                                data['date']!,
-                                style: _responseData.indexOf(data) == 0
-                                    ? const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color.fromARGB(255, 8, 8, 8))
-                                    : const TextStyle(fontSize: 16),
-                              ),
-                            ),
-                          ),
-                          TableCell(
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(7, 10, 7, 10),
-                              child: Text(
-                                data['week'].toString(),
-                                style: _responseData.indexOf(data) == 0
-                                    ? const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color.fromARGB(255, 8, 8, 8))
-                                    : const TextStyle(fontSize: 16),
-                              ),
-                            ),
-                          ),
-                          TableCell(
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(7, 10, 7, 10),
-                              child: Text(
-                                data['section'].toString(),
-                                style: _responseData.indexOf(data) == 0
-                                    ? const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color.fromARGB(255, 8, 8, 8))
-                                    : const TextStyle(fontSize: 16),
-                              ),
-                            ),
-                          ),
-                          TableCell(
-                            child: InkWell(
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(7, 10, 7, 10),
-                                child: Text(
-                                  splitLesson(data['lesson']!),
-                                  style: _responseData.indexOf(data) == 0
-                                      ? const TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color.fromARGB(255, 8, 8, 8))
-                                      : const TextStyle(fontSize: 16),
-                                ),
-                              ),
-                            ),
-                          ),
-                          TableCell(
-                            child: InkWell(
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.fromLTRB(7, 10, 7, 10),
-                                child: Text(
-                                  data['reason']!,
-                                  style: _responseData.indexOf(data) == 0
-                                      ? const TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color.fromARGB(255, 8, 8, 8))
-                                      : const TextStyle(
-                                          fontSize: 16, color: Colors.red),
-                                ),
-                              ),
-                            ),
-                          ),
-                          // if (_responseData.indexOf(data) == 0)
-                          TableCell(
-                            child: IconButton(
-                              icon: _responseData.indexOf(data) == 0
-                                  ? const Icon(Icons.info_outline,
-                                      color: Color.fromARGB(255, 92, 90, 90),
-                                      size: 30)
-                                  : const Icon(Icons.assignment,
-                                      color: Color.fromARGB(255, 92, 90, 90),
-                                      size: 30),
-                              onPressed: () {
-                                if (_responseData.indexOf(data) == 0) {
-                                  showDialogBox(context,
-                                      '1.此系統僅提供事假/病假申請\n2.所有請假需在缺課1個月內完成申請\n3.此表格僅會顯示已被紀錄缺席之課堂\n4.若缺課無出現表示已超過請假時限或已完成請假');
-                                } else {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      StateSetter toSetState;
-
-                                      return Dialog(
-                                        // insetPadding:
-                                        //     const EdgeInsets.symmetric(
-                                        //         horizontal: 50.0,
-                                        //         vertical: 24.0),
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(15.0),
-                                          child: StatefulBuilder(builder:
-                                              (BuildContext context,
-                                                  StateSetter setState) {
-                                            toSetState = setState;
-
-                                            return isSending
-                                                ? const CircularProgressIndicator()
-                                                : Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      const Text(
-                                                        '送出假單:',
-                                                        style: TextStyle(
-                                                            fontSize: 18.0,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
-                                                      ),
-                                                      const SizedBox(
-                                                          height: 16.0),
-                                                      Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          SelectorWidget(
-                                                            labelText: '假別',
-                                                            options: const [
-                                                              '事假',
-                                                              '病假'
-                                                            ],
-                                                            onChanged: (value) {
-                                                              // Handle the value change
-                                                              if (value ==
-                                                                  '病假') {
-                                                                absentType =
-                                                                    '3';
-                                                              } else {
-                                                                absentType =
-                                                                    '4';
-                                                              }
-                                                            },
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      const SizedBox(
-                                                          height: 16.0),
-                                                      TextField(
-                                                        decoration:
-                                                            const InputDecoration(
-                                                          hintText:
-                                                              '請假事由(空白即自動帶入身體不適)',
-                                                          border:
-                                                              OutlineInputBorder(),
-                                                        ),
-                                                        onChanged: (value) {
-                                                          absentReason = value;
-                                                          // Handle the value change
-                                                        },
-                                                      ),
-                                                      const SizedBox(
-                                                          height: 16.0),
-                                                      Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .end,
-                                                        children: [
-                                                          TextButton(
-                                                            onPressed: () {
-                                                              Navigator.of(
-                                                                      context)
-                                                                  .pop();
-                                                            },
-                                                            child: const Text(
-                                                                '取消'),
-                                                          ),
-                                                          ElevatedButton(
-                                                            onPressed:
-                                                                () async {
-                                                              isSending = true;
-                                                              toSetState(() {});
-                                                              // Handle the form submission
-
-                                                              try {
-                                                               final result =  await _sendleave_request(
-                                                                    data['week']
-                                                                        .toString(),
-                                                                    absentType,
-                                                                    absentReason,
-                                                                    data['section']
-                                                                        .toString(),
-                                                                    dateToWeekDay(
-                                                                            data['date']!)
-                                                                        .toString());
-                                                              if (result != false) {
-                                                                if (!mounted) {
-                                                                  showDialogBox(context,'請假失敗請稍後再試一次');
-                                                                }
-                                                              }else{
-                                                                 _showAlertDialog('請假成功', result[0],  result[1]);
-                                                              }
-
-                                                                toSetState(
-                                                                    () {});
-                                                                if (!mounted) {
-                                                                  return;
-                                                                }
-                                                                Navigator.of(
-                                                                        context)
-                                                                    .pop();
-                                                              } catch (e) {}
-                                                            },
-                                                            child: const Text(
-                                                                '送出'),
-                                                          ),
-                                                        ],
-                                                      )
-                                                    ],
-                                                  );
-                                          }),
-                                        ),
-                                      );
-                                    },
-                                  );
-                                }
-                                // ...
-                              },
-                            ),
-                          ),
-                        ],
-                      );
-                    }).toList(),
+                      ),
+                    ],
                   ),
-                ),
+                  if (_isLoading)
+                    const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                ],
               ),
-            ],
-          ),
-          if (_isLoading)
-            const Center(
-              child: CircularProgressIndicator(),
-            ),
-        ],
-      ),
 
-      // final _formKey = GlobalKey<FormState>();
-      // late String _week;
-      // late String _section;
-      // late String _reason;
-      // late String _day;
-      // late String _type;
-      // late String _account = '0'; // Set account and password to 0 by default
-      // late String _password = '0';
+              // final _formKey = GlobalKey<FormState>();
+              // late String _week;
+              // late String _section;
+              // late String _reason;
+              // late String _day;
+              // late String _type;
+              // late String _account = '0'; // Set account and password to 0 by default
+              // late String _password = '0';
 
-      // @override
-      // void initState() {
-      //   super.initState();
-      //   _responseData = [];
-      //   _getlocal_UserData().then((data) {
-      //     _account = data[0];
-      //     _password = data[1];
-      //     //print(_account);
-      //     //print(_password);
+              // @override
+              // void initState() {
+              //   super.initState();
+              //   _responseData = [];
+              //   _getlocal_UserData().then((data) {
+              //     _account = data[0];
+              //     _password = data[1];
+              //     //print(_account);
+              //     //print(_password);
 
-      //     setState(() {});
-      //   });
-      // }
-
-      // _getlocal_UserData() async {
-      //   SharedPreferences prefs = await SharedPreferences.getInstance();
-      //   if (prefs.getString('account') != null) {
-      //     _account = prefs.getString('account')!;
-      //   }
-      //   if (prefs.getString('password') != null) {
-      //     _password = prefs.getString('password')!;
-      //   }
-
-      //   return [_account, _password];
-      // }
-
-      // late List _responseData;
-      // late bool _isLoading = false; // Flag to indicate if API request is being made
-
-      // void _submitForm() {
-      //   if (_formKey.currentState!.validate()) {
-      //     _formKey.currentState!.save();
-
-      //     setState(() {
-      //       _isLoading = true;
-      //     });
-
-      //     // Make POST request to the API
-      //     http
-      //         .get(
-      //       Uri.parse(
-      //           'http://api.xnor-development.com:70/leave_request?account=$_account&password=$_password&week=$_week&section=$_section&reason=$_reason&day=$_day&_type=$_type'),
-      //     )
-      //         .then((response) {
-      //       final responseData = json.decode(response.body) as List;
-      //       //print(responseData);
-      //       setState(() {
-      //         _responseData = responseData;
-      //         _isLoading = false;
-      //       });
-      //       // Display alert dialog with response data
-      //       _showAlertDialog();
-      //     });
-      //   }
-      // }
-
-      // void _showAlertDialog() {
-      //   showDialog(
-      //     context: context,
-      //     builder: (BuildContext context) {
-      //       return AlertDialog(
-      //         title: const Text('成功送出'),
-      //         content: const Text('你的請求已送出'),
-      //         actions: [
-      //           TextButton(
-      //             onPressed: () {
-      //               Navigator.of(context).pop();
-      //             },
-      //             child: const Text('OK'),
-      //           ),
-      //         ],
-      //       );
-      //     },
-      //   );
-      // }
-
-      // @override
-      // Widget build(BuildContext context) {
-      //   return Scaffold(
-      //     body: Stack(children: [
-      //       Form(
-      //         key: _formKey,
-      //         child: Column(
-      //           children: [
-      //             // Content input
-      //             TextFormField(
-      //               onSaved: (value) => _day = value!,
-      //               decoration: const InputDecoration(labelText: '週數'),
-      //               validator: (value) {
-      //                 if (value!.isEmpty) {
-      //                   return '請填入週數';
-      //                 }
-      //                 return null;
-      //               },
-      //             ),
-      //             TextFormField(
-      //               onSaved: (value) => _section = value!,
-      //               decoration: const InputDecoration(labelText: '節數'),
-      //               validator: (value) {
-      //                 if (value!.isEmpty) {
-      //                   return '請填入節數';
-      //                 }
-      //                 return null;
-      //               },
-      //             ),
-      //             // Reason input
-      //             TextFormField(
-      //               onSaved: (value) => _reason = value!,
-      //               decoration: const InputDecoration(labelText: '請假理由'),
-      //               validator: (value) {
-      //                 if (value!.isEmpty) {
-      //                   return '請填入理由';
-      //                 }
-      //                 return null;
-      //               },
-      //             ),
-      //             // Day input
-      //             TextFormField(
-      //               onSaved: (value) => _day = value!,
-      //               decoration: const InputDecoration(labelText: '周幾(禮拜幾)'),
-      //               validator: (value) {
-      //                 if (value!.isEmpty) {
-      //                   return '請填入周幾(禮拜幾)';
-      //                 }
-      //                 return null;
-      //               },
-      //             ),
-      //             // Type input
-
-      //             TextFormField(
-      //               onSaved: (value) => _type = value!,
-      //               decoration: const InputDecoration(labelText: '假別 (4為事假，3為病假)'),
-      //               validator: (value) {
-      //                 if (value!.isEmpty) {
-      //                   return '請填入假別';
-      //                 }
-      //                 return null;
-      //               },
-      //             ),
-      //             const SizedBox(
-      //               height: 50,
-      //             ),
-      //             TextButton(
-      //               onPressed: _submitForm,
-      //               child: const Text(
-      //                 '送出',
-      //                 style: TextStyle(fontSize: 30),
-      //               ),
-      //             ),
-      //           ],
-      //         ),
-      //       )
-      //     ]),
-      bottomNavigationBar: BottomNavigationBar(
-        selectedFontSize: 12.0,
-        backgroundColor: const Color.fromARGB(255, 117, 149, 120),
-        type: BottomNavigationBarType.shifting,
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.assignment),
-            label: '請假系統',
-            backgroundColor: Color.fromARGB(255, 117, 149, 120),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.format_list_bulleted),
-            label: '假單查詢',
-            backgroundColor: Color.fromARGB(255, 117, 149, 120),
-          ),
-        ],
-        onTap: (int index) {
-          switch (index) {
-            case 0:
-              if (ModalRoute.of(context)?.settings.name == '/absent') {
-                return;
-              }
-              // Navigator.of(context).pushReplacementNamed('/homework');
-              // // Navigator.of(context).pushNamedAndRemoveUntil('/homework',ModalRoute.withName('/home'));
-              // // Navigator.pushNamedAndRemoveUntil(
-              // //     context, '/homework', (route) => false);
-              break;
-
-            case 1:
-              // if (ModalRoute.of(context)?.settings.name == '/leave_request') {
-              //   return;
+              //     setState(() {});
+              //   });
               // }
-              // Navigator.of(context).pushNamedAndRemoveUntil('/bulletins',ModalRoute.withName('/home'));
-              Navigator.push(
-                  context,
-                  PageTransition(
-                      type: PageTransitionType.rightToLeftWithFade,
-                      child: const AbsentPage()));
-              break;
-          }
-        },
-      ),
-      appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 117, 149, 120),
-        automaticallyImplyLeading: false,
-        centerTitle: true,
-        title: const Text('請假系統'),
-        actions: const [
-          // IconButton(
-          //     iconSize: 35,
-          //     padding: const EdgeInsets.only(right: 20),
-          //     onPressed: () async {
-          //       Navigator.pushNamedAndRemoveUntil(
-          //           context, MyHomePage.routeName, (route) => false);
-          //     },
-          //     icon: const Icon(IconData(0xe328, fontFamily: 'MaterialIcons')))
-        ],
-        leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => Navigator.pushNamedAndRemoveUntil(
-                context, '/', (route) => false)),
-      ),
-    );
+
+              // _getlocal_UserData() async {
+              //   SharedPreferences prefs = await SharedPreferences.getInstance();
+              //   if (prefs.getString('account') != null) {
+              //     _account = prefs.getString('account')!;
+              //   }
+              //   if (prefs.getString('password') != null) {
+              //     _password = prefs.getString('password')!;
+              //   }
+
+              //   return [_account, _password];
+              // }
+
+              // late List _responseData;
+              // late bool _isLoading = false; // Flag to indicate if API request is being made
+
+              // void _submitForm() {
+              //   if (_formKey.currentState!.validate()) {
+              //     _formKey.currentState!.save();
+
+              //     setState(() {
+              //       _isLoading = true;
+              //     });
+
+              //     // Make POST request to the API
+              //     http
+              //         .get(
+              //       Uri.parse(
+              //           'http://api.xnor-development.com:70/leave_request?account=$_account&password=$_password&week=$_week&section=$_section&reason=$_reason&day=$_day&_type=$_type'),
+              //     )
+              //         .then((response) {
+              //       final responseData = json.decode(response.body) as List;
+              //       //print(responseData);
+              //       setState(() {
+              //         _responseData = responseData;
+              //         _isLoading = false;
+              //       });
+              //       // Display alert dialog with response data
+              //       _showAlertDialog();
+              //     });
+              //   }
+              // }
+
+              // void _showAlertDialog() {
+              //   showDialog(
+              //     context: context,
+              //     builder: (BuildContext context) {
+              //       return AlertDialog(
+              //         title: const Text('成功送出'),
+              //         content: const Text('你的請求已送出'),
+              //         actions: [
+              //           TextButton(
+              //             onPressed: () {
+              //               Navigator.of(context).pop();
+              //             },
+              //             child: const Text('OK'),
+              //           ),
+              //         ],
+              //       );
+              //     },
+              //   );
+              // }
+
+              // @override
+              // Widget build(BuildContext context) {
+              //   return Scaffold(
+              //     body: Stack(children: [
+              //       Form(
+              //         key: _formKey,
+              //         child: Column(
+              //           children: [
+              //             // Content input
+              //             TextFormField(
+              //               onSaved: (value) => _day = value!,
+              //               decoration: const InputDecoration(labelText: '週數'),
+              //               validator: (value) {
+              //                 if (value!.isEmpty) {
+              //                   return '請填入週數';
+              //                 }
+              //                 return null;
+              //               },
+              //             ),
+              //             TextFormField(
+              //               onSaved: (value) => _section = value!,
+              //               decoration: const InputDecoration(labelText: '節數'),
+              //               validator: (value) {
+              //                 if (value!.isEmpty) {
+              //                   return '請填入節數';
+              //                 }
+              //                 return null;
+              //               },
+              //             ),
+              //             // Reason input
+              //             TextFormField(
+              //               onSaved: (value) => _reason = value!,
+              //               decoration: const InputDecoration(labelText: '請假理由'),
+              //               validator: (value) {
+              //                 if (value!.isEmpty) {
+              //                   return '請填入理由';
+              //                 }
+              //                 return null;
+              //               },
+              //             ),
+              //             // Day input
+              //             TextFormField(
+              //               onSaved: (value) => _day = value!,
+              //               decoration: const InputDecoration(labelText: '周幾(禮拜幾)'),
+              //               validator: (value) {
+              //                 if (value!.isEmpty) {
+              //                   return '請填入周幾(禮拜幾)';
+              //                 }
+              //                 return null;
+              //               },
+              //             ),
+              //             // Type input
+
+              //             TextFormField(
+              //               onSaved: (value) => _type = value!,
+              //               decoration: const InputDecoration(labelText: '假別 (4為事假，3為病假)'),
+              //               validator: (value) {
+              //                 if (value!.isEmpty) {
+              //                   return '請填入假別';
+              //                 }
+              //                 return null;
+              //               },
+              //             ),
+              //             const SizedBox(
+              //               height: 50,
+              //             ),
+              //             TextButton(
+              //               onPressed: _submitForm,
+              //               child: const Text(
+              //                 '送出',
+              //                 style: TextStyle(fontSize: 30),
+              //               ),
+              //             ),
+              //           ],
+              //         ),
+              //       )
+              //     ]),
+              bottomNavigationBar: BottomNavigationBar(
+                selectedFontSize: 12.0,
+                backgroundColor: const Color.fromARGB(255, 117, 149, 120),
+                type: BottomNavigationBarType.shifting,
+                showSelectedLabels: true,
+                showUnselectedLabels: true,
+                items: const [
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.assignment),
+                    label: '請假系統',
+                    backgroundColor: Color.fromARGB(255, 117, 149, 120),
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.format_list_bulleted),
+                    label: '假單查詢',
+                    backgroundColor: Color.fromARGB(255, 117, 149, 120),
+                  ),
+                ],
+                onTap: (int index) {
+                  switch (index) {
+                    case 0:
+                      if (ModalRoute.of(context)?.settings.name == '/absent') {
+                        return;
+                      }
+                      // Navigator.of(context).pushReplacementNamed('/homework');
+                      // // Navigator.of(context).pushNamedAndRemoveUntil('/homework',ModalRoute.withName('/home'));
+                      // // Navigator.pushNamedAndRemoveUntil(
+                      // //     context, '/homework', (route) => false);
+                      break;
+
+                    case 1:
+                      // if (ModalRoute.of(context)?.settings.name == '/leave_request') {
+                      //   return;
+                      // }
+                      // Navigator.of(context).pushNamedAndRemoveUntil('/bulletins',ModalRoute.withName('/home'));
+                      Navigator.push(
+                          context,
+                          PageTransition(
+                              type: PageTransitionType.rightToLeftWithFade,
+                              child: const AbsentPage()));
+                      break;
+                  }
+                },
+              ),
+              appBar: AppBar(
+                backgroundColor: const Color.fromARGB(255, 117, 149, 120),
+                automaticallyImplyLeading: false,
+                centerTitle: true,
+                title: const Text('請假系統'),
+                actions: const [
+                  // IconButton(
+                  //     iconSize: 35,
+                  //     padding: const EdgeInsets.only(right: 20),
+                  //     onPressed: () async {
+                  //       Navigator.pushNamedAndRemoveUntil(
+                  //           context, MyHomePage.routeName, (route) => false);
+                  //     },
+                  //     icon: const Icon(IconData(0xe328, fontFamily: 'MaterialIcons')))
+                ],
+                leading: IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () => Navigator.pushNamedAndRemoveUntil(
+                        context, '/', (route) => false)),
+              ),
+            )));
   }
 }
 

@@ -91,10 +91,8 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage>
         setState(() {
           isloading = true;
         });
-       getHomework();
-       setState(() {
-          isloading = false;
-       });
+        getHomework().then((value) => isloading = false);
+        setState(() {});
       } catch (e) {
         print(e);
       }
@@ -140,7 +138,11 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage>
     // var homeworkCode = '';
     // var session = http.Client();
     Dio dio = Dio();
+    // print('href$href');
+
     try {
+      print('href$href');
+
       var response =
           await dio.get(('https://flipclass.stust.edu.tw/index/login'));
       var soup = html.parse(response.data);
@@ -160,12 +162,11 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage>
         'csrf-t': hiddenInput,
       };
 
-      // final uri =
-      //     Uri.https('flipclass.stust.edu.tw', '/index/login', queryParameters);
-
-      response = await dio.get('flipclass.stust.edu.tw/index/login',
+      response = await dio.get('https://flipclass.stust.edu.tw/index/login',
           queryParameters: queryParameters);
+      // soup = html.parse(response.data);
 
+      // print(soup.outerHtml);
       if (response.headers['set-cookie'] == null) {
         print('Authenticate error(帳號密碼錯誤)');
         // Navigator.pop(context);
@@ -175,12 +176,14 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage>
 
       var headers = {
         'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
-        'cookie': cookies,
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
       };
+      response = await dio.get((href),
+          options: Options(headers: {...headers, 'cookie': cookies}));
+      // print(soup.outerHtml);
 
-      response = await dio.get((href), options: Options(headers: headers));
       soup = html.parse(response.data);
+
       // print(soup.outerHtml);
       // print(href);
       // print(src);
@@ -192,7 +195,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage>
           .nextElementSibling!
           .text
           .trim();
-      // print(typeOfHomework);
+      print('typeOfHomework$typeOfHomework');
       openForSubmission = soup
           .querySelectorAll('dt')
           .firstWhere((element) => element.text == '開放繳交')
@@ -325,7 +328,9 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage>
       });
 
       // sleep(const Duration(seconds: 1));
-    } catch (e) {}
+    } catch (e) {
+      print(e);
+    }
   }
 
   Future<dynamic> sendHomeworkWithFiles(
@@ -356,7 +361,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage>
       // final uri =
       //     Uri.https('flipclass.stust.edu.tw', '/index/login', queryParameters);
 
-      response = await dio.get('flipclass.stust.edu.tw/index/login',
+      response = await dio.get('https://flipclass.stust.edu.tw/index/login',
           queryParameters: queryParameters);
 
       var cookies = response.headers['set-cookie']!;
@@ -559,7 +564,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage>
       // final uri =
       //     Uri.https('flipclass.stust.edu.tw', '/index/login', queryParameters);
 
-      response = await dio.get('flipclass.stust.edu.tw/index/login',
+      response = await dio.get('https://flipclass.stust.edu.tw/index/login',
           queryParameters: queryParameters);
 
       var cookies = response.headers['set-cookie']!;
@@ -669,7 +674,7 @@ class _HomeWorkDetailPageState extends State<HomeWorkDetailPage>
       // final uri =
       //     Uri.https('flipclass.stust.edu.tw', '/index/login', queryParameters);
 
-      response = await dio.get('flipclass.stust.edu.tw/index/login',
+      response = await dio.get('https://flipclass.stust.edu.tw/index/login',
           queryParameters: queryParameters);
 
       var cookies = response.headers['set-cookie']!;

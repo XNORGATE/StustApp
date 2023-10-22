@@ -23,7 +23,7 @@ class BulletinsPage extends StatefulWidget {
 }
 
 class _BulletinsPageState extends State<BulletinsPage>
-    with WidgetsBindingObserver, AutoLogoutMixin<BulletinsPage>{
+    with WidgetsBindingObserver, AutoLogoutMixin<BulletinsPage> {
   // final _formKey = GlobalKey<FormState>();
   // final _scaffoldKey = GlobalKey<ScaffoldState>();
   // final bool _cancelToken = false;
@@ -50,7 +50,7 @@ class _BulletinsPageState extends State<BulletinsPage>
                   onPressed: () async {
                     // Navigator.of(context).pop();
                     // SystemChannels.platform.invokeMethod('SystemNavigator.pop');
-                                        final prefs = await SharedPreferences.getInstance();
+                    final prefs = await SharedPreferences.getInstance();
                     userController.username.value = '';
                     userController.password.value = '';
                     prefs.remove('name');
@@ -73,8 +73,6 @@ class _BulletinsPageState extends State<BulletinsPage>
         setState(() {});
         _submitForm();
       });
-
-      
     });
   }
 
@@ -99,7 +97,7 @@ class _BulletinsPageState extends State<BulletinsPage>
 
   _getlocal_UserData() async {
     // SharedPreferences prefs = await SharedPreferences.getInstance();
-      final userController = Get.find<UserController>();
+    final userController = Get.find<UserController>();
 
     _account = userController.username.value;
     _password = userController.password.value;
@@ -108,32 +106,33 @@ class _BulletinsPageState extends State<BulletinsPage>
 
     return [_account, _password];
   }
+
   late List<Map<String, String>> _responseData = [];
   late bool _isLoading = false; // Flag to indicate if API request is being made
 
-  void _showAlertDialog(String text, String href) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          title: Text(text),
-          content: Html(
-            data: '<a href="$href">查看作業</a>',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  // void _showAlertDialog(String text, String href) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         shape:
+  //             RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+  //         title: Text(text),
+  //         content: Html(
+  //           data: '<a href="$href">查看作業</a>',
+  //         ),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //             child: const Text('OK'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   String extractMonthAndDay(String dateString) {
     List<String> dateParts = dateString.split("-");
@@ -167,8 +166,8 @@ class _BulletinsPageState extends State<BulletinsPage>
       //   'csrf-t': hiddenInput
       // };
 
-      response = await dio.get((
-          '$loginUrl?_fmSubmit=yes&formVer=3.0&formId=login_form&next=/&act=keep&account=$_account&password=$_password&rememberMe=&csrf-t=$hiddenInput'));
+      response = await dio.get(
+          ('$loginUrl?_fmSubmit=yes&formVer=3.0&formId=login_form&next=/&act=keep&account=$_account&password=$_password&rememberMe=&csrf-t=$hiddenInput'));
       if (response.headers['set-cookie'] == null) {
         return [
           {'error': 'Authenticate error(帳號密碼錯誤)'}
@@ -185,8 +184,7 @@ class _BulletinsPageState extends State<BulletinsPage>
           'https://flipclass.stust.edu.tw/dashboard/latestBulletin?&page=';
 
       void gen_bulletin(int bulletinPage) async {
-        response = await dio.get(
-            ('$url${bulletinPage.toString()}'),
+        response = await dio.get(('$url${bulletinPage.toString()}'),
             options: Options(headers: {...headers, 'cookie': cookies}));
         soup = parse(response.data);
 
@@ -220,8 +218,8 @@ class _BulletinsPageState extends State<BulletinsPage>
                 .trim();
 
             ////scrap into detail
-            var detail = await dio
-                .get((src), options: Options(headers: {...headers, 'cookie': cookies}));
+            var detail = await dio.get((src),
+                options: Options(headers: {...headers, 'cookie': cookies}));
             var detailRes = parse(detail.data);
             String? fileName;
             String? fileUrl;
@@ -324,8 +322,7 @@ class _BulletinsPageState extends State<BulletinsPage>
                                 children: [
                                   Text(
                                     data['topic']!,
-                                    style:
-                                        const TextStyle(color: Colors.black),
+                                    style: const TextStyle(color: Colors.black),
                                   ),
                                   const Divider(
                                     thickness: 1.5,
@@ -350,9 +347,8 @@ class _BulletinsPageState extends State<BulletinsPage>
                                               RegExp(
                                             r'(?<=[^/])(?=https?://)',
                                           );
-                                          final Iterable<Match> matches =
-                                              regex.allMatches(
-                                                  data['content']!);
+                                          final Iterable<Match> matches = regex
+                                              .allMatches(data['content']!);
                                           List<InlineSpan> children = [];
                                           for (Match match in matches) {
                                             if (match
@@ -366,9 +362,8 @@ class _BulletinsPageState extends State<BulletinsPage>
                                                     .startsWith('ftp')) {
                                               Iterable<Match>
                                                   separatedUrlMatches =
-                                                  urlSeparatorRegex
-                                                      .allMatches(
-                                                          match.group(0)!);
+                                                  urlSeparatorRegex.allMatches(
+                                                      match.group(0)!);
                                               int previousUrlEnd = 0;
                                               for (Match separatedUrlMatch
                                                   in separatedUrlMatches) {
@@ -394,8 +389,8 @@ class _BulletinsPageState extends State<BulletinsPage>
                                                                   .externalNonBrowserApplication);
                                                         },
                                                 ));
-                                                children.add(const TextSpan(
-                                                    text: '\n'));
+                                                children.add(
+                                                    const TextSpan(text: '\n'));
                                                 previousUrlEnd =
                                                     separatedUrlMatch.start;
                                               }
@@ -405,16 +400,15 @@ class _BulletinsPageState extends State<BulletinsPage>
                                               children.add(TextSpan(
                                                 text: lastUrl,
                                                 style: const TextStyle(
-                                                  decoration: TextDecoration
-                                                      .underline,
+                                                  decoration:
+                                                      TextDecoration.underline,
                                                   color: Colors.blue,
                                                 ),
                                                 recognizer:
                                                     TapGestureRecognizer()
                                                       ..onTap = () async {
                                                         launchUrl(
-                                                            Uri.parse(
-                                                                lastUrl),
+                                                            Uri.parse(lastUrl),
                                                             mode: LaunchMode
                                                                 .externalNonBrowserApplication);
                                                       },
@@ -460,13 +454,12 @@ class _BulletinsPageState extends State<BulletinsPage>
                                 ),
                                 TextButton(
                                   style: ButtonStyle(
-                                    backgroundColor: MaterialStateProperty.resolveWith<Color?>(
+                                    backgroundColor: MaterialStateProperty
+                                        .resolveWith<Color?>(
                                       (states) => Colors.lightGreen,
                                     ),
-
                                   ),
-                                  onPressed: () =>
-                                      Navigator.pop(context, true),
+                                  onPressed: () => Navigator.pop(context, true),
                                   child: const Text('前往課程'),
                                 ),
                               ],
@@ -474,8 +467,7 @@ class _BulletinsPageState extends State<BulletinsPage>
                           );
                           if (confirmed == true) {
                             launchUrl(Uri.parse(data['href']!),
-                                mode:
-                                    LaunchMode.externalNonBrowserApplication);
+                                mode: LaunchMode.externalNonBrowserApplication);
                           }
                         },
                         child: Padding(
@@ -487,12 +479,10 @@ class _BulletinsPageState extends State<BulletinsPage>
                               child: Padding(
                                 padding: const EdgeInsets.all(5),
                                 child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Padding(
-                                      padding:
-                                          const EdgeInsets.only(left: 10),
+                                      padding: const EdgeInsets.only(left: 10),
                                       child: Text(
                                         data['class']!,
                                         style: const TextStyle(

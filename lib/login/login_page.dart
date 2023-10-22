@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_exit_app/flutter_exit_app.dart';
 import 'dart:convert';
 import 'package:html/parser.dart' show parse;
+import 'package:page_transition/page_transition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../main.dart';
 import '../utils/check_connecion.dart';
@@ -24,7 +25,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
-  final usernameController = TextEditingController();
+  var usernameController = TextEditingController();
   final passwordController = TextEditingController();
   bool _isLoading = false;
 
@@ -57,6 +58,10 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
         );
       }
     });
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final prefs = await SharedPreferences.getInstance();
+      usernameController.text = prefs.getString('account') ?? '';
+    });
   }
 
   @override
@@ -85,9 +90,9 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
   late String _password;
   String _name = '';
   Future<dynamic> authenticate(String account, String password) async {
-    if (password == null) {
-      return false;
-    }
+    // if (password == null) {
+    //   return false;
+    // }
 
     try {
       final acc = account;
@@ -469,18 +474,28 @@ class _LoginPageState extends State<LoginPage> with WidgetsBindingObserver {
                                             .then((prefs) {
                                           prefs.setString(
                                               'name', isAuthenticated);
+                                          prefs.setString('account', _account);
                                         });
                                         setState(() {
                                           _isLoading = false;
+                                          if (!mounted) return;
+                                          // Navigator.of(context)
+                                          //     .pushNamedAndRemoveUntil(
+                                          //         '/',
+                                          //         (Route<dynamic> route) =>
+                                          //             false);
+                                          Navigator.pushAndRemoveUntil(
+                                              context,
+                                              PageTransition(
+                                                  duration: const Duration(
+                                                      milliseconds: 500),
+                                                  type: PageTransitionType
+                                                      .leftToRightWithFade,
+                                                  child: const MyHomePage()),
+                                              (Route<dynamic> route) => false);
                                         });
-                                        if (!mounted) return;
-                                        Navigator.of(context)
-                                            .pushNamedAndRemoveUntil(
-                                                '/',
-                                                (Route<dynamic> route) =>
-                                                    false);
-                                        showDialogBox(
-                                            context, '歡迎回來，$isAuthenticated同學');
+
+                                        // );
                                       } catch (e) {}
                                       break;
                                   }

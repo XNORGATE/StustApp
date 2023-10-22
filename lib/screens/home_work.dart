@@ -9,7 +9,9 @@ import 'package:page_transition/page_transition.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:stust_app/constats/constants.dart';
 import 'package:stust_app/screens/Bulletins.dart';
+import 'package:url_launcher/url_launcher.dart';
 // ignore: depend_on_referenced_packages
 import '../main.dart';
 import '../utils/auto_logout.dart';
@@ -135,29 +137,29 @@ class _HomeworkPageState extends State<HomeworkPage>
   late List<Map<String, String>> _responseData = [];
   late bool _isLoading = false; // Flag to indicate if API request is being made
 
-  void _showAlertDialog(String text, String href) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          title: Text(text),
-          content: Html(
-            data: '<a href="$href">查看作業</a>',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  // void _showAlertDialog(BuildContext context,String text, String href) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         shape:
+  //             RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+  //         title: Text(text),
+  //         content: Html(
+  //           data: '<a href="$href">查看作業</a>',
+  //         ),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //             child: const Text('OK'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   String extractMonthAndDay(String dateString) {
     List<String> dateParts = dateString.split("-");
@@ -334,7 +336,7 @@ class _HomeworkPageState extends State<HomeworkPage>
               newData.add({
                 'topic': topic ?? '',
                 'src': src ?? '',
-                'href': 'https://flipclass.stust.edu.tw%24href/',
+                'href': 'https://flipclass.stust.edu.tw$href',
                 'date': date ?? '',
                 'isDone': '',
                 'numberOfSubmissions': '問卷不計',
@@ -362,7 +364,7 @@ class _HomeworkPageState extends State<HomeworkPage>
               newData.add({
                 'topic': topic ?? '',
                 'src': src ?? '',
-                'href': 'https://flipclass.stust.edu.tw%24href/',
+                'href': 'https://flipclass.stust.edu.tw$href',
                 'date': date ?? '',
                 'isDone': '',
                 'numberOfSubmissions': '測驗不計',
@@ -470,300 +472,379 @@ class _HomeworkPageState extends State<HomeworkPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // key: _scaffoldKey,
-      body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              itemCount: _responseData.length,
-              // separatorBuilder: (context, index) => const Divider(
-              //   height: 5,
-              //   indent: 8,
-              //   endIndent: 8,
-              // ),
-              itemBuilder: (context, index) {
-                final data = _responseData[index];
-                // bool isStringTooLong = data['topic']!.length > 13;
-
-                return Slidable(
-                    // Specify a key if the Slidable is dismissible.
-                    key: ValueKey(index),
-                    endActionPane: ActionPane(
-                      motion: const StretchMotion(),
-                      children: [
-                        SlidableAction(
-                          // An action can be bigger than the others.
-                          flex: 2,
-                          onPressed: (_) {
-                            debugPrint('Button del Clicked');
-                          },
-                          backgroundColor: Color.fromARGB(255, 218, 26, 26),
-                          foregroundColor: Colors.white,
-                          icon: Icons.notifications_off,
-                          label: '刪除行事曆提醒',
-                        ),
-                        SlidableAction(
-                          // An action can be bigger than the others.
-                          flex: 2,
-                          onPressed: (_) {
-                            debugPrint('Button Save Clicked');
-                          },
-                          backgroundColor: const Color(0xFF7BC043),
-                          foregroundColor: Colors.white,
-                          icon: Icons.notification_add,
-                          label: '加入行事曆提醒',
-                        ),
-                      ],
-                    ),
-
-                    // The child of the Slidable is what the user sees when the
-                    // component is not dragged.
-                    child: InkWell(
-                      onTap: () {
-                        if (!(data['numberOfSubmissions'] == '問卷' ||
-                            data['numberOfSubmissions'] == '測驗')) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const HomeWorkDetailPage(),
-                              settings: RouteSettings(arguments: {
-                                'topic': data['topic'],
-                                'src': data['src'],
-                                'href': data['href'],
-                                'account': _account,
-                                'password': _password,
-                              }),
+    return HeroControllerScope(
+        controller: HeroController(),
+        child: Hero(
+            tag: 'Flipclass',
+            child: Scaffold(
+              // key: _scaffoldKey,
+              body: _isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      itemCount: _responseData.length,
+                      // separatorBuilder: (context, index) => const Divider(
+                      //   height: 5,
+                      //   indent: 8,
+                      //   endIndent: 8,
+                      // ),
+                      itemBuilder: (context, index) {
+                        final data = _responseData[index];
+                        // bool isStringTooLong = data['topic']!.length > 13;
+                        print(data['numberOfSubmissions']);
+                        return Slidable(
+                            // Specify a key if the Slidable is dismissible.
+                            key: ValueKey(index),
+                            endActionPane: ActionPane(
+                              motion: const StretchMotion(),
+                              children: [
+                                SlidableAction(
+                                  // An action can be bigger than the others.
+                                  flex: 2,
+                                  onPressed: (_) {
+                                    debugPrint('Button del Clicked');
+                                  },
+                                  backgroundColor:
+                                      const Color.fromARGB(255, 218, 26, 26),
+                                  foregroundColor: Colors.white,
+                                  icon: Icons.notifications_off,
+                                  label: '刪除行事曆提醒',
+                                ),
+                                SlidableAction(
+                                  // An action can be bigger than the others.
+                                  flex: 2,
+                                  onPressed: (_) {
+                                    debugPrint('Button Save Clicked');
+                                  },
+                                  backgroundColor: const Color(0xFF7BC043),
+                                  foregroundColor: Colors.white,
+                                  icon: Icons.notification_add,
+                                  label: '加入行事曆提醒',
+                                ),
+                              ],
                             ),
-                          );
-                        }
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 1.5, horizontal: 8),
-                        child: Card(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8)),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 8, horizontal: 8),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      // Text(
-                                      //   extractMonthAndDay(data['date']!),
-                                      //   style: const TextStyle(
-                                      //     fontSize: 18.0,
-                                      //     fontWeight: FontWeight.bold,
-                                      //   ),
-                                      // ),
-                                      // const SizedBox(
-                                      //   width: 20,
-                                      // ),
 
-                                      data['isDone'] == '未繳交' ||
-                                              data['numberOfSubmissions']!
-                                                  .contains('問卷') ||
-                                              data['numberOfSubmissions']!
-                                                  .contains('測驗')
-                                          ? const Icon(
-                                              Icons.assignment,
-                                              size: 18,
-                                              color: Color.fromARGB(
-                                                  255, 243, 29, 29),
-                                            )
-                                          : const Icon(
-                                              Icons.done,
-                                              size: 18,
-                                              color: Color.fromARGB(
-                                                  255, 11, 167, 245),
-                                            ),
-                                      const SizedBox(
-                                        width: 3,
-                                      ),
-                                      Text(
-                                        data['isDone']?.replaceAll("交", "") ??
-                                            "",
-                                        strutStyle: const StrutStyle(
-                                          forceStrutHeight: true,
-                                          leading: 0.5,
-                                        ),
-                                      ),
-
-                                      Container(
-                                        width: 3,
-                                        height: 3,
-                                        margin: const EdgeInsets.all(6),
-                                        decoration: BoxDecoration(
-                                            color: Colors.black,
-                                            borderRadius:
-                                                BorderRadius.circular(99)),
-                                        child: const SizedBox.shrink(),
-                                      ),
-                                      Text(
-                                        data['src']!,
-                                        strutStyle: const StrutStyle(
-                                          forceStrutHeight: true,
-                                          leading: 0.5,
-                                        ),
-                                      )
-                                      // Text(
-                                      //   "${extractMonthAndDay(data['date']!)} 前",
-                                      //   strutStyle: const StrutStyle(
-                                      //     forceStrutHeight: true,
-                                      //     leading: 0.5,
-                                      //   ),
-                                      // ),
-                                      // Container(
-                                      //   width: 3,
-                                      //   height: 3,
-                                      //   margin: const EdgeInsets.all(8),
-                                      //   decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(99)),
-                                      //   child: const SizedBox.shrink(),
-                                      // ),
-                                      // if (data['isDone'] == '未繳交')
-                                      //   Text(
-                                      //     '剩下${data['remain']}',
-                                      //     strutStyle: const StrutStyle(
-                                      //       forceStrutHeight: true,
-                                      //       leading: 0.5,
-                                      //     ),
-                                      //   ),
-                                    ],
-                                  ),
-                                  // Text(
-                                  //   data['src']!,
-                                  //   style: const TextStyle(
-                                  //     fontSize: 15.0,
-                                  //     // fontWeight: FontWeight.bold,
-                                  //   ),
-                                  // ),
-                                  Text(
-                                    data['topic']!,
-                                    style: const TextStyle(
-                                      // overflow: TextOverflow.ellipsis,
-                                      fontSize: 18.0,
-                                      fontWeight: FontWeight.bold,
+                            // The child of the Slidable is what the user sees when the
+                            // component is not dragged.
+                            child: InkWell(
+                              onTap: () async {
+                                if (!(data['numberOfSubmissions'] == '問卷不計' ||
+                                    data['numberOfSubmissions'] == '測驗不計')) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const HomeWorkDetailPage(),
+                                      settings: RouteSettings(arguments: {
+                                        'topic': data['topic'],
+                                        'src': data['src'],
+                                        'href': data['href'],
+                                        'account': _account,
+                                        'password': _password,
+                                      }),
                                     ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  const SizedBox(
-                                    height: 5,
-                                  ),
-                                  Row(
-                                    // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        flex: 3,
-                                        child: Text(
-                                          '期限: ${data['submissionDeadline']}',
-                                          style: const TextStyle(
-                                            color: Colors.grey,
-                                            fontSize: 11.0,
-                                            fontWeight: FontWeight.w400,
+                                  );
+                                } else {
+                                  final confirmed = await showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      scrollable: true,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(15)),
+                                      title: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            data['topic']!,
+                                            style: const TextStyle(
+                                                color: Colors.black),
                                           ),
+                                          const Divider(
+                                            thickness: 1.5,
+                                          )
+                                        ],
+                                      ),
+                                      content: const Center(
+                                        child: Text(
+                                          '此作業為問卷或測驗，請至flipclass作答',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 20),
                                         ),
                                       ),
-                                      Expanded(
-                                        flex: 2,
-                                        child: Text(
-                                          '已交: ${data['numberOfSubmissions']}',
-                                          style: const TextStyle(
-                                            color: Colors.grey,
-                                            fontSize: 13.0,
-                                            fontWeight: FontWeight.w400,
+                                      actions: [
+                                        TextButton(
+                                          // style: const NeumorphicStyle(
+                                          //   color: Color.fromARGB(255, 171, 245, 167),
+                                          //   shape: NeumorphicShape.flat,
+                                          // ),
+                                          onPressed: () =>
+                                              Navigator.pop(context, false),
+                                          child: const Text(
+                                            '退出',
+                                            style:
+                                                TextStyle(color: Colors.black),
                                           ),
                                         ),
-                                      ),
-                                      Expanded(
-                                        flex: 2,
-                                        child: Text(
-                                          '剩餘: ${data['remain']}',
-                                          style: const TextStyle(
-                                            color: Colors.grey,
-                                            fontSize: 13.0,
-                                            fontWeight: FontWeight.w400,
+                                        TextButton(
+                                          style: ButtonStyle(
+                                            backgroundColor:
+                                                MaterialStateProperty
+                                                    .resolveWith<Color?>(
+                                              (states) => const Color.fromARGB(
+                                                  255, 117, 149, 120),
+                                            ),
+                                          ),
+                                          onPressed: () =>
+                                              Navigator.pop(context, true),
+                                          child: const Text(
+                                            '前往作答',
+                                            style:
+                                                TextStyle(color: Colors.black),
                                           ),
                                         ),
+                                      ],
+                                    ),
+                                  );
+                                  if (confirmed == true) {
+                                    launchUrl(Uri.parse(data['href']!),
+                                        mode: LaunchMode
+                                            .externalNonBrowserApplication);
+                                  }
+                                  // _showAlertDialog(context,'此作業為問卷或測驗，請至flipclass作答', data['href']!);
+                                }
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 1.5, horizontal: 8),
+                                child: Card(
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8)),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8, horizontal: 8),
+                                      child: Column(
+                                        children: [
+                                          Row(
+                                            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              // Text(
+                                              //   extractMonthAndDay(data['date']!),
+                                              //   style: const TextStyle(
+                                              //     fontSize: 18.0,
+                                              //     fontWeight: FontWeight.bold,
+                                              //   ),
+                                              // ),
+                                              // const SizedBox(
+                                              //   width: 20,
+                                              // ),
+
+                                              data['isDone'] == '未繳交' ||
+                                                      data['numberOfSubmissions']!
+                                                          .contains('問卷') ||
+                                                      data['numberOfSubmissions']!
+                                                          .contains('測驗')
+                                                  ? const Icon(
+                                                      Icons.assignment,
+                                                      size: 18,
+                                                      color: Color.fromARGB(
+                                                          255, 243, 29, 29),
+                                                    )
+                                                  : const Icon(
+                                                      Icons.done,
+                                                      size: 18,
+                                                      color: Color.fromARGB(
+                                                          255, 11, 167, 245),
+                                                    ),
+                                              const SizedBox(
+                                                width: 3,
+                                              ),
+                                              Text(
+                                                data['isDone']
+                                                        ?.replaceAll("交", "") ??
+                                                    "",
+                                                strutStyle: const StrutStyle(
+                                                  forceStrutHeight: true,
+                                                  leading: 0.5,
+                                                ),
+                                              ),
+
+                                              Container(
+                                                width: 3,
+                                                height: 3,
+                                                margin: const EdgeInsets.all(6),
+                                                decoration: BoxDecoration(
+                                                    color: Colors.black,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            99)),
+                                                child: const SizedBox.shrink(),
+                                              ),
+                                              Text(
+                                                data['src']!,
+                                                strutStyle: const StrutStyle(
+                                                  forceStrutHeight: true,
+                                                  leading: 0.5,
+                                                ),
+                                              )
+                                              // Text(
+                                              //   "${extractMonthAndDay(data['date']!)} 前",
+                                              //   strutStyle: const StrutStyle(
+                                              //     forceStrutHeight: true,
+                                              //     leading: 0.5,
+                                              //   ),
+                                              // ),
+                                              // Container(
+                                              //   width: 3,
+                                              //   height: 3,
+                                              //   margin: const EdgeInsets.all(8),
+                                              //   decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(99)),
+                                              //   child: const SizedBox.shrink(),
+                                              // ),
+                                              // if (data['isDone'] == '未繳交')
+                                              //   Text(
+                                              //     '剩下${data['remain']}',
+                                              //     strutStyle: const StrutStyle(
+                                              //       forceStrutHeight: true,
+                                              //       leading: 0.5,
+                                              //     ),
+                                              //   ),
+                                            ],
+                                          ),
+                                          // Text(
+                                          //   data['src']!,
+                                          //   style: const TextStyle(
+                                          //     fontSize: 15.0,
+                                          //     // fontWeight: FontWeight.bold,
+                                          //   ),
+                                          // ),
+                                          Text(
+                                            data['topic']!,
+                                            style: const TextStyle(
+                                              // overflow: TextOverflow.ellipsis,
+                                              fontSize: 18.0,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                          const SizedBox(
+                                            height: 5,
+                                          ),
+                                          Row(
+                                            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Expanded(
+                                                flex: 3,
+                                                child: Text(
+                                                  '期限: ${data['submissionDeadline']}',
+                                                  style: const TextStyle(
+                                                    color: Colors.grey,
+                                                    fontSize: 11.0,
+                                                    fontWeight: FontWeight.w400,
+                                                  ),
+                                                ),
+                                              ),
+                                              Expanded(
+                                                flex: 2,
+                                                child: Text(
+                                                  '已交: ${data['numberOfSubmissions']}',
+                                                  style: const TextStyle(
+                                                    color: Colors.grey,
+                                                    fontSize: 13.0,
+                                                    fontWeight: FontWeight.w400,
+                                                  ),
+                                                ),
+                                              ),
+                                              Expanded(
+                                                flex: 2,
+                                                child: Text(
+                                                  '剩餘: ${data['remain']}',
+                                                  style: const TextStyle(
+                                                    color: Colors.grey,
+                                                    fontSize: 13.0,
+                                                    fontWeight: FontWeight.w400,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                ],
+                                    )),
                               ),
-                            )),
-                      ),
-                    ));
-              },
-            ),
-      bottomNavigationBar: BottomNavigationBar(
-        selectedFontSize: 12.0,
-        backgroundColor: const Color.fromARGB(255, 117, 149, 120),
-        type: BottomNavigationBarType.shifting,
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.assignment),
-            label: '最新作業',
-            backgroundColor: Color.fromARGB(255, 117, 149, 120),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.format_list_bulleted),
-            label: '最新公告',
-            backgroundColor: Color.fromARGB(255, 117, 149, 120),
-          ),
-        ],
-        onTap: (int index) {
-          switch (index) {
-            case 0:
-              if (ModalRoute.of(context)?.settings.name == '/homework') {
-                return;
-              }
-              // Navigator.of(context).pushReplacementNamed('/homework');
-              // // Navigator.of(context).pushNamedAndRemoveUntil('/homework',ModalRoute.withName('/home'));
-              // // Navigator.pushNamedAndRemoveUntil(
-              // //     context, '/homework', (route) => false);
-              break;
-            case 1:
-              // if (ModalRoute.of(context)?.settings.name == '/bulletins') {
-              //   return;
-              // }
-              // Navigator.of(context).pushNamedAndRemoveUntil('/bulletins',ModalRoute.withName('/home'));
-              Navigator.push(
-                  context,
-                  PageTransition(
-                      type: PageTransitionType.rightToLeftWithFade,
-                      child: const BulletinsPage()));
-              break;
-          }
-        },
-      ),
-      appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 117, 149, 120),
-        automaticallyImplyLeading: false,
-        centerTitle: true,
-        title: const Text('查詢最近作業(flipclass)'),
-        actions: const [
-          // IconButton(
-          //     iconSize: 35,
-          //     padding: const EdgeInsets.only(right: 20),
-          //     onPressed: () async {
-          //       Navigator.pushNamedAndRemoveUntil(
-          //           context, MyHomePage.routeName, (route) => false);
-          //     },
-          //     icon: const Icon(IconData(0xe328, fontFamily: 'MaterialIcons')))
-        ],
-        leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => Navigator.pushNamedAndRemoveUntil(
-                context, '/', (route) => false)),
-      ),
-    );
+                            ));
+                      },
+                    ),
+              bottomNavigationBar: BottomNavigationBar(
+                selectedFontSize: 12.0,
+                backgroundColor: const Color.fromARGB(255, 117, 149, 120),
+                type: BottomNavigationBarType.shifting,
+                showSelectedLabels: true,
+                showUnselectedLabels: true,
+                items: const [
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.assignment),
+                    label: '最新作業',
+                    backgroundColor: Color.fromARGB(255, 117, 149, 120),
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.format_list_bulleted),
+                    label: '最新公告',
+                    backgroundColor: Color.fromARGB(255, 117, 149, 120),
+                  ),
+                ],
+                onTap: (int index) {
+                  switch (index) {
+                    case 0:
+                      if (ModalRoute.of(context)?.settings.name ==
+                          '/homework') {
+                        return;
+                      }
+                      // Navigator.of(context).pushReplacementNamed('/homework');
+                      // // Navigator.of(context).pushNamedAndRemoveUntil('/homework',ModalRoute.withName('/home'));
+                      // // Navigator.pushNamedAndRemoveUntil(
+                      // //     context, '/homework', (route) => false);
+                      break;
+                    case 1:
+                      // if (ModalRoute.of(context)?.settings.name == '/bulletins') {
+                      //   return;
+                      // }
+                      // Navigator.of(context).pushNamedAndRemoveUntil('/bulletins',ModalRoute.withName('/home'));
+                      Navigator.push(
+                          context,
+                          PageTransition(
+                              type: PageTransitionType.rightToLeftWithFade,
+                              child: const BulletinsPage()));
+                      break;
+                  }
+                },
+              ),
+              appBar: AppBar(
+                backgroundColor: const Color.fromARGB(255, 117, 149, 120),
+                automaticallyImplyLeading: false,
+                centerTitle: true,
+                title: const Text('查詢最近作業(flipclass)'),
+                actions: const [
+                  // IconButton(
+                  //     iconSize: 35,
+                  //     padding: const EdgeInsets.only(right: 20),
+                  //     onPressed: () async {
+                  //       Navigator.pushNamedAndRemoveUntil(
+                  //           context, MyHomePage.routeName, (route) => false);
+                  //     },
+                  //     icon: const Icon(IconData(0xe328, fontFamily: 'MaterialIcons')))
+                ],
+                leading: IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () => Navigator.pushNamedAndRemoveUntil(
+                        context, '/', (route) => false)),
+              ),
+            )));
   }
 }

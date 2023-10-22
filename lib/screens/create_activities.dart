@@ -427,10 +427,10 @@ Dio dio =  Dio();
                     size: 30,
                   ))
             ],
-            leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => Navigator.pushNamedAndRemoveUntil(
-                    context, '/', (route) => false)),
+            // leading: IconButton(
+            //     icon: const Icon(Icons.arrow_back),
+            //     onPressed: () => Navigator.pushNamedAndRemoveUntil(
+            //         context, '/', (route) => false)),
           ),
         ));
   }

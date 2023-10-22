@@ -1,4 +1,3 @@
-
 import 'package:dio/dio.dart';
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:flutter/material.dart';
@@ -52,7 +51,10 @@ class Pages {
 }
 
 class _StudentMiscPageState extends State<StudentMiscPage>
-    with SingleTickerProviderStateMixin, AutoLogoutMixin,DioCacheMixin<StudentMiscPage> {
+    with
+        SingleTickerProviderStateMixin,
+        AutoLogoutMixin,
+        DioCacheMixin<StudentMiscPage> {
   late TabController _tabController;
   late String _account = '0'; // Set account and password to 0 by default
   late String _password = '0';
@@ -122,9 +124,10 @@ class _StudentMiscPageState extends State<StudentMiscPage>
     // List<Map<String, String>> absentEvent = [];
     List fullPage = [];
     // var session = http.Client();
-    Dio dio = Dio( )..interceptors.add(
+    Dio dio = Dio()
+      ..interceptors.add(
         DioCacheInterceptor(options: cacheOptions),
-      ) ;
+      );
     final headers = {
       'User-Agent':
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36'
@@ -166,7 +169,9 @@ class _StudentMiscPageState extends State<StudentMiscPage>
       ///go to departmentOfficeData
       var response = await dio.get(
           ('https://portal.stust.edu.tw/StudentPortfolio/Board.aspx'),
-          options: Options(headers: {...headers, 'cookie': cookies},responseType: ResponseType.bytes));
+          options: Options(
+              headers: {...headers, 'cookie': cookies},
+              responseType: ResponseType.bytes));
 
       var responseBodyHex = hex.encode(response.data);
       var departmentOfficeData =
@@ -185,11 +190,10 @@ class _StudentMiscPageState extends State<StudentMiscPage>
 
       ///go to foreignTestData
       response = await dio.get(
-          (
-              'https://portal.stust.edu.tw/StudentPortfolio/Pages/stud_lang_grad/stud_lang_grad.aspx'),
-                    options: Options(headers: {...headers, 'cookie': cookies},responseType: ResponseType.bytes));
-
-
+          ('https://portal.stust.edu.tw/StudentPortfolio/Pages/stud_lang_grad/stud_lang_grad.aspx'),
+          options: Options(
+              headers: {...headers, 'cookie': cookies},
+              responseType: ResponseType.bytes));
 
       responseBodyHex = hex.encode(response.data);
       var foreignTestData =
@@ -197,10 +201,10 @@ class _StudentMiscPageState extends State<StudentMiscPage>
 
       //go to graduateData
       response = await dio.get(
-          (
-              'https://portal.stust.edu.tw/StudentPortfolio/Pages/Manager/Student_Score.aspx?role=S'),
-          options: Options(headers: {...headers, 'cookie': cookies},responseType: ResponseType.bytes));
-
+          ('https://portal.stust.edu.tw/StudentPortfolio/Pages/Manager/Student_Score.aspx?role=S'),
+          options: Options(
+              headers: {...headers, 'cookie': cookies},
+              responseType: ResponseType.bytes));
 
       responseBodyHex = hex.encode(response.data);
       int totalcredit = 0;
@@ -235,8 +239,9 @@ class _StudentMiscPageState extends State<StudentMiscPage>
 
       //
       response = await dio.get(
-         ('https://aura.stust.edu.tw/life/lostthing.aspx'),
-          options: Options(headers: {...headers},responseType: ResponseType.bytes));
+          ('https://aura.stust.edu.tw/life/lostthing.aspx'),
+          options:
+              Options(headers: {...headers}, responseType: ResponseType.bytes));
 
       final newCookies = response.headers['set-cookie']!;
 
@@ -245,7 +250,7 @@ class _StudentMiscPageState extends State<StudentMiscPage>
 
       var lostAndFoundData =
           html_parser.parse(utf8.decode(hex.decode(responseBodyHex)));
-          print('lostAndFoundData${lostAndFoundData.outerHtml}');
+      print('lostAndFoundData${lostAndFoundData.outerHtml}');
       fullPage.add(lostAndFoundData);
       for (int i = 1; i < 5; i++) {
         var hiddenInput = lostAndFoundData
@@ -260,7 +265,9 @@ class _StudentMiscPageState extends State<StudentMiscPage>
         };
         response = await dio.post(
             ('https://aura.stust.edu.tw/life/lostthing.aspx'),
-            options: Options(headers: {...headers, 'cookie': newCookies},responseType: ResponseType.bytes),
+            options: Options(
+                headers: {...headers, 'cookie': newCookies},
+                responseType: ResponseType.bytes),
             data: queryParameters);
         responseBodyHex = hex.encode(response.data);
 
@@ -371,62 +378,68 @@ class _StudentMiscPageState extends State<StudentMiscPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 117, 149, 120),
-        title: const Text('學生其他事項'),
-        bottom: TabBar(
-          controller: _tabController,
-          dividerColor: Colors.white,
-          // isScrollable: true,
-          tabs: const [
-            // Tab(text: '缺曠明細'),
-            Tab(text: '外語檢定紀錄'),
-            Tab(text: '修課學分'),
+    return HeroControllerScope(
+        controller: HeroController(),
+        child: Hero(
+            tag: 'misc',
+            child: Scaffold(
+              appBar: AppBar(
+                centerTitle: true,
+                backgroundColor: const Color.fromARGB(255, 117, 149, 120),
+                title: const Text('學生其他事項'),
+                bottom: TabBar(
+                  controller: _tabController,
+                  dividerColor: Colors.white,
+                  // isScrollable: true,
+                  tabs: const [
+                    // Tab(text: '缺曠明細'),
+                    Tab(text: '外語檢定紀錄'),
+                    Tab(text: '修課學分'),
 
-            // Tab(text: '畢業學分'),
-            Tab(text: '學校各處室'),
-            // Tab(text: '計算社團學分'),
-            Tab(text: '失物招領'),
-          ],
-          onTap: (int index) {
-            // switch (index) {
-            //   case 0:
-            //     _submitpressentScore();
-            //     break;
-            //   case 1:
-            //     _submitpastScore();
-            //     break;
-            //   case 2:
-            //     _submittimeTable();
-            //     break;
-            // }
-          },
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          // Center(child: CircularProgressIndicator()),
-          // Center(child: CircularProgressIndicator()),
-          // Center(child: CircularProgressIndicator())
+                    // Tab(text: '畢業學分'),
+                    Tab(text: '學校各處室'),
+                    // Tab(text: '計算社團學分'),
+                    Tab(text: '失物招領'),
+                  ],
+                  onTap: (int index) {
+                    // switch (index) {
+                    //   case 0:
+                    //     _submitpressentScore();
+                    //     break;
+                    //   case 1:
+                    //     _submitpastScore();
+                    //     break;
+                    //   case 2:
+                    //     _submittimeTable();
+                    //     break;
+                    // }
+                  },
+                ),
+              ),
+              body: TabBarView(
+                controller: _tabController,
+                children: [
+                  // Center(child: CircularProgressIndicator()),
+                  // Center(child: CircularProgressIndicator()),
+                  // Center(child: CircularProgressIndicator())
 
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : _foreignTestData(context),
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(child: _graduateData(context)),
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(child: _departmentOfficeData(context)),
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(child: _lostAndFoundData(context)),
-        ],
-      ),
-    );
+                  _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : _foreignTestData(context),
+                  _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : SingleChildScrollView(child: _graduateData(context)),
+                  _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : SingleChildScrollView(
+                          child: _departmentOfficeData(context)),
+                  _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : SingleChildScrollView(
+                          child: _lostAndFoundData(context)),
+                ],
+              ),
+            )));
   }
 
   // Widget _absentData(BuildContext context) {

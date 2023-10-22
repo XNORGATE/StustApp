@@ -179,7 +179,7 @@ Future<void> main() async {
               final prefs = snapshot.data;
               final showHome = prefs?.getBool('alreadyshowHome') ?? false;
 
-              // final account = prefs?.getString('account');
+              final account = prefs?.getString('account');
               // final password = prefs?.getString('password');
               final name = prefs?.getString('name');
 
@@ -241,12 +241,11 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: '南台通',
       themeMode: ThemeMode.light,
-      theme:  ThemeData(
+      theme: ThemeData(
         primaryColor: const Color.fromARGB(255, 236, 236, 236),
       ),
-      darkTheme:  ThemeData(
+      darkTheme: ThemeData(
         primaryColor: const Color(0xFF3E3E3E),
-
       ),
       home: const MyHomePage(),
       routes: {
@@ -336,6 +335,7 @@ class _MyHomePageState extends State<MyHomePage>
                     userController.username.value = '';
                     userController.password.value = '';
                     prefs.remove('name');
+                    // prefs.remove('account');
                     FlutterExitApp.exitApp();
                   },
                   child: const Text('OK'),
@@ -390,39 +390,43 @@ class _MyHomePageState extends State<MyHomePage>
 
       try {
         getStudentActivitiesList().then((data) {
-           if (mounted) {
-             setState(() {
-            // if (data.isEmpty) {
-            //   _isActivitiesListError = true;
-            // } else {
-            StudentActivitiesList = data;
-            // print(StudentActivitiesList);
-            _isStudentActivitiesLoading = false;
-            // }
-          });
-           }
+          if (mounted) {
+            setState(() {
+              // if (data.isEmpty) {
+              //   _isActivitiesListError = true;
+              // } else {
+              StudentActivitiesList = data;
+              // print(StudentActivitiesList);
+              _isStudentActivitiesLoading = false;
+              // }
+            });
+          }
         });
       } catch (e) {}
       try {
         getFoodList().then((data) {
-          setState(() {
-            StustAppFoodList = data;
-            // print(StustAppFoodList);
-            _isLoading = false;
-          });
+          if (mounted) {
+            setState(() {
+              StustAppFoodList = data;
+              // print(StustAppFoodList);
+              _isLoading = false;
+            });
+          }
         });
       } catch (e) {}
       try {
         getActivitiesList().then((data) {
-          setState(() {
-            // if (data.isEmpty) {
-            //   _isVpsError = true;
-            // } else {
-            StustActivitiesList = data;
-            // print(StustActivitiesList);
-            _isActivitiesLoading = false;
-            // }
-          });
+          if (mounted) {
+            setState(() {
+              // if (data.isEmpty) {
+              //   _isVpsError = true;
+              // } else {
+              StustActivitiesList = data;
+              // print(StustActivitiesList);
+              _isActivitiesLoading = false;
+              // }
+            });
+          }
         });
       } catch (e) {}
     });
@@ -498,7 +502,7 @@ class _MyHomePageState extends State<MyHomePage>
 
     try {
       var response = await dio.get(
-          ('https://docs.google.com/spreadsheets/d/e/2PACX-1vRWoZnufjinYoSp0lQ9KOLuNRpxxMlOp9K2leRL7bNN4I2_wuvx-h7wWQJg4xOK4pTVv85qs3TbvyOG/pubhtml'),
+          ('https://docs.google.com/spreadsheets/d/e/2PACX-1vSKLu71Yyj8tuTZ2V5LyG7VA4hSUaY9LinFXzJzXykO0N1rn2AeQOIiDyqs7l_cpMW3vqiOmAGFx2xJ/pubhtml'),
           options:
               Options(headers: {...headers}, responseType: ResponseType.bytes));
 
@@ -756,20 +760,22 @@ class _MyHomePageState extends State<MyHomePage>
 
   // bool isSwitchedFT = false;
 
-  getSwitchValues() async { 
+  getSwitchValues() async {
     // isSwitchedFT = ()!;
     if (ClassesList.isEmpty) {
       await getClasses();
     }
     // ignore: avoid_function_literals_in_foreach_calls
-  // Create a set to keep track of unique class names
+    // Create a set to keep track of unique class names
 
     // ignore: avoid_function_literals_in_foreach_calls
     ClassesList.forEach((element) async {
       bool notiState = await getSwitchState(element['ClassName']);
       element['notiState'] = notiState;
     });
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   Future<bool> saveSwitchState(String ClassName, bool value) async {
@@ -860,61 +866,64 @@ class _MyHomePageState extends State<MyHomePage>
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: InkWell(
-        onTap: () async {
-          Navigator.push(
-              context,
-              PageTransition(
-                  type: PageTransitionType.leftToRightWithFade,
-                  child: const HomeworkPage()));
-          // await NotificationService().showNotification(
-          //     title: 'Sample title', body: 'It works!');
-          // Navigator.of(context).pushReplacementNamed('/homework');
+          onTap: () async {
+            Navigator.push(
+                context,
+                PageTransition(
+                    duration: const Duration(milliseconds: 750),
+                    type: PageTransitionType.fade,
+                    child: const HomeworkPage()));
+            // await NotificationService().showNotification(
+            //     title: 'Sample title', body: 'It works!');
+            // Navigator.of(context).pushReplacementNamed('/homework');
 
-          // Navigator.push(
-          //     context,
-          //     MaterialPageRoute(
-          //         builder: (context) => const HomeworkPage()));
-        },
-        child: Container(
-          height: MediaQuery.of(context).size.height * .18,
-          width: double.infinity,
-          decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 5, 5, 5),
-              borderRadius: BorderRadius.circular(10)),
-          child: const Stack(
-            alignment: Alignment.bottomLeft,
-            children: [
-              Padding(
-                padding: EdgeInsets.all(6.0),
-                child: Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Flipclass',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontFamily: Bold,
-                            fontSize: 18),
+            // Navigator.push(
+            //     context,
+            //     MaterialPageRoute(
+            //         builder: (context) => const HomeworkPage()));
+          },
+          child: Hero(
+            tag: 'Flipclass',
+            child: Container(
+              height: MediaQuery.of(context).size.height * .18,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 5, 5, 5),
+                  borderRadius: BorderRadius.circular(10)),
+              child: const Stack(
+                alignment: Alignment.bottomLeft,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.all(6.0),
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Flipclass',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontFamily: Bold,
+                                fontSize: 18),
+                          ),
+                          Text('最新公告及最近事件(作業)',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w500,
+                                  height: 1,
+                                  fontFamily: Medium,
+                                  fontSize: 14)),
+                        ],
                       ),
-                      Text('最新公告及最近事件(作業)',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w500,
-                              height: 1,
-                              fontFamily: Medium,
-                              fontSize: 14)),
-                    ],
-                  ),
-                ),
-              )
-            ],
-          ),
-        ),
-      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          )),
     );
   }
 
@@ -926,53 +935,56 @@ class _MyHomePageState extends State<MyHomePage>
           Expanded(
             flex: 1,
             child: InkWell(
-              onTap: () {
-                Navigator.push(
-                    context,
-                    PageTransition(
-                        type: PageTransitionType.leftToRightWithFade,
-                        child: const LeaveRequestPage()));
-              },
-              child: Container(
-                height: MediaQuery.of(context).size.height * .25,
-                decoration: BoxDecoration(
-                    color: const Color(0xfffed271),
-                    borderRadius: BorderRadius.circular(10)),
-                child: const Padding(
-                  padding: EdgeInsets.all(10.0),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      CircleAvatar(
-                        radius: 50,
-                        // backgroundImage:
-                        //     AssetImage('assets/pandamart.jpg'),
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      PageTransition(
+                          duration: const Duration(milliseconds: 750),
+                          type: PageTransitionType.fade,
+                          child: const LeaveRequestPage()));
+                },
+                child: Hero(
+                  tag: 'leave_request',
+                  child: Container(
+                    height: MediaQuery.of(context).size.height * .25,
+                    decoration: BoxDecoration(
+                        color: const Color(0xfffed271),
+                        borderRadius: BorderRadius.circular(10)),
+                    child: const Padding(
+                      padding: EdgeInsets.all(10.0),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          CircleAvatar(
+                            radius: 50,
+                            // backgroundImage:
+                            //     AssetImage('assets/pandamart.jpg'),
+                          ),
+                          Positioned(
+                              bottom: 15,
+                              left: 0,
+                              child: Text(
+                                '請假系統',
+                                style: TextStyle(
+                                    color: blackColor,
+                                    fontFamily: Bold,
+                                    fontSize: 18),
+                              )),
+                          Positioned(
+                              bottom: 0,
+                              left: 0,
+                              child: Text('查詢缺曠及請假',
+                                  style: TextStyle(
+                                      color: blackColor,
+                                      fontWeight: FontWeight.w500,
+                                      height: 1,
+                                      fontFamily: Medium,
+                                      fontSize: 14))),
+                        ],
                       ),
-                      Positioned(
-                          bottom: 15,
-                          left: 0,
-                          child: Text(
-                            '請假系統',
-                            style: TextStyle(
-                                color: blackColor,
-                                fontFamily: Bold,
-                                fontSize: 18),
-                          )),
-                      Positioned(
-                          bottom: 0,
-                          left: 0,
-                          child: Text('查詢缺曠及請假',
-                              style: TextStyle(
-                                  color: blackColor,
-                                  fontWeight: FontWeight.w500,
-                                  height: 1,
-                                  fontFamily: Medium,
-                                  fontSize: 14))),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-            ),
+                )),
           ),
           const SizedBox(
             width: 8,
@@ -982,89 +994,95 @@ class _MyHomePageState extends State<MyHomePage>
             child: Column(
               children: [
                 InkWell(
-                  onTap: () {
-                    // Do something when this widget is tapped
-                    Navigator.push(
-                        context,
-                        PageTransition(
-                            type: PageTransitionType.leftToRightWithFade,
-                            child: const StudentPortfolioPage()));
-                  },
-                  child: Container(
-                    height: MediaQuery.of(context).size.height * .15,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: const Color(0xffef9fc4),
-                      borderRadius: BorderRadius.circular(10),
-                      // image: const DecorationImage(
-                      //     image: AssetImage('assets/food.jpg'))
-                    ),
-                    child: const Padding(
-                      padding: EdgeInsets.all(10.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '課程事項',
-                            style: TextStyle(
-                                color: blackColor,
-                                fontFamily: Bold,
-                                fontSize: 18),
+                    onTap: () {
+                      // Do something when this widget is tapped
+                      Navigator.push(
+                          context,
+                          PageTransition(
+                              duration: const Duration(milliseconds: 750),
+                              type: PageTransitionType.fade,
+                              child: const StudentPortfolioPage()));
+                    },
+                    child: Hero(
+                      tag: 'student_portfolio',
+                      child: Container(
+                        height: MediaQuery.of(context).size.height * .15,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: const Color(0xffef9fc4),
+                          borderRadius: BorderRadius.circular(10),
+                          // image: const DecorationImage(
+                          //     image: AssetImage('assets/food.jpg'))
+                        ),
+                        child: const Padding(
+                          padding: EdgeInsets.all(10.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '課程事項',
+                                style: TextStyle(
+                                    color: blackColor,
+                                    fontFamily: Bold,
+                                    fontSize: 18),
+                              ),
+                              Text('成績與課表',
+                                  style: TextStyle(
+                                      color: blackColor,
+                                      fontWeight: FontWeight.w500,
+                                      height: 1,
+                                      fontFamily: Medium,
+                                      fontSize: 14)),
+                            ],
                           ),
-                          Text('成績與課表',
-                              style: TextStyle(
-                                  color: blackColor,
-                                  fontWeight: FontWeight.w500,
-                                  height: 1,
-                                  fontFamily: Medium,
-                                  fontSize: 14)),
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
-                ),
+                    )),
                 const SizedBox(height: 5),
                 InkWell(
-                  onTap: () {
-                    // Do something when this widget is tapped
-                    Navigator.push(
-                        context,
-                        PageTransition(
-                            type: PageTransitionType.leftToRightWithFade,
-                            child: const StudentMiscPage()));
-                  },
-                  child: Container(
-                    height: MediaQuery.of(context).size.height * .1,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                        color: const Color(0xff85bfff),
-                        borderRadius: BorderRadius.circular(10)),
-                    child: const Padding(
-                      padding: EdgeInsets.all(10.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '學生其他事項',
-                            style: TextStyle(
-                                color: blackColor,
-                                fontFamily: Bold,
-                                fontSize: 18),
+                    onTap: () {
+                      // Do something when this widget is tapped
+                      Navigator.push(
+                          context,
+                          PageTransition(
+                              duration: const Duration(milliseconds: 750),
+                              type: PageTransitionType.fade,
+                              child: const StudentMiscPage()));
+                    },
+                    child: Hero(
+                      tag: 'misc',
+                      child: Container(
+                        height: MediaQuery.of(context).size.height * .1,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                            color: const Color(0xff85bfff),
+                            borderRadius: BorderRadius.circular(10)),
+                        child: const Padding(
+                          padding: EdgeInsets.all(10.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '學生其他事項',
+                                style: TextStyle(
+                                    color: blackColor,
+                                    fontFamily: Bold,
+                                    fontSize: 18),
+                              ),
+                              Text('各式事項',
+                                  style: TextStyle(
+                                      color: blackColor,
+                                      fontWeight: FontWeight.w500,
+                                      height: 1,
+                                      fontFamily: Medium,
+                                      fontSize: 14)),
+                            ],
                           ),
-                          Text('各式事項',
-                              style: TextStyle(
-                                  color: blackColor,
-                                  fontWeight: FontWeight.w500,
-                                  height: 1,
-                                  fontFamily: Medium,
-                                  fontSize: 14)),
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
-                )
+                    ))
               ],
             ),
           ),
@@ -1093,7 +1111,8 @@ class _MyHomePageState extends State<MyHomePage>
                   onPressed: () => Navigator.push(
                       context,
                       PageTransition(
-                          type: PageTransitionType.rightToLeftWithFade,
+                          duration: const Duration(milliseconds: 750),
+                          type: PageTransitionType.fade,
                           child: const CreateActivitiesPage())),
                   icon: const Icon(
                     Icons.playlist_add,
@@ -1329,7 +1348,7 @@ class _MyHomePageState extends State<MyHomePage>
                   DrawerItem(
                     title: '作業排程提醒設置',
                     icon: Icons.notifications,
-                    onTap: () async{
+                    onTap: () async {
                       isGettingSwitch = true;
                       await getSwitchValues();
                       if (!mounted) return;
@@ -1429,14 +1448,14 @@ class _MyHomePageState extends State<MyHomePage>
                                                                 },
                                                                 activeTrackColor:
                                                                     const Color
-                                                                            .fromARGB(
+                                                                        .fromARGB(
                                                                         255,
                                                                         44,
                                                                         130,
                                                                         216),
                                                                 activeColor:
                                                                     const Color
-                                                                            .fromARGB(
+                                                                        .fromARGB(
                                                                         255,
                                                                         16,
                                                                         14,

@@ -43,7 +43,10 @@ class Pages {
 }
 
 class _StudentPortfolioPageState extends State<StudentPortfolioPage>
-    with SingleTickerProviderStateMixin, AutoLogoutMixin,DioCacheMixin<StudentPortfolioPage> {
+    with
+        SingleTickerProviderStateMixin,
+        AutoLogoutMixin,
+        DioCacheMixin<StudentPortfolioPage> {
   late TabController _tabController;
   late String _account = '0'; // Set account and password to 0 by default
   late String _password = '0';
@@ -153,10 +156,9 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
     };
     // print(formData);
 
-    try { 
-      final dio =  
-      Dio( )..interceptors.add(
-        DioCacheInterceptor(options: options));
+    try {
+      final dio = Dio()
+        ..interceptors.add(DioCacheInterceptor(options: options));
       Response resp;
       // try {
       resp = await dio.post(
@@ -205,12 +207,14 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
       // print(resp.data);
       // var dio = DioCache;
       String cookies = resp.headers['set-cookie']!.join(";");
+
       ///go to pressentScore
       // print(resp.statusCode);
       var response = await dio.get(
-        (
-              'https://course.stust.edu.tw/CourSel/Pages/PresentScore.aspx?role=S'),
-          options: Options(headers: {...headers, 'cookie': cookies},responseType: ResponseType.bytes));
+          ('https://course.stust.edu.tw/CourSel/Pages/PresentScore.aspx?role=S'),
+          options: Options(
+              headers: {...headers, 'cookie': cookies},
+              responseType: ResponseType.bytes));
 
       var responseBodyHex = hex.encode(response.data);
       var pressentScoreData =
@@ -219,9 +223,10 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
 
       ///go to pastScore
       response = await dio.get(
-          (
-              'https://course.stust.edu.tw/CourSel/Pages/PastScore.aspx?role=S'),
-          options: Options(headers: {...headers, 'cookie': cookies},responseType: ResponseType.bytes));
+          ('https://course.stust.edu.tw/CourSel/Pages/PastScore.aspx?role=S'),
+          options: Options(
+              headers: {...headers, 'cookie': cookies},
+              responseType: ResponseType.bytes));
 
       responseBodyHex = hex.encode(response.data);
       var pastScoreData =
@@ -229,9 +234,10 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
 
       ///go to timeTable
       response = await dio.get(
-          (
-              'https://course.stust.edu.tw/CourSel/Pages/MyTimeTable.aspx?role=S'),
-          options: Options(headers: {...headers, 'cookie': cookies},responseType: ResponseType.bytes));
+          ('https://course.stust.edu.tw/CourSel/Pages/MyTimeTable.aspx?role=S'),
+          options: Options(
+              headers: {...headers, 'cookie': cookies},
+              responseType: ResponseType.bytes));
 
       responseBodyHex = hex.encode(response.data);
       var timeTableData =
@@ -316,51 +322,55 @@ class _StudentPortfolioPageState extends State<StudentPortfolioPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 117, 149, 120),
-        title: const Text('網路選課系統'),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: '現在成績'),
-            Tab(text: '歷年成績'),
-            Tab(text: '課表'),
-          ],
-          onTap: (int index) {
-            // switch (index) {
-            //   case 0:
-            //     _submitpressentScore();
-            //     break;
-            //   case 1:
-            //     _submitpastScore();
-            //     break;
-            //   case 2:
-            //     _submittimeTable();
-            //     break;
-            // }
-          },
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          // Center(child: CircularProgressIndicator()),
-          // Center(child: CircularProgressIndicator()),
-          // Center(child: CircularProgressIndicator())
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(child: _pressentScore(context)),
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(child: _pastScore(context)),
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(child: _timetable(context)),
-        ],
-      ),
-    );
+    return HeroControllerScope(
+        controller: HeroController(),
+        child: Hero(
+            tag: 'student_portfolio',
+            child: Scaffold(
+              appBar: AppBar(
+                centerTitle: true,
+                backgroundColor: const Color.fromARGB(255, 117, 149, 120),
+                title: const Text('網路選課系統'),
+                bottom: TabBar(
+                  controller: _tabController,
+                  tabs: const [
+                    Tab(text: '現在成績'),
+                    Tab(text: '歷年成績'),
+                    Tab(text: '課表'),
+                  ],
+                  onTap: (int index) {
+                    // switch (index) {
+                    //   case 0:
+                    //     _submitpressentScore();
+                    //     break;
+                    //   case 1:
+                    //     _submitpastScore();
+                    //     break;
+                    //   case 2:
+                    //     _submittimeTable();
+                    //     break;
+                    // }
+                  },
+                ),
+              ),
+              body: TabBarView(
+                controller: _tabController,
+                children: [
+                  // Center(child: CircularProgressIndicator()),
+                  // Center(child: CircularProgressIndicator()),
+                  // Center(child: CircularProgressIndicator())
+                  _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : SingleChildScrollView(child: _pressentScore(context)),
+                  _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : SingleChildScrollView(child: _pastScore(context)),
+                  _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : SingleChildScrollView(child: _timetable(context)),
+                ],
+              ),
+            )));
   }
 
   Widget _pressentScore(BuildContext context) {
