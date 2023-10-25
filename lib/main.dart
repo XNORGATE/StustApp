@@ -871,6 +871,7 @@ class _MyHomePageState extends State<MyHomePage>
                 context,
                 PageTransition(
                     duration: const Duration(milliseconds: 750),
+                    reverseDuration: const Duration(milliseconds: 1000),
                     type: PageTransitionType.fade,
                     child: const HomeworkPage()));
             // await NotificationService().showNotification(
@@ -940,6 +941,7 @@ class _MyHomePageState extends State<MyHomePage>
                       context,
                       PageTransition(
                           duration: const Duration(milliseconds: 750),
+                          reverseDuration: const Duration(milliseconds: 1000),
                           type: PageTransitionType.fade,
                           child: const LeaveRequestPage()));
                 },
@@ -1000,6 +1002,8 @@ class _MyHomePageState extends State<MyHomePage>
                           context,
                           PageTransition(
                               duration: const Duration(milliseconds: 750),
+                              reverseDuration:
+                                  const Duration(milliseconds: 1000),
                               type: PageTransitionType.fade,
                               child: const StudentPortfolioPage()));
                     },
@@ -1047,6 +1051,8 @@ class _MyHomePageState extends State<MyHomePage>
                           context,
                           PageTransition(
                               duration: const Duration(milliseconds: 750),
+                              reverseDuration:
+                                  const Duration(milliseconds: 1000),
                               type: PageTransitionType.fade,
                               child: const StudentMiscPage()));
                     },
@@ -1112,6 +1118,7 @@ class _MyHomePageState extends State<MyHomePage>
                       context,
                       PageTransition(
                           duration: const Duration(milliseconds: 750),
+                          reverseDuration: const Duration(milliseconds: 1000),
                           type: PageTransitionType.fade,
                           child: const CreateActivitiesPage())),
                   icon: const Icon(

@@ -66,7 +66,10 @@ dependencies:
   get: ^4.6.5
   dio_cache_interceptor: any
   chewie: ^1.7.0
-  add_2_calendar: ^2.2.4
+  add_2_calendar:
+    git:
+      url: https://github.com/ja2375/add_2_calendar.git
+      ref: 493d902
   flutter_slidable: ^3.0.0
   # googleapis: any
 

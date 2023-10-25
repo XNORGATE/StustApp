@@ -4,11 +4,12 @@ packages:
   add_2_calendar:
     dependency: "direct main"
     description:
-      name: add_2_calendar
-      sha256: "7153285bb68321a0e0733d4cbc86336a808ac25efcddce74f5194eda6c5a4906"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.2.4"
+      path: "."
+      ref: "493d902"
+      resolved-ref: "493d902e998a397bfd7468cc5874dd38e7d1f067"
+      url: "https://github.com/ja2375/add_2_calendar.git"
+    source: git
+    version: "2.2.5"
   args:
     dependency: transitive
     description:

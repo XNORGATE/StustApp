@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -38,6 +41,8 @@ class _HomeworkPageState extends State<HomeworkPage>
   late String _password = '0';
   late String doneButtonText;
   late String questionnaire;
+  late bool _isLoading = false; // Flag to indicate if API request is being made
+
   // late String submissionDeadline ;
   @override
   void initState() {
@@ -70,21 +75,28 @@ class _HomeworkPageState extends State<HomeworkPage>
           },
         );
       }
-      EZconfigLoading();
-      EasyLoading.init();
+      // EZconfigLoading();
+      // EasyLoading.init();
 
-      EasyLoading.instance.userInteractions = false;
+      // EasyLoading.instance.userInteractions = false;
+    });
+    _isLoading = true;
+    setState(() {});
 
-      // WidgetsBinding.instance.addObserver(this);
-      // List<Map<String, String?>> responseData = [];
-      _getlocal_UserData().then((data) {
-        _account = data[0];
-        _password = data[1];
+    // WidgetsBinding.instance.addObserver(this);
+    // List<Map<String, String?>> responseData = [];
+    _getlocal_UserData().then((data) {
+      _account = data[0];
+      _password = data[1];
 
-        setState(() {});
+      setState(() {});
+    });
+
+    _submitForm().then((value) {
+      Timer(const Duration(seconds: 1), () {
+        _isLoading = false;
       });
-
-      _submitForm();
+      setState(() {});
     });
   }
 
@@ -107,20 +119,20 @@ class _HomeworkPageState extends State<HomeworkPage>
   //   }
   // }
 
-  void EZconfigLoading() {
-    EasyLoading.instance
-      ..displayDuration = const Duration(milliseconds: 1500)
-      ..indicatorType = EasyLoadingIndicatorType.rotatingCircle
-      ..loadingStyle = EasyLoadingStyle.dark
-      ..indicatorSize = 45.0
-      ..radius = 10.0
-      ..progressColor = Colors.yellow
-      ..backgroundColor = Colors.green
-      ..indicatorColor = Colors.yellow
-      ..textColor = Colors.yellow
-      ..maskColor = Colors.blue.withOpacity(0.5)
-      ..userInteractions = true;
-  }
+  // void EZconfigLoading() {
+  //   EasyLoading.instance
+  //     ..displayDuration = const Duration(milliseconds: 1500)
+  //     ..indicatorType = EasyLoadingIndicatorType.rotatingCircle
+  //     ..loadingStyle = EasyLoadingStyle.dark
+  //     ..indicatorSize = 45.0
+  //     ..radius = 10.0
+  //     ..progressColor = Colors.yellow
+  //     ..backgroundColor = Colors.green
+  //     ..indicatorColor = Colors.yellow
+  //     ..textColor = Colors.yellow
+  //     ..maskColor = Colors.blue.withOpacity(0.5)
+  //     ..userInteractions = true;
+  // }
 
   _getlocal_UserData() async {
     // SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -135,7 +147,6 @@ class _HomeworkPageState extends State<HomeworkPage>
   }
 
   late List<Map<String, String>> _responseData = [];
-  late bool _isLoading = false; // Flag to indicate if API request is being made
 
   // void _showAlertDialog(BuildContext context,String text, String href) {
   //   showDialog(
@@ -454,18 +465,17 @@ class _HomeworkPageState extends State<HomeworkPage>
     return homework;
   }
 
-  void _submitForm() async {
-    setState(() {
-      _isLoading = true;
-    });
+  _submitForm() async {
+    // setState(() {
+    //   _isLoading = true;
+    // });
 
     // _cancelToken = false;
     try {
       final responseData = await getHomework();
       setState(() {
         _responseData = responseData;
-        _isLoading = false;
-        EasyLoading.instance.userInteractions = true;
+        // EasyLoading.instance.userInteractions = true;
       });
     } catch (e) {}
   }
@@ -493,35 +503,55 @@ class _HomeworkPageState extends State<HomeworkPage>
                       itemBuilder: (context, index) {
                         final data = _responseData[index];
                         // bool isStringTooLong = data['topic']!.length > 13;
-                        print(data['numberOfSubmissions']);
+                        print('here : ${data['submissionDeadline']!}');
+                        // print(
+                        //     'Date.time Parse ${DateTime.parse(data['submissionDeadline']!)}');
                         return Slidable(
                             // Specify a key if the Slidable is dismissible.
                             key: ValueKey(index),
                             endActionPane: ActionPane(
                               motion: const StretchMotion(),
                               children: [
+                                // SlidableAction(
+                                //   // An action can be bigger than the others.
+                                //   flex: 2,
+                                //   onPressed: (_) {
+                                //     debugPrint('Button del Clicked');
+                                //   },
+                                //   backgroundColor:
+                                //       const Color.fromARGB(255, 218, 26, 26),
+                                //   foregroundColor: Colors.white,
+                                //   icon: Icons.notifications_off,
+                                //   label: '刪除提醒',
+                                // ),
                                 SlidableAction(
                                   // An action can be bigger than the others.
                                   flex: 2,
                                   onPressed: (_) {
-                                    debugPrint('Button del Clicked');
-                                  },
-                                  backgroundColor:
-                                      const Color.fromARGB(255, 218, 26, 26),
-                                  foregroundColor: Colors.white,
-                                  icon: Icons.notifications_off,
-                                  label: '刪除行事曆提醒',
-                                ),
-                                SlidableAction(
-                                  // An action can be bigger than the others.
-                                  flex: 2,
-                                  onPressed: (_) {
-                                    debugPrint('Button Save Clicked');
+                                    final Event event = Event(
+                                      title: 'Event title',
+                                      description: 'Event description',
+                                      location: 'Event location',
+                                      startDate: DateTime.now(),
+                                      endDate: DateTime.parse(
+                                          data['submissionDeadline']!),
+                                      iosParams: const IOSParams(
+                                        reminder: Duration(
+                                            /* Ex. hours:1 */), // on iOS, you can set alarm notification after your event.
+                                        url:
+                                            'https://www.example.com', // on iOS, you can set url to your event.
+                                      ),
+                                      androidParams: const AndroidParams(
+                                        emailInvites: [], // on Android, you can add invite emails to your event.
+                                      ),
+                                    );
+
+                                    Add2Calendar.addEvent2Cal(event);
                                   },
                                   backgroundColor: const Color(0xFF7BC043),
                                   foregroundColor: Colors.white,
                                   icon: Icons.notification_add,
-                                  label: '加入行事曆提醒',
+                                  label: '加入提醒',
                                 ),
                               ],
                             ),
