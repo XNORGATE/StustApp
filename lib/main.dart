@@ -1257,8 +1257,8 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   drawerWidget(BuildContext context) {
-    final width = MediaQuery.of(context).size.width * 1;
-    final height = MediaQuery.of(context).size.height * 1;
+    // final width = MediaQuery.of(context).size.width * 1;
+    // final height = MediaQuery.of(context).size.height * 1;
     bool isGettingSwitch = false;
     return Drawer(
       width: 275,
@@ -1352,181 +1352,181 @@ class _MyHomePageState extends State<MyHomePage>
                     },
                   ),
 
-                  DrawerItem(
-                    title: '作業排程提醒設置',
-                    icon: Icons.notifications,
-                    onTap: () async {
-                      isGettingSwitch = true;
-                      await getSwitchValues();
-                      if (!mounted) return;
-                      showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15)),
-                              title: const Text('作業排程提醒設置'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                  child: const Text('確定'),
-                                ),
-                              ],
-                              content: Padding(
-                                  padding: const EdgeInsets.all(.0),
-                                  child: SizedBox(
-                                    width: width * .8,
-                                    height: height * .8,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        const SizedBox(
-                                          height: 30,
-                                        ),
-                                        (ClassesList != null)
-                                            ? Expanded(
-                                                child: ListView.builder(
-                                                    itemCount:
-                                                        ClassesList.length,
-                                                    itemBuilder:
-                                                        (context, index) {
-                                                      print(ClassesList.length);
-                                                      final data =
-                                                          ClassesList[index];
-                                                      String lessonName =
-                                                          data['ClassName'] ??
-                                                              '';
-                                                      bool notiState =
-                                                          data['notiState'] ??
-                                                              false;
-                                                      StateSetter toSetState;
+                  // DrawerItem(
+                  //   title: '作業排程提醒設置',
+                  //   icon: Icons.notifications,
+                  //   onTap: () async {
+                  //     isGettingSwitch = true;
+                  //     await getSwitchValues();
+                  //     if (!mounted) return;
+                  //     showDialog(
+                  //         context: context,
+                  //         builder: (BuildContext context) {
+                  //           return AlertDialog(
+                  //             shape: RoundedRectangleBorder(
+                  //                 borderRadius: BorderRadius.circular(15)),
+                  //             title: const Text('作業排程提醒設置'),
+                  //             actions: [
+                  //               TextButton(
+                  //                 onPressed: () {
+                  //                   Navigator.of(context).pop();
+                  //                 },
+                  //                 child: const Text('確定'),
+                  //               ),
+                  //             ],
+                  //             content: Padding(
+                  //                 padding: const EdgeInsets.all(.0),
+                  //                 child: SizedBox(
+                  //                   width: width * .8,
+                  //                   height: height * .8,
+                  //                   child: Column(
+                  //                     crossAxisAlignment:
+                  //                         CrossAxisAlignment.center,
+                  //                     children: [
+                  //                       const SizedBox(
+                  //                         height: 30,
+                  //                       ),
+                  //                       (ClassesList != null)
+                  //                           ? Expanded(
+                  //                               child: ListView.builder(
+                  //                                   itemCount:
+                  //                                       ClassesList.length,
+                  //                                   itemBuilder:
+                  //                                       (context, index) {
+                  //                                     print(ClassesList.length);
+                  //                                     final data =
+                  //                                         ClassesList[index];
+                  //                                     String lessonName =
+                  //                                         data['ClassName'] ??
+                  //                                             '';
+                  //                                     bool notiState =
+                  //                                         data['notiState'] ??
+                  //                                             false;
+                  //                                     StateSetter toSetState;
 
-                                                      return StatefulBuilder(
-                                                        builder: (BuildContext
-                                                                context,
-                                                            StateSetter
-                                                                setState) {
-                                                          toSetState = setState;
+                  //                                     return StatefulBuilder(
+                  //                                       builder: (BuildContext
+                  //                                               context,
+                  //                                           StateSetter
+                  //                                               setState) {
+                  //                                         toSetState = setState;
 
-                                                          return Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceBetween,
-                                                            children: [
-                                                              lessonName.length >
-                                                                      14
-                                                                  ? Text(
-                                                                      "${lessonName.substring(0, 12)}...",
-                                                                      style: const TextStyle(
-                                                                          fontSize:
-                                                                              15,
-                                                                          fontWeight:
-                                                                              FontWeight.bold),
-                                                                    )
-                                                                  : Text(
-                                                                      lessonName,
-                                                                      style: const TextStyle(
-                                                                          fontSize:
-                                                                              15,
-                                                                          fontWeight:
-                                                                              FontWeight.bold),
-                                                                    ),
-                                                              Switch(
-                                                                value:
-                                                                    notiState,
-                                                                onChanged: (bool
-                                                                    value) {
-                                                                  notiState =
-                                                                      value;
-                                                                  saveSwitchState(
-                                                                      lessonName,
-                                                                      notiState);
+                  //                                         return Row(
+                  //                                           mainAxisAlignment:
+                  //                                               MainAxisAlignment
+                  //                                                   .spaceBetween,
+                  //                                           children: [
+                  //                                             lessonName.length >
+                  //                                                     14
+                  //                                                 ? Text(
+                  //                                                     "${lessonName.substring(0, 12)}...",
+                  //                                                     style: const TextStyle(
+                  //                                                         fontSize:
+                  //                                                             15,
+                  //                                                         fontWeight:
+                  //                                                             FontWeight.bold),
+                  //                                                   )
+                  //                                                 : Text(
+                  //                                                     lessonName,
+                  //                                                     style: const TextStyle(
+                  //                                                         fontSize:
+                  //                                                             15,
+                  //                                                         fontWeight:
+                  //                                                             FontWeight.bold),
+                  //                                                   ),
+                  //                                             Switch(
+                  //                                               value:
+                  //                                                   notiState,
+                  //                                               onChanged: (bool
+                  //                                                   value) {
+                  //                                                 notiState =
+                  //                                                     value;
+                  //                                                 saveSwitchState(
+                  //                                                     lessonName,
+                  //                                                     notiState);
 
-                                                                  print(
-                                                                      'Saved lesson: $lessonName is on state $notiState');
-                                                                  toSetState(
-                                                                      () {
-                                                                    //switch works
-                                                                  });
-                                                                  // print(isSwitchedFT);
-                                                                },
-                                                                activeTrackColor:
-                                                                    const Color
-                                                                        .fromARGB(
-                                                                        255,
-                                                                        44,
-                                                                        130,
-                                                                        216),
-                                                                activeColor:
-                                                                    const Color
-                                                                        .fromARGB(
-                                                                        255,
-                                                                        16,
-                                                                        14,
-                                                                        16),
-                                                              )
-                                                            ],
-                                                          );
-                                                        },
-                                                      );
-                                                    }))
-                                            : const Center(
-                                                child: Text('獲取課程資料失敗，請稍後再試')),
-                                        // const SizedBox(
-                                        //   height: 30,
-                                        // ),
+                  //                                                 print(
+                  //                                                     'Saved lesson: $lessonName is on state $notiState');
+                  //                                                 toSetState(
+                  //                                                     () {
+                  //                                                   //switch works
+                  //                                                 });
+                  //                                                 // print(isSwitchedFT);
+                  //                                               },
+                  //                                               activeTrackColor:
+                  //                                                   const Color
+                  //                                                       .fromARGB(
+                  //                                                       255,
+                  //                                                       44,
+                  //                                                       130,
+                  //                                                       216),
+                  //                                               activeColor:
+                  //                                                   const Color
+                  //                                                       .fromARGB(
+                  //                                                       255,
+                  //                                                       16,
+                  //                                                       14,
+                  //                                                       16),
+                  //                                             )
+                  //                                           ],
+                  //                                         );
+                  //                                       },
+                  //                                     );
+                  //                                   }))
+                  //                           : const Center(
+                  //                               child: Text('獲取課程資料失敗，請稍後再試')),
+                  //                       // const SizedBox(
+                  //                       //   height: 30,
+                  //                       // ),
 
-                                        // Row(
-                                        //   mainAxisAlignment:
-                                        //       MainAxisAlignment.center,
-                                        //   children: [
-                                        //     SelectorWidget(
-                                        //       labelText: '開啟公告通知',
-                                        //       options: const ['關閉', '開啟'],
-                                        //       onChanged: (value) {
-                                        //         // Handle the value change
-                                        //         if (value == '開啟') {
-                                        //           // _ActivateBulletinsNoti =
-                                        //           // true;
-                                        //         } else {
-                                        //           // _ActivateBulletinsNoti =
-                                        //           //     false;
-                                        //         }
-                                        //       },
-                                        //     ),
-                                        //   ],
-                                        // ),
-                                        // CheckboxListTile(
-                                        //   activeColor: Colors.red,
-                                        //   title: const Text('開啟作業通知'),
-                                        //   value: _ActivateHomeWorkNoti,
-                                        //   onChanged: (value) {
-                                        //     setState(() {
-                                        //       _ActivateHomeWorkNoti = value!;
-                                        //     });
-                                        //   },
-                                        // ),
-                                        // CheckboxListTile(
-                                        //   activeColor: Colors.red,
-                                        //   title: const Text('開啟公告通知'),
-                                        //   value: _ActivateHomeWorkNoti,
-                                        //   onChanged: (value) {
-                                        //     setState(() {
-                                        //       _ActivateBulletinsNoti = value!;
-                                        //       print(_ActivateBulletinsNoti);
-                                        //     });
-                                        //   },
-                                        // ),
-                                      ],
-                                    ),
-                                  )),
-                            );
-                          });
-                    },
-                  ),
+                  //                       // Row(
+                  //                       //   mainAxisAlignment:
+                  //                       //       MainAxisAlignment.center,
+                  //                       //   children: [
+                  //                       //     SelectorWidget(
+                  //                       //       labelText: '開啟公告通知',
+                  //                       //       options: const ['關閉', '開啟'],
+                  //                       //       onChanged: (value) {
+                  //                       //         // Handle the value change
+                  //                       //         if (value == '開啟') {
+                  //                       //           // _ActivateBulletinsNoti =
+                  //                       //           // true;
+                  //                       //         } else {
+                  //                       //           // _ActivateBulletinsNoti =
+                  //                       //           //     false;
+                  //                       //         }
+                  //                       //       },
+                  //                       //     ),
+                  //                       //   ],
+                  //                       // ),
+                  //                       // CheckboxListTile(
+                  //                       //   activeColor: Colors.red,
+                  //                       //   title: const Text('開啟作業通知'),
+                  //                       //   value: _ActivateHomeWorkNoti,
+                  //                       //   onChanged: (value) {
+                  //                       //     setState(() {
+                  //                       //       _ActivateHomeWorkNoti = value!;
+                  //                       //     });
+                  //                       //   },
+                  //                       // ),
+                  //                       // CheckboxListTile(
+                  //                       //   activeColor: Colors.red,
+                  //                       //   title: const Text('開啟公告通知'),
+                  //                       //   value: _ActivateHomeWorkNoti,
+                  //                       //   onChanged: (value) {
+                  //                       //     setState(() {
+                  //                       //       _ActivateBulletinsNoti = value!;
+                  //                       //       print(_ActivateBulletinsNoti);
+                  //                       //     });
+                  //                       //   },
+                  //                       // ),
+                  //                     ],
+                  //                   ),
+                  //                 )),
+                  //           );
+                  //         });
+                  //   },
+                  // ),
 
                   // DrawerItem(
                   //   title: '回報緊急重大bug',

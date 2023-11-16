@@ -220,7 +220,7 @@ class _HomeworkPageState extends State<HomeworkPage>
     }
   }
 
-  String calculateRemainingTimeWithSpace(String dateString) {
+  String subDateToEndDate(String dateString) {
     if (dateString.isEmpty) {
       return 'Invalid input: dateString is null or empty';
     }
@@ -236,23 +236,7 @@ class _HomeworkPageState extends State<HomeworkPage>
         return "Invalid input format";
       }
     }
-
-    try {
-      DateTime targetDate =
-          DateTime.parse(dateString).add(const Duration(seconds: 86399));
-      DateTime now = DateTime.now();
-      Duration difference = targetDate.difference(now);
-
-      if (difference.inSeconds < 0) {
-        return '已過期';
-      } else if (difference.inDays < 1) {
-        return '${difference.inHours}小時';
-      } else {
-        return '${difference.inDays}天';
-      }
-    } catch (e) {
-      return 'Error parsing date: $e';
-    }
+    return dateString;
   }
 
   String extractString(String originalString) {
@@ -340,8 +324,7 @@ class _HomeworkPageState extends State<HomeworkPage>
                     .trim();
               } catch (e) {}
               var remain = calculateRemainingTime(submissionDeadline!);
-              var remainWithSpace =
-                  calculateRemainingTimeWithSpace(submissionDeadline);
+              var remainWithSpace = calculateRemainingTime(submissionDeadline);
               // print(doneButtonText);
 
               newData.add({
@@ -368,8 +351,7 @@ class _HomeworkPageState extends State<HomeworkPage>
                     .trim();
               } catch (e) {}
               var remain = calculateRemainingTime(submissionDeadline!);
-              var remainWithSpace =
-                  calculateRemainingTimeWithSpace(submissionDeadline);
+              var remainWithSpace = calculateRemainingTime(submissionDeadline);
               // print(doneButtonText);
 
               newData.add({
@@ -418,8 +400,7 @@ class _HomeworkPageState extends State<HomeworkPage>
                     .trim();
               } catch (e) {}
               var remain = calculateRemainingTime(submissionDeadline!);
-              var remainWithSpace =
-                  calculateRemainingTimeWithSpace(submissionDeadline);
+              var remainWithSpace = calculateRemainingTime(submissionDeadline);
               // print(doneButtonText);
               if (doneButtonText.contains('檢視')) {
                 isDone = '已繳交';
@@ -503,7 +484,8 @@ class _HomeworkPageState extends State<HomeworkPage>
                       itemBuilder: (context, index) {
                         final data = _responseData[index];
                         // bool isStringTooLong = data['topic']!.length > 13;
-                        print('here : ${data['submissionDeadline']!}');
+                        print(
+                            'here : ${subDateToEndDate(data['submissionDeadline']!)}');
                         // print(
                         //     'Date.time Parse ${DateTime.parse(data['submissionDeadline']!)}');
                         return Slidable(
@@ -529,17 +511,17 @@ class _HomeworkPageState extends State<HomeworkPage>
                                   flex: 2,
                                   onPressed: (_) {
                                     final Event event = Event(
-                                      title: 'Event title',
-                                      description: 'Event description',
-                                      location: 'Event location',
+                                      title: '${data['src']} • ${data['topic']!}',
+                                      description: data['href']!,
+                                      location: 'flipclass',
                                       startDate: DateTime.now(),
                                       endDate: DateTime.parse(
-                                          data['submissionDeadline']!),
-                                      iosParams: const IOSParams(
-                                        reminder: Duration(
+                                          subDateToEndDate(data[
+                                              'submissionDeadline']!)),
+                                      iosParams:  IOSParams(
+                                        reminder: const Duration(
                                             /* Ex. hours:1 */), // on iOS, you can set alarm notification after your event.
-                                        url:
-                                            'https://www.example.com', // on iOS, you can set url to your event.
+                                        url: data['href']!, // on iOS, you can set url to your event.
                                       ),
                                       androidParams: const AndroidParams(
                                         emailInvites: [], // on Android, you can add invite emails to your event.
