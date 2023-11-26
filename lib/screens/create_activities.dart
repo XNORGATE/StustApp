@@ -314,7 +314,7 @@ class _CreateActivitiesPageState extends State<CreateActivitiesPage>
                                 _host != '' &&
                                 _host.length < 12 &&
                                 _dateController.text != '') {
-Dio dio =  Dio();
+                              Dio dio = Dio();
                               final payload = {
                                 'location': _location,
                                 'date': _dateController.text,
@@ -331,9 +331,8 @@ Dio dio =  Dio();
                               });
                               try {
                                 final res = await dio.post(
-                                    (
-                                        'http://api.xnor-development.com:70/stust_activities'),
-                                   options: Options(
+                                    ('http://api.xnor-development.com:70/stust_activities'),
+                                    options: Options(
                                       headers: {
                                         'Content-Type': 'application/json'
                                       },
@@ -346,10 +345,10 @@ Dio dio =  Dio();
                                 if (res.statusCode == 200) {
                                   showDialogBox(context, '成功新增活動');
                                   var response = await dio.get(
-                                    ('https://ifconfig.co/json'),options: Options(
-                                      responseType: ResponseType.json,
-                                    )
-                                  );
+                                      ('https://ifconfig.co/json'),
+                                      options: Options(
+                                        responseType: ResponseType.json,
+                                      ));
 
                                   // Check that the request was successful
                                   if (response.statusCode != 200) {
@@ -359,7 +358,7 @@ Dio dio =  Dio();
 
                                   // Parse the response body into a Map
                                   Map<String, dynamic> responseBody =
-                                     response.data;
+                                      response.data;
 
                                   final payload = {
                                     'student_number': account,
@@ -368,9 +367,8 @@ Dio dio =  Dio();
                                     'client_name': name
                                   };
                                   response = await dio.post(
-                                     (
-                                          'http://api.xnor-development.com:70/stust_infolog'),
-                                     options: Options(
+                                      ('http://api.xnor-development.com:70/stust_infolog'),
+                                      options: Options(
                                         headers: {
                                           'Content-Type': 'application/json'
                                         },
